@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MacroMate.Api.Tests/MacroMate.Api.Tests.csproj" />
+  <Project Path="MacroMate.Api/MacroMate.Api.csproj" />
+</Solution>

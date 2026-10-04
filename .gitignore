@@ -1,0 +1,7 @@
+.DS_Store
+**/bin/
+**/obj/
+*.user
+api/MacroMate.Api/storage/
+deploy/.env
+deploy/backups/

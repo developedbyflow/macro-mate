@@ -1,0 +1,1700 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "MacroMate.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "MacroMate.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/barcode/{code}": {
+      "get": {
+        "tags": [
+          "BarcodeEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BarcodeProduct"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "AuthEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "AuthEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "AuthEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sync": {
+      "get": {
+        "tags": [
+          "SyncEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncPullResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SyncEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncPushRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncPushResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/status": {
+      "get": {
+        "tags": [
+          "MacroMate.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/foods/enrich": {
+      "post": {
+        "tags": [
+          "AiEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodEnrichRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodEnrichResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/recipes/generate": {
+      "post": {
+        "tags": [
+          "AiEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipeGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeDraft"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/photos/{id}": {
+      "put": {
+        "tags": [
+          "PhotoEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "PhotoEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AiStatus": {
+        "required": [
+          "configured"
+        ],
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BarcodeProduct": {
+        "required": [
+          "barcode",
+          "name",
+          "brand",
+          "values"
+        ],
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "brand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "values": {
+            "$ref": "#/components/schemas/NutritionValues"
+          }
+        }
+      },
+      "DayPlan": {
+        "required": [
+          "date",
+          "mealPlanId",
+          "userId",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "mealPlanId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "DraftIngredient": {
+        "required": [
+          "foodId",
+          "grams"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grams": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Food": {
+        "required": [
+          "name",
+          "brand",
+          "barcode",
+          "category",
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG",
+          "fiberG",
+          "sodiumMg",
+          "unitWeightG",
+          "insulinGrade",
+          "weightLossScore",
+          "scoresReason",
+          "estimatedFields",
+          "source",
+          "photoId",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "brand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "barcode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "kcal": {
+            "type": "number",
+            "format": "double"
+          },
+          "proteinG": {
+            "type": "number",
+            "format": "double"
+          },
+          "carbsG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fatG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fiberG": {
+            "type": "number",
+            "format": "double"
+          },
+          "sodiumMg": {
+            "type": "number",
+            "format": "double"
+          },
+          "unitWeightG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "insulinGrade": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weightLossScore": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "scoresReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "estimatedFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "string"
+          },
+          "photoId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "FoodEnrichRequest": {
+        "required": [
+          "name",
+          "brand",
+          "values",
+          "labelImageDataUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "brand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "values": {
+            "$ref": "#/components/schemas/NutritionValues"
+          },
+          "labelImageDataUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "FoodEnrichResponse": {
+        "required": [
+          "name",
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG",
+          "fiberG",
+          "sodiumMg",
+          "estimatedFields",
+          "category",
+          "insulinGrade",
+          "weightLossScore",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kcal": {
+            "type": "number",
+            "format": "double"
+          },
+          "proteinG": {
+            "type": "number",
+            "format": "double"
+          },
+          "carbsG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fatG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fiberG": {
+            "type": "number",
+            "format": "double"
+          },
+          "sodiumMg": {
+            "type": "number",
+            "format": "double"
+          },
+          "estimatedFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "category": {
+            "type": "string"
+          },
+          "insulinGrade": {
+            "type": "string"
+          },
+          "weightLossScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "JournalEntry": {
+        "required": [
+          "date",
+          "mealLabel",
+          "mealItemId",
+          "kind",
+          "variantId",
+          "servings",
+          "foodId",
+          "grams",
+          "name",
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG",
+          "fiberG",
+          "sodiumMg",
+          "userId",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "mealLabel": {
+            "type": "string"
+          },
+          "mealItemId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "servings": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "foodId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "grams": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kcal": {
+            "type": "number",
+            "format": "double"
+          },
+          "proteinG": {
+            "type": "number",
+            "format": "double"
+          },
+          "carbsG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fatG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fiberG": {
+            "type": "number",
+            "format": "double"
+          },
+          "sodiumMg": {
+            "type": "number",
+            "format": "double"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "JsonElement": { },
+      "LoginRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "MacroBudget": {
+        "required": [
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG"
+        ],
+        "type": "object",
+        "properties": {
+          "kcal": {
+            "type": "number",
+            "format": "double"
+          },
+          "proteinG": {
+            "type": "number",
+            "format": "double"
+          },
+          "carbsG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fatG": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Meal": {
+        "required": [
+          "id",
+          "label",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealItem"
+            }
+          }
+        }
+      },
+      "MealItem": {
+        "required": [
+          "id",
+          "kind",
+          "variantId",
+          "servings",
+          "foodId",
+          "grams"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "servings": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "foodId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "grams": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "MealPlan": {
+        "required": [
+          "name",
+          "meals",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Meal"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MeResponse": {
+        "required": [
+          "id",
+          "email",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "MissingIngredient": {
+        "required": [
+          "name",
+          "grams"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "NutritionValues": {
+        "required": [
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG",
+          "fiberG",
+          "sodiumMg"
+        ],
+        "type": "object",
+        "properties": {
+          "kcal": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "proteinG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "carbsG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "fatG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "fiberG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "sodiumMg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "Recipe": {
+        "required": [
+          "name",
+          "instructions",
+          "prepTimeMin",
+          "difficulty",
+          "photoId",
+          "ingredientFoodIds",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          },
+          "prepTimeMin": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "photoId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "ingredientFoodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RecipeDraft": {
+        "required": [
+          "name",
+          "instructions",
+          "prepTimeMin",
+          "difficulty",
+          "servings",
+          "ingredients",
+          "missing"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          },
+          "prepTimeMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "servings": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftIngredient"
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissingIngredient"
+            }
+          }
+        }
+      },
+      "RecipeGenerateRequest": {
+        "required": [
+          "prompt",
+          "maxKcalPerServing",
+          "remaining"
+        ],
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "maxKcalPerServing": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "remaining": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MacroBudget"
+              }
+            ]
+          }
+        }
+      },
+      "RecipeVariant": {
+        "required": [
+          "recipeId",
+          "name",
+          "servings",
+          "ingredients",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "recipeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "servings": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VariantIngredient"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ShoppingList": {
+        "required": [
+          "name",
+          "plans",
+          "checkedKeys",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShoppingListPlan"
+            }
+          },
+          "checkedKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ShoppingListPlan": {
+        "required": [
+          "mealPlanId",
+          "days"
+        ],
+        "type": "object",
+        "properties": {
+          "mealPlanId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "days": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SyncChange": {
+        "required": [
+          "table",
+          "op",
+          "id",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "op": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          }
+        }
+      },
+      "SyncPullResponse": {
+        "required": [
+          "cursor",
+          "users",
+          "foods",
+          "recipes",
+          "recipeVariants",
+          "mealPlans",
+          "shoppingLists",
+          "dayPlans",
+          "journalEntries",
+          "userProfiles"
+        ],
+        "type": "object",
+        "properties": {
+          "cursor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncUser"
+            }
+          },
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Food"
+            }
+          },
+          "recipes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recipe"
+            }
+          },
+          "recipeVariants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecipeVariant"
+            }
+          },
+          "mealPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealPlan"
+            }
+          },
+          "shoppingLists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShoppingList"
+            }
+          },
+          "dayPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayPlan"
+            }
+          },
+          "journalEntries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JournalEntry"
+            }
+          },
+          "userProfiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserProfile"
+            }
+          }
+        }
+      },
+      "SyncPushRequest": {
+        "required": [
+          "changes"
+        ],
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncChange"
+            }
+          }
+        }
+      },
+      "SyncPushResponse": {
+        "required": [
+          "version",
+          "rejected"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncRejected"
+            }
+          }
+        }
+      },
+      "SyncRejected": {
+        "required": [
+          "table",
+          "id",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "SyncUser": {
+        "required": [
+          "id",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "UserProfile": {
+        "required": [
+          "sex",
+          "birthYear",
+          "heightCm",
+          "weightKg",
+          "activityLevel",
+          "goal",
+          "targetKcal",
+          "targetProteinG",
+          "targetCarbsG",
+          "targetFatG",
+          "targetFiberG",
+          "targetSodiumMg",
+          "favoriteFoodIds",
+          "favoriteRecipeIds",
+          "excludedFoodIds",
+          "excludedCategories",
+          "excludedRecipeIds",
+          "likedFoodIds",
+          "userId",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "sex": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "birthYear": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "heightCm": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "weightKg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "activityLevel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "goal": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetKcal": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "targetProteinG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "targetCarbsG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "targetFatG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "targetFiberG": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "targetSodiumMg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "favoriteFoodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "favoriteRecipeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "excludedFoodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "excludedCategories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excludedRecipeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "likedFoodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "VariantIngredient": {
+        "required": [
+          "foodId",
+          "grams"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grams": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "MacroMate.Api"
+    },
+    {
+      "name": "BarcodeEndpoints"
+    },
+    {
+      "name": "AuthEndpoints"
+    },
+    {
+      "name": "SyncEndpoints"
+    },
+    {
+      "name": "AiEndpoints"
+    },
+    {
+      "name": "PhotoEndpoints"
+    }
+  ]
+}
