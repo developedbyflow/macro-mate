@@ -21,7 +21,7 @@ flowchart LR
   J --> RE
 ```
 
-- **Aliment**: valori la 100 g, notă glicemică A–C și notă de slăbit A–C.
+- **Aliment**: valori la 100 g și trei note A–C: glicemic (de la DeepSeek), proteină și volum (calculate din valori).
 - **Rețetă main**: lista de ingrediente și modul de preparare, fără cantități.
 - **Variantă**: aceeași rețetă cu gramaje (ex. „600 kcal”, „700 kcal”). Valorile se arată pe o porție.
 - **Masă**: variante de rețete și alimente simple. Ex.: „Breakfast” = omletă, 1 porție + 1 banană.
@@ -136,7 +136,7 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - Cercul cu calorii și cardul de sub el duc la **Progres**.
    - Fără reclame și fără duplicate: baza e doar a voastră, fiecare aliment apare o singură dată.
 2. **Alimente**
-   - Listă cu căutare și filtre: categorie, notă glicemică, notă de slăbit, favorite.
+   - Listă cu căutare și filtre: categorie, notă glicemică, de proteină și de volum, favorite.
    - Fișa alimentului arată valorile (la 100 g, pe o bucată sau la orice gramaj), notele, motivul notelor și cine l-a adăugat.
    - Un aliment nou se adaugă scanând codul, cu o poză la etichetă sau manual (§6).
 3. **Rețete**
@@ -180,7 +180,7 @@ flowchart TD
 ```
 
 - Ce citește DeepSeek din poza etichetei e exact. Ce completează doar după nume e marcat „estimat”.
-- La fiecare aliment, DeepSeek întoarce: valorile care lipsesc, categoria, `glycemic_grade`, `weight_loss_grade` și un motiv de o propoziție.
+- La fiecare aliment, DeepSeek întoarce: valorile care lipsesc, categoria, `glycemic_grade` și un motiv de o propoziție.
 - Fără internet, alimentul se salvează cu ce ai completat tu. Notele vin când revine internetul.
 
 **Criteriile date AI-ului**, ca notele să fie la fel de la un aliment la altul:
@@ -189,10 +189,17 @@ flowchart TD
   - **B**: 11–19.
   - **C**: 20 sau mai mult.
   - Excepții: laptele și proteina din zer primesc cel puțin B, pentru că urcă insulina mai mult decât arată indicele glicemic. Zahărul, mierea și siropurile primesc C indiferent de porție; alte dulciuri și sosurile cu zahăr adăugat primesc cel puțin B.
-- **Slăbit**: criteriul principal e câte kcal are la 100 g (puține kcal la volum mare = bine). Proteinele și fibrele împing nota spre A, zahărul și grăsimea multă spre C.
-  - **A**: bun pentru slăbit (legume, fructe, carne și pește slabe, lactate degresate).
-  - **B**: la mijloc.
-  - **C**: multe calorii la puțin volum (uleiuri, nuci, brânzeturi grase, dulciuri, făinoase albe).
+
+**Notele calculate din valori**, fără AI, deci ies mereu la fel și apar și offline:
+- **Proteină**, pentru dietele high protein. Contează partea din calorii care vine din proteină (proteine × 4 / kcal), plus un minim de grame, ca legumele să nu iasă A doar pentru că au foarte puține calorii.
+  - **A**: cel puțin 30% din calorii și cel puțin 8 g la 100 g (pui, ton, albuș, iaurt grecesc, whey, ou).
+  - **B**: cel puțin 15% din calorii și cel puțin 5 g la 100 g (linte, năut, brânzeturi).
+  - **C**: restul (pâine, orez, nuci, dulciuri, legume).
+- **Volum**: câte calorii are la 100 g. Puține calorii înseamnă porții mari care satură.
+  - **A**: până la 150 kcal (legume, fructe, carne slabă, lactate degresate).
+  - **B**: 151–400 kcal.
+  - **C**: peste 400 kcal (nuci, uleiuri, dulciuri).
+  - Cerealele și pastele sunt în bază crude, deci ies B, deși fierte ar avea volum A.
 
 **Categorii** (listă fixă, AI-ul alege una dintre ele): legume, legume cu amidon, fructe, fructe de pădure, carne albă, carne roșie, mezeluri, pește și fructe de mare, ouă, lactate, brânzeturi, cereale și paste, pâine și panificație, leguminoase, nuci și semințe, uleiuri și grăsimi, sosuri și condimente, dulciuri, băuturi.
 
@@ -206,7 +213,7 @@ flowchart TD
 
 **Notele unei variante**
 - Nota glicemică = media notelor ingredientelor (A=1, B=2, C=3), ponderată după carbohidrații pe care îi aduce fiecare ingredient, apoi rotunjită. Dacă rețeta aproape nu are carbohidrați, nota e A.
-- Nota de slăbit = media notelor ingredientelor (A=1, B=2, C=3), ponderată după kcal, apoi rotunjită. Uleiul contează după caloriile pe care le aduce, nu după cele câteva grame.
+- Nota de proteină și nota de volum se calculează din totalurile variantei (kcal, proteine, grame), cu aceleași praguri ca la un aliment. Uleiul nu aduce proteină, dar aduce calorii, deci coboară amândouă notele.
 
 **Alternativele unui ingredient**
 - Se caută în aceeași categorie, fără alimentele excluse de tine.
@@ -257,9 +264,11 @@ Construit pe 2026-10-04, toți cei 7 pași:
 6. **Cumpărături**.
 7. **Excluderi** și **Generează rețetă**.
 
-Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele glicemice și de slăbit A–C, ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri și valorile pe porție.
+Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele A–C (glicemic de la DeepSeek, proteină și volum calculate din valori), ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri și valorile pe porție.
 
 Ce mai e de făcut:
 - **Deploy-ul pe VPS**: îl faci tu, după `docs/ghid/09-deploy.md`.
 - **Cheia DeepSeek**: până o pui, butoanele de AI arată „cheia nu e setată”.
-- **Gospodăriile și înregistrarea din aplicație**, după deploy: acum toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora înainte de asta.
+- **Bucătăria, cămara și partajarea**, după deploy: specificația e în [bucataria.md](bucataria.md). Până atunci toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora.
+- **Obiectivele**: greutatea țintă și ritmul, din care se calculează ținta de calorii.
+- **Densitatea nutrițională**: scorul NRF 9.3 din datele USDA, pentru alimentele generice.

@@ -465,7 +465,6 @@ export interface components {
             /** Format: double */
             unitWeightG: null | number;
             glycemicGrade: null | string;
-            weightLossGrade: null | string;
             gradesReason: null | string;
             estimatedFields: string[];
             source: string;
@@ -507,7 +506,6 @@ export interface components {
             estimatedFields: string[];
             category: string;
             glycemicGrade: string;
-            weightLossGrade: string;
             reason: string;
         };
         JournalEntry: {

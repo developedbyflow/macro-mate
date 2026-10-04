@@ -1,4 +1,5 @@
-import { Droplet, Weight } from 'lucide-react'
+import { Droplet, Dumbbell, Salad } from 'lucide-react'
+import type { Grades } from '@/lib/nutrition'
 import { cn } from '@/lib/utils'
 
 const gradeTone = {
@@ -9,7 +10,8 @@ const gradeTone = {
 
 const grades = {
   glycemic: { icon: Droplet, label: 'Impact glicemic', meaning: { A: 'mic', B: 'mediu', C: 'mare' } },
-  weightLoss: { icon: Weight, label: 'Slăbit', meaning: { A: 'bun', B: 'mediu', C: 'slab' } },
+  protein: { icon: Dumbbell, label: 'Proteină', meaning: { A: 'multă, pe calorie', B: 'medie', C: 'puțină' } },
+  volume: { icon: Salad, label: 'Volum', meaning: { A: 'puține calorii la 100 g', B: 'mediu', C: 'multe calorii la 100 g' } },
 } as const
 
 function GradeBadge({ kind, grade, className }: { kind: keyof typeof grades; grade: string | null | undefined; className?: string }) {
@@ -31,8 +33,23 @@ export function GlycemicBadge(props: { grade: string | null | undefined; classNa
   return <GradeBadge kind="glycemic" {...props} />
 }
 
-export function WeightLossBadge(props: { grade: string | null | undefined; className?: string }) {
-  return <GradeBadge kind="weightLoss" {...props} />
+export function ProteinBadge(props: { grade: string | null | undefined; className?: string }) {
+  return <GradeBadge kind="protein" {...props} />
+}
+
+export function VolumeBadge(props: { grade: string | null | undefined; className?: string }) {
+  return <GradeBadge kind="volume" {...props} />
+}
+
+export function GradeBadges({ grades }: { grades: Grades | null }) {
+  if (!grades) return null
+  return (
+    <>
+      <GlycemicBadge grade={grades.glycemic} />
+      <ProteinBadge grade={grades.protein} />
+      <VolumeBadge grade={grades.volume} />
+    </>
+  )
 }
 
 export function EstimatedBadge() {

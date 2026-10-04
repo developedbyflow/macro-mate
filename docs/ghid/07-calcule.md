@@ -27,20 +27,19 @@ Funcția întreagă e `variantTotals` din `nutrition.ts`.
 
 ## Notele unei variante
 
-### Nota de slăbit: media ponderată după calorii
+### Proteina și volumul: din totalurile variantei
 
-Fiecare ingredient contează cât caloriile pe care le aduce. A = 1, B = 2, C = 3:
+Se calculează la fel ca la un aliment, dar din totalurile rețetei. Proteina: ce parte din calorii vine din proteină (fiecare gram are 4 kcal). Volumul: câte calorii are la 100 g.
 
-| Ingredient | kcal | Notă | kcal × notă |
-|---|---|---|---|
-| Ou | 238,8 | A (1) | 238,8 |
-| Spanac | 23 | A (1) | 23 |
-| Ulei | 88,4 | C (3) | 265,2 |
-| **Total** | **350,2** | | **527** |
+| | Cu 10 g ulei | Fără ulei |
+|---|---|---|
+| kcal | 350,2 | 261,8 |
+| grame | 277 | 267 |
+| proteine | 24 g | 23,9 g |
+| % din calorii din proteină | 96 / 350,2 = 27% → **B** | 95,6 / 261,8 = 37% → **A** |
+| kcal la 100 g | 126 → **A** | 98 → **A** |
 
-Media: 527 / 350,2 = 1,50. Sub 1,5 dă A, sub 2,5 dă B, altfel C, deci varianta are **B**. Fără ulei ar avea A.
-
-**De ce după calorii și nu după grame.** După grame, cele 10 g de ulei ar conta aproape deloc (10 din 277). Dar uleiul aduce un sfert din calorii. Întrebarea e „cât de bune sunt caloriile din farfurie”, deci fiecare ingredient contează după caloriile lui.
+Uleiul nu adaugă proteină, dar adaugă un sfert din calorii, deci partea proteinei scade sub 30%. Codul e în `proteinGrade`, `volumeGrade` și `variantGrades` din `nutrition.ts`.
 
 ### Nota glicemică: media ponderată după carbohidrați
 

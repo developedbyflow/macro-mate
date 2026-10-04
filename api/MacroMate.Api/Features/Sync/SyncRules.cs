@@ -20,7 +20,6 @@ public static class SyncRules
         if (!InRange(f.SodiumMg, 0, 40000)) return "invalid-sodium";
         if (f.UnitWeightG is { } unit && !InRange(unit, 0.1, 5000)) return "invalid-unit-weight";
         if (f.GlycemicGrade is { } glycemic && !Grades.Contains(glycemic)) return "invalid-glycemic-grade";
-        if (f.WeightLossGrade is { } weightLoss && !Grades.Contains(weightLoss)) return "invalid-weight-loss-grade";
         return null;
     }
 

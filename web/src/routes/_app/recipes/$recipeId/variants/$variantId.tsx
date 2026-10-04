@@ -3,7 +3,7 @@ import { ArrowLeftRight, Copy, Plus, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import type { RecipeVariant, VariantIngredient } from '@/api/types'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GradeBadges } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { ItemPicker } from '@/components/app/item-picker'
 import { MacroLine, NutrientTable } from '@/components/app/nutrients'
@@ -18,7 +18,7 @@ import { useExclusions, useFoods, useFoodsById, useRecipe, useVariant } from '@/
 import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
 import { kcal } from '@/lib/format'
-import { alternativesFor, forGrams, variantScores, variantTotals } from '@/lib/nutrition'
+import { alternativesFor, foodGrades, forGrams, variantGrades, variantTotals } from '@/lib/nutrition'
 
 export const Route = createFileRoute('/_app/recipes/$recipeId/variants/$variantId')({
   validateSearch: (search: Record<string, unknown>): { from?: string } => ({
@@ -62,7 +62,7 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
 
   const asVariant = { ...draft, id: variantId ?? 'draft', recipeId } as RecipeVariant
   const totals = variantTotals(asVariant, foods)
-  const scores = variantScores(asVariant, foods)
+  const scores = variantGrades(asVariant, foods)
   const suggestedName = `${Math.round(totals.perServing.kcal / 10) * 10} kcal`
 
   function update(next: Partial<Draft>) {
@@ -106,8 +106,7 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Pe o porție</span>
               <span className="flex gap-1">
-                <GlycemicBadge grade={scores.glycemicGrade} />
-                <WeightLossBadge grade={scores.weightLossGrade} />
+                <GradeBadges grades={scores} />
               </span>
             </div>
             <MacroLine n={totals.perServing} className="text-sm" />
@@ -225,8 +224,7 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
                   </div>
                   <MacroLine n={forGrams(food, grams)} />
                 </div>
-                <GlycemicBadge grade={food.glycemicGrade} />
-                <WeightLossBadge grade={food.weightLossGrade} />
+                <GradeBadges grades={foodGrades(food)} />
               </button>
             ))}
             {alternatives.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nu am găsit alimente similare în aceeași categorie.</p>}

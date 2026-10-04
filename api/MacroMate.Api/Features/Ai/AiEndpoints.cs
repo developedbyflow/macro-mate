@@ -20,7 +20,6 @@ public sealed record FoodEnrichResponse(
     List<string> EstimatedFields,
     string Category,
     string GlycemicGrade,
-    string WeightLossGrade,
     string Reason);
 
 public sealed record AiStatus(bool Configured);
@@ -63,7 +62,6 @@ public static class AiEndpoints
         List<string>? FromLabel,
         string? Category,
         string? GlycemicGrade,
-        string? WeightLossGrade,
         string? Reason);
 
     static async Task<IResult> EnrichFood(FoodEnrichRequest request, DeepSeekClient ai, CancellationToken ct)
@@ -108,7 +106,6 @@ public static class AiEndpoints
                 EstimatedFields: estimated,
                 Category: answer.Category is { } c && FoodCategories.IsValid(c) ? c : "",
                 GlycemicGrade: Grade(answer.GlycemicGrade),
-                WeightLossGrade: Grade(answer.WeightLossGrade),
                 Reason: answer.Reason?.Trim() ?? "");
 
             return Results.Ok(response);

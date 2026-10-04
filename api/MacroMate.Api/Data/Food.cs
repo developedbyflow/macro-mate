@@ -14,7 +14,6 @@ public class Food : SharedEntity
     public double SodiumMg { get; set; }
     public double? UnitWeightG { get; set; }
     public string? GlycemicGrade { get; set; }
-    public string? WeightLossGrade { get; set; }
     public string? GradesReason { get; set; }
     public List<string> EstimatedFields { get; set; } = [];
     public string Source { get; set; } = "manual";

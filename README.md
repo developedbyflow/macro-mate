@@ -1,6 +1,6 @@
 # MacroMate
 
-PWA de nutriție: alimente cu note pentru glicemie și slăbit, rețete cu variante, meal plan-uri pe o zi, jurnal de calorii, listă de cumpărături și generare de rețete cu AI. Merge pe telefon, offline, cu camera.
+PWA de nutriție: alimente cu note pentru glicemie, proteină și volum, rețete cu variante, meal plan-uri pe o zi, jurnal de calorii, listă de cumpărături și generare de rețete cu AI. Merge pe telefon, offline, cu camera.
 
 - Ce face și de ce: [docs/spec.md](docs/spec.md)
 - Cum funcționează pe dinăuntru, pas cu pas: [docs/ghid/](docs/ghid/README.md)

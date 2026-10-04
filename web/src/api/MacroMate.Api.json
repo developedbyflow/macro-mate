@@ -411,7 +411,6 @@
           "sodiumMg",
           "unitWeightG",
           "glycemicGrade",
-          "weightLossGrade",
           "gradesReason",
           "estimatedFields",
           "source",
@@ -475,12 +474,6 @@
             "format": "double"
           },
           "glycemicGrade": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "weightLossGrade": {
             "type": [
               "null",
               "string"
@@ -581,7 +574,6 @@
           "estimatedFields",
           "category",
           "glycemicGrade",
-          "weightLossGrade",
           "reason"
         ],
         "type": "object",
@@ -623,9 +615,6 @@
             "type": "string"
           },
           "glycemicGrade": {
-            "type": "string"
-          },
-          "weightLossGrade": {
             "type": "string"
           },
           "reason": {

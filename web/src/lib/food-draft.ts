@@ -20,7 +20,6 @@ export type FoodDraft = {
   values: Record<NutrientKey, string>
   unitWeightG: string
   glycemicGrade: string | null
-  weightLossGrade: string | null
   gradesReason: string | null
   estimatedFields: string[]
   source: string
@@ -36,7 +35,6 @@ export function emptyDraft(): FoodDraft {
     values: { kcal: '', proteinG: '', carbsG: '', fatG: '', fiberG: '', sodiumMg: '' },
     unitWeightG: '',
     glycemicGrade: null,
-    weightLossGrade: null,
     gradesReason: null,
     estimatedFields: [],
     source: 'manual',
@@ -53,7 +51,6 @@ export function draftFromFood(food: Food): FoodDraft {
     values: Object.fromEntries(nutrientFields.map((f) => [f.key, String(food[f.key])])) as Record<NutrientKey, string>,
     unitWeightG: food.unitWeightG ? String(food.unitWeightG) : '',
     glycemicGrade: food.glycemicGrade,
-    weightLossGrade: food.weightLossGrade,
     gradesReason: food.gradesReason,
     estimatedFields: food.estimatedFields,
     source: food.source,
@@ -84,7 +81,6 @@ export async function enrichDraft(draft: FoodDraft, labelImageDataUrl?: string):
     category: draft.category || result.category,
     values: Object.fromEntries(nutrientFields.map((f) => [f.key, String(result[f.key])])) as Record<NutrientKey, string>,
     glycemicGrade: result.glycemicGrade,
-    weightLossGrade: result.weightLossGrade,
     gradesReason: result.reason,
     estimatedFields: [...new Set([...draft.estimatedFields.filter((k) => values[k as NutrientKey] == null), ...result.estimatedFields])],
     source: labelImageDataUrl ? 'label_photo' : draft.source,
@@ -106,7 +102,6 @@ export function foodFromDraft(draft: FoodDraft) {
     sodiumMg: values.sodiumMg ?? 0,
     unitWeightG: parseNumber(draft.unitWeightG),
     glycemicGrade: draft.glycemicGrade,
-    weightLossGrade: draft.weightLossGrade,
     gradesReason: draft.gradesReason,
     estimatedFields: draft.estimatedFields,
     source: draft.source,

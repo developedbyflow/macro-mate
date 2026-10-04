@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label'
 import { useAiStatus } from '@/hooks/use-ai-status'
 import { draftValues, enrichDraft, nutrientFields, type FoodDraft, type NutrientKey } from '@/lib/food-draft'
 import { categories, categoryCodes } from '@/lib/categories'
+import { proteinGrade, volumeGrade } from '@/lib/nutrition'
 import { cn } from '@/lib/utils'
-import { EstimatedBadge, GlycemicBadge, WeightLossBadge } from './badges'
+import { EstimatedBadge, GlycemicBadge, ProteinBadge, VolumeBadge } from './badges'
 import { NativeSelect } from './native-select'
 import { PhotoInput } from './photo'
 
@@ -56,6 +57,14 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
   }
 
   const missingCount = nutrientFields.filter((f) => !draft.values[f.key].trim()).length
+  const values = draftValues(draft)
+  const computed =
+    values.kcal != null && values.proteinG != null
+      ? (() => {
+          const n = { kcal: values.kcal, proteinG: values.proteinG, carbsG: 0, fatG: 0, fiberG: 0, sodiumMg: 0 }
+          return { protein: proteinGrade(n), volume: volumeGrade(n) }
+        })()
+      : null
   const aiHint = !ai.online ? 'Ai nevoie de internet pentru AI.' : !ai.configured ? 'Cheia DeepSeek nu e setată pe server.' : null
 
   return (
@@ -134,37 +143,36 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
       <div className="space-y-5 lg:col-start-1 lg:row-start-2">
         <section className="space-y-3 rounded-xl border bg-card p-4">
           <h2 className="font-semibold">Note</h2>
-          {draft.glycemicGrade || draft.weightLossGrade ? (
-            <>
+          {computed && (
+            <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5">
-                  Glicemic <GlycemicBadge grade={draft.glycemicGrade} />
+                  Proteină <ProteinBadge grade={computed.protein} />
                 </span>
                 <span className="flex items-center gap-1.5">
-                  Slăbit <WeightLossBadge grade={draft.weightLossGrade} />
+                  Volum <VolumeBadge grade={computed.volume} />
                 </span>
               </div>
-              {draft.gradesReason && <p className="text-sm text-muted-foreground">{draft.gradesReason}</p>}
-              <div className="grid grid-cols-2 gap-3">
-                <NativeSelect aria-label="Nota pentru glicemie" value={draft.glycemicGrade ?? ''} onChange={(e) => set('glycemicGrade', e.target.value || null)}>
-                  {['A', 'B', 'C'].map((g) => (
-                    <option key={g} value={g}>
-                      Glicemic {g}
-                    </option>
-                  ))}
-                </NativeSelect>
-                <NativeSelect aria-label="Nota pentru slăbit" value={draft.weightLossGrade ?? ''} onChange={(e) => set('weightLossGrade', e.target.value || null)}>
-                  {['A', 'B', 'C'].map((g) => (
-                    <option key={g} value={g}>
-                      Slăbit {g}
-                    </option>
-                  ))}
-                </NativeSelect>
+              <p className="text-xs text-muted-foreground">Se calculează din valorile la 100 g.</p>
+            </div>
+          )}
+          {draft.glycemicGrade ? (
+            <>
+              <div className="flex items-center gap-1.5 text-sm">
+                Glicemic <GlycemicBadge grade={draft.glycemicGrade} />
               </div>
+              {draft.gradesReason && <p className="text-sm text-muted-foreground">{draft.gradesReason}</p>}
+              <NativeSelect aria-label="Nota glicemică" value={draft.glycemicGrade} onChange={(e) => set('glycemicGrade', e.target.value || null)}>
+                {['A', 'B', 'C'].map((g) => (
+                  <option key={g} value={g}>
+                    Glicemic {g}
+                  </option>
+                ))}
+              </NativeSelect>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Notele le dă DeepSeek. Apasă „Completează cu AI”. Dacă salvezi fără ele, le poți calcula mai târziu din fișa alimentului.
+              Nota glicemică o dă DeepSeek. Apasă „Completează cu AI”. Dacă salvezi fără ea, o poți calcula mai târziu din fișa alimentului.
             </p>
           )}
         </section>

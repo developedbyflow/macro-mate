@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, Heart, Pencil, Star, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GlycemicBadge, ProteinBadge, VolumeBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { NumberStepper } from '@/components/app/number-stepper'
 import { NutrientTable } from '@/components/app/nutrients'
@@ -14,7 +14,7 @@ import type { Food } from '@/api/types'
 import { useFood, useProfile, useUsersById } from '@/hooks/use-data'
 import { categoryLabel } from '@/lib/categories'
 import { num, units } from '@/lib/format'
-import { forGrams } from '@/lib/nutrition'
+import { foodGrades, forGrams } from '@/lib/nutrition'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
 
@@ -49,6 +49,7 @@ function FoodPage() {
   const favorite = inProfile(profile, 'favoriteFoodIds', food.id)
   const liked = inProfile(profile, 'likedFoodIds', food.id)
   const excluded = inProfile(profile, 'excludedFoodIds', food.id)
+  const grades = foodGrades(food)
 
   return (
     <>
@@ -73,14 +74,16 @@ function FoodPage() {
                 {!food.glycemicGrade && <span className="text-muted-foreground">—</span>}
               </span>
               <span className="flex items-center gap-1.5">
-                Slăbit <WeightLossBadge grade={food.weightLossGrade} />
-                {!food.weightLossGrade && <span className="text-muted-foreground">—</span>}
+                Proteină <ProteinBadge grade={grades.protein} />
+              </span>
+              <span className="flex items-center gap-1.5">
+                Volum <VolumeBadge grade={grades.volume} />
               </span>
             </div>
             {food.gradesReason ? (
               <p className="text-sm text-muted-foreground">{food.gradesReason}</p>
             ) : (
-              <p className="text-sm text-muted-foreground">Fără note încă. Deschide „Editează” și apasă „Completează cu AI”.</p>
+              <p className="text-sm text-muted-foreground">Fără notă glicemică încă. Deschide „Editează” și apasă „Completează cu AI”. Proteina și volumul se calculează din valori.</p>
             )}
           </section>
 

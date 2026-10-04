@@ -74,31 +74,54 @@ export function gradeFromValue(value: number): Grade {
   return 'C'
 }
 
-export function variantScores(variant: RecipeVariant, foods: FoodsById) {
+export type Grades = { glycemic: Grade | null; protein: Grade | null; volume: Grade | null }
+
+function asGrade(value: string | null | undefined): Grade | null {
+  return value === 'A' || value === 'B' || value === 'C' ? value : null
+}
+
+export function proteinGrade(n: Nutrients, grams = 100): Grade | null {
+  if (n.kcal <= 0 || grams <= 0) return null
+  const shareOfKcal = (n.proteinG * 4) / n.kcal
+  const per100g = (n.proteinG / grams) * 100
+  if (shareOfKcal >= 0.3 && per100g >= 8) return 'A'
+  if (shareOfKcal >= 0.15 && per100g >= 5) return 'B'
+  return 'C'
+}
+
+export function volumeGrade(n: Nutrients, grams = 100): Grade | null {
+  if (grams <= 0) return null
+  const kcalPer100g = (n.kcal / grams) * 100
+  return kcalPer100g <= 150 ? 'A' : kcalPer100g <= 400 ? 'B' : 'C'
+}
+
+export function foodGrades(food: Food): Grades {
+  const n = per100(food)
+  return { glycemic: asGrade(food.glycemicGrade), protein: proteinGrade(n), volume: volumeGrade(n) }
+}
+
+export function variantGrades(variant: RecipeVariant, foods: FoodsById): Grades {
   let carbs = 0
   let carbsWeighted = 0
-  let kcal = 0
-  let kcalWeighted = 0
+  let total = sum([])
+  let grams = 0
 
   for (const ingredient of variant.ingredients) {
     const food = foods.get(ingredient.foodId)
     if (!food) continue
     const n = forGrams(food, ingredient.grams)
-    if (food.glycemicGrade) {
+    total = add(total, n)
+    grams += ingredient.grams
+    const glycemic = asGrade(food.glycemicGrade)
+    if (glycemic) {
       carbs += n.carbsG
-      carbsWeighted += n.carbsG * gradeValue[food.glycemicGrade as Grade]
-    }
-    if (food.weightLossGrade) {
-      kcal += n.kcal
-      kcalWeighted += n.kcal * gradeValue[food.weightLossGrade as Grade]
+      carbsWeighted += n.carbsG * gradeValue[glycemic]
     }
   }
 
   const carbsPerServing = carbs / Math.max(1, variant.servings)
-  const glycemicGrade: Grade | null =
-    variant.ingredients.length === 0 ? null : carbsPerServing < 5 ? 'A' : gradeFromValue(carbsWeighted / carbs)
-  const weightLossGrade: Grade | null = kcal > 0 ? gradeFromValue(kcalWeighted / kcal) : null
-  return { glycemicGrade, weightLossGrade }
+  const glycemic: Grade | null = variant.ingredients.length === 0 ? null : carbsPerServing < 5 ? 'A' : gradeFromValue(carbsWeighted / carbs)
+  return { glycemic, protein: proteinGrade(total, grams), volume: volumeGrade(total, grams) }
 }
 
 export function mealItemNutrients(item: MealItem, foods: FoodsById, variants: VariantsById): Nutrients {

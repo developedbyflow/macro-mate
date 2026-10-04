@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Clock, Plus, Search, Sparkles, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GradeBadges } from '@/components/app/badges'
 import { PageHeader } from '@/components/app/page-header'
 import { Photo } from '@/components/app/photo'
 import { difficultyLabel } from '@/lib/recipes'
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useExclusions, useFoodsById, useProfile, useRecipes, useVariants } from '@/hooks/use-data'
 import { kcal } from '@/lib/format'
-import { variantScores, variantTotals } from '@/lib/nutrition'
+import { variantGrades, variantTotals } from '@/lib/nutrition'
 import { search } from '@/lib/search'
 import { cn } from '@/lib/utils'
 import { ChefHat } from 'lucide-react'
@@ -40,7 +40,7 @@ function RecipesPage() {
     return search(visible, query, (r) => r.name).map((recipe) => {
       const own = variants.filter((v) => v.recipeId === recipe.id)
       const perServing = own.map((v) => variantTotals(v, foods).perServing.kcal)
-      const scores = own[0] ? variantScores(own[0], foods) : null
+      const scores = own[0] ? variantGrades(own[0], foods) : null
       return { recipe, count: own.length, min: Math.min(...perServing), max: Math.max(...perServing), scores }
     })
   }, [recipes, variants, foods, exclusions, excludedRecipes, favorites, onlyFavorites, query])
@@ -95,8 +95,7 @@ function RecipesPage() {
               </div>
               {scores && (
                 <div className="flex gap-1">
-                  <GlycemicBadge grade={scores.glycemicGrade} />
-                  <WeightLossBadge grade={scores.weightLossGrade} />
+                  <GradeBadges grades={scores} />
                 </div>
               )}
             </div>

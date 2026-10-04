@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, ChefHat, ChevronRight, Clock, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GradeBadges } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { MacroLine } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
@@ -10,7 +10,7 @@ import { difficultyLabel } from '@/lib/recipes'
 import { Button } from '@/components/ui/button'
 import { deleteRow } from '@/db/mutations'
 import { useFoodsById, useProfile, useRecipe, useRecipeVariants, useUsersById } from '@/hooks/use-data'
-import { variantScores, variantTotals } from '@/lib/nutrition'
+import { variantGrades, variantTotals } from '@/lib/nutrition'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
 
@@ -88,7 +88,7 @@ function RecipePage() {
             <ul className="space-y-2">
               {variants.map((variant) => {
                 const totals = variantTotals(variant, foods)
-                const scores = variantScores(variant, foods)
+                const scores = variantGrades(variant, foods)
                 return (
                   <li key={variant.id}>
                     <Link
@@ -103,8 +103,7 @@ function RecipePage() {
                           pe porție · {variant.servings} {variant.servings === 1 ? 'porție' : 'porții'} · {Math.round(totals.gramsPerServing)} g / porție
                         </div>
                       </div>
-                      <GlycemicBadge grade={scores.glycemicGrade} />
-                      <WeightLossBadge grade={scores.weightLossGrade} />
+                      <GradeBadges grades={scores} />
                       <ChevronRight className="size-4 text-muted-foreground" />
                     </Link>
                   </li>

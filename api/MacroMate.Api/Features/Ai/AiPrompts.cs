@@ -18,14 +18,10 @@ public static class AiPrompts
            - "B": glycemic load 11 to 19.
            - "C": glycemic load 20 or more.
            Exceptions: milk and whey protein raise insulin more than their glycemic index suggests, so they get at least "B". Sugar, honey and syrups get "C" whatever the portion; other sweets and sauces with added sugar get at least "B".
-        5. Give a weight-loss grade. The main criterion is calories per 100 g: few calories for a large volume is good. Protein and fiber move the grade toward "A"; sugar and a lot of fat move it toward "C".
-           - "A": good for weight loss (vegetables, fruit, lean meat and fish, low-fat dairy).
-           - "B": in between.
-           - "C": calorie-dense (oils, nuts, fatty cheese, sweets, white flour products).
-        6. "reason": one short sentence in Romanian explaining both grades.
+        5. "reason": one short sentence in Romanian explaining the glycemic grade.
 
         JSON shape:
-        {"name": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "glycemicGrade": "A"|"B"|"C", "weightLossGrade": "A"|"B"|"C", "reason": string}
+        {"name": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "glycemicGrade": "A"|"B"|"C", "reason": string}
 
         "name" is the product name in Romanian, short (keep the brand out of it). Sodium is in milligrams. Field names in "fromLabel" use the same keys as above.
         """;

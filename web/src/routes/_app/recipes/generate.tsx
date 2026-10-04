@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, ApiError } from '@/api/client'
 import type { RecipeDraft, RecipeVariant } from '@/api/types'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GradeBadges } from '@/components/app/badges'
 import { useAiStatus } from '@/hooks/use-ai-status'
 import { MacroLine } from '@/components/app/nutrients'
 import { NumberStepper } from '@/components/app/number-stepper'
@@ -19,7 +19,7 @@ import { useFoodsById, useJournal, useProfile } from '@/hooks/use-data'
 import { useOwnerId } from '@/hooks/use-owner'
 import { today } from '@/lib/dates'
 import { entryNutrients } from '@/lib/journal'
-import { forGrams, sum, variantScores, variantTotals } from '@/lib/nutrition'
+import { forGrams, sum, variantGrades, variantTotals } from '@/lib/nutrition'
 
 export const Route = createFileRoute('/_app/recipes/generate')({
   component: GeneratePage,
@@ -144,7 +144,7 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
   const foods = useFoodsById()
   const variant = { id: 'draft', recipeId: 'draft', name: '', servings: draft.servings, ingredients: draft.ingredients } as unknown as RecipeVariant
   const totals = variantTotals(variant, foods)
-  const scores = variantScores(variant, foods)
+  const scores = variantGrades(variant, foods)
   const steps = draft.instructions.split('\n').map((s) => s.trim()).filter(Boolean)
 
   return (
@@ -157,8 +157,7 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
       </div>
       <div className="flex items-center gap-2">
         <MacroLine n={totals.perServing} className="flex-1 text-sm" />
-        <GlycemicBadge grade={scores.glycemicGrade} />
-        <WeightLossBadge grade={scores.weightLossGrade} />
+        <GradeBadges grades={scores} />
       </div>
       <p className="text-xs text-muted-foreground">Valorile sunt calculate de aplicație din alimentele din bază, pe o porție.</p>
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Droplet, Plus, Search, Star, Weight } from 'lucide-react'
+import { ChevronDown, Droplet, Dumbbell, Plus, Salad, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
+import { GradeBadges } from '@/components/app/badges'
 import { FoodTable } from '@/components/app/food-table'
 import { PageHeader } from '@/components/app/page-header'
 import { Photo } from '@/components/app/photo'
@@ -11,7 +11,7 @@ import { useExclusions, useFoods, useProfile } from '@/hooks/use-data'
 import { useDesktop } from '@/hooks/use-desktop'
 import { categories, categoryCodes, categoryLabel } from '@/lib/categories'
 import { kcal, num } from '@/lib/format'
-import { isExcluded } from '@/lib/nutrition'
+import { foodGrades, isExcluded } from '@/lib/nutrition'
 import { search } from '@/lib/search'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_app/foods/')({
   component: FoodsPage,
 })
 
-type Filter = { category: string | null; favorites: boolean; glycemic: string | null; weightLoss: string | null }
+type Filter = { category: string | null; favorites: boolean; glycemic: string | null; protein: string | null; volume: string | null }
 
 function FoodsPage() {
   const foods = useFoods()
@@ -27,19 +27,22 @@ function FoodsPage() {
   const exclusions = useExclusions()
   const desktop = useDesktop()
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<Filter>({ category: null, favorites: false, glycemic: null, weightLoss: null })
+  const [filter, setFilter] = useState<Filter>({ category: null, favorites: false, glycemic: null, protein: null, volume: null })
 
   const favorites = useMemo(() => new Set(profile?.favoriteFoodIds ?? []), [profile])
 
   const visible = useMemo(() => {
-    const filtered = foods.filter(
-      (f) =>
+    const filtered = foods.filter((f) => {
+      const grades = foodGrades(f)
+      return (
         !isExcluded(f, exclusions) &&
         (!filter.category || f.category === filter.category) &&
         (!filter.favorites || favorites.has(f.id)) &&
-        (!filter.glycemic || f.glycemicGrade === filter.glycemic) &&
-        (!filter.weightLoss || f.weightLossGrade === filter.weightLoss),
-    )
+        (!filter.glycemic || grades.glycemic === filter.glycemic) &&
+        (!filter.protein || grades.protein === filter.protein) &&
+        (!filter.volume || grades.volume === filter.volume)
+      )
+    })
     return search(filtered, query, (f) => `${f.name} ${f.brand ?? ''}`)
   }, [foods, exclusions, filter, favorites, query])
 
@@ -66,16 +69,9 @@ function FoodsPage() {
             <Chip active={filter.favorites} onClick={() => setFilter((f) => ({ ...f, favorites: !f.favorites }))}>
               <Star className="size-3.5" /> Favorite
             </Chip>
-            {['A', 'B', 'C'].map((g) => (
-              <Chip key={`glycemic-${g}`} active={filter.glycemic === g} onClick={() => setFilter((f) => ({ ...f, glycemic: f.glycemic === g ? null : g }))}>
-                <Droplet className="size-3.5" /> Glicemic {g}
-              </Chip>
-            ))}
-            {['A', 'B', 'C'].map((g) => (
-              <Chip key={`weight-loss-${g}`} active={filter.weightLoss === g} onClick={() => setFilter((f) => ({ ...f, weightLoss: f.weightLoss === g ? null : g }))}>
-                <Weight className="size-3.5" /> Slăbit {g}
-              </Chip>
-            ))}
+            <GradeSelect icon={Droplet} label="Glicemic" value={filter.glycemic} onChange={(glycemic) => setFilter((f) => ({ ...f, glycemic }))} />
+            <GradeSelect icon={Dumbbell} label="Proteină" value={filter.protein} onChange={(protein) => setFilter((f) => ({ ...f, protein }))} />
+            <GradeSelect icon={Salad} label="Volum" value={filter.volume} onChange={(volume) => setFilter((f) => ({ ...f, volume }))} />
             {usedCategories.map((c) => (
               <Chip key={c} active={filter.category === c} onClick={() => setFilter((f) => ({ ...f, category: f.category === c ? null : c }))}>
                 {categories[c]}
@@ -104,8 +100,7 @@ function FoodsPage() {
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
-                    <GlycemicBadge grade={food.glycemicGrade} />
-                    <WeightLossBadge grade={food.weightLossGrade} />
+                    <GradeBadges grades={foodGrades(food)} />
                   </div>
                 </Link>
               </li>
@@ -134,5 +129,27 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
     >
       {children}
     </button>
+  )
+}
+
+function GradeSelect({ icon: Icon, label, value, onChange }: { icon: typeof Star; label: string; value: string | null; onChange: (value: string | null) => void }) {
+  return (
+    <label
+      className={cn(
+        'relative flex shrink-0 cursor-pointer items-center gap-1 rounded-full border py-1 pr-6 pl-3 text-xs font-medium whitespace-nowrap transition-colors',
+        value ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-muted-foreground',
+      )}
+    >
+      <Icon className="size-3.5" />
+      <select aria-label={label} value={value ?? ''} onChange={(e) => onChange(e.target.value || null)} className="cursor-pointer appearance-none bg-transparent outline-none">
+        <option value="">{label}: toate</option>
+        {['A', 'B', 'C'].map((g) => (
+          <option key={g} value={g}>
+            {label} {g}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 size-3" />
+    </label>
   )
 }

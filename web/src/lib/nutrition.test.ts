@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { alternativesFor, mealItemNutrients, variantScores, variantTotals } from './nutrition'
+import { alternativesFor, foodGrades, mealItemNutrients, proteinGrade, variantGrades, variantTotals, volumeGrade } from './nutrition'
 import { food, variant } from './test-data'
 
-const egg = food({ name: 'Ou', category: 'eggs', kcal: 143, proteinG: 12.6, carbsG: 0.7, fatG: 9.5, glycemicGrade: 'A', weightLossGrade: 'A' })
-const oil = food({ name: 'Ulei', category: 'oils_fats', kcal: 884, fatG: 100, glycemicGrade: 'A', weightLossGrade: 'C' })
-const bread = food({ name: 'Pâine albă', category: 'bread_bakery', kcal: 265, proteinG: 9, carbsG: 49, fatG: 3.2, glycemicGrade: 'C', weightLossGrade: 'C' })
-const apple = food({ name: 'Măr', category: 'fruits', kcal: 52, carbsG: 14, glycemicGrade: 'A', weightLossGrade: 'A' })
+const egg = food({ name: 'Ou', category: 'eggs', kcal: 143, proteinG: 12.6, carbsG: 0.7, fatG: 9.5, glycemicGrade: 'A' })
+const oil = food({ name: 'Ulei', category: 'oils_fats', kcal: 884, fatG: 100, glycemicGrade: 'A' })
+const bread = food({ name: 'Pâine albă', category: 'bread_bakery', kcal: 265, proteinG: 9, carbsG: 49, fatG: 3.2, glycemicGrade: 'C' })
+const apple = food({ name: 'Măr', category: 'fruits', kcal: 52, carbsG: 14, glycemicGrade: 'A' })
 const foods = new Map([egg, oil, bread, apple].map((f) => [f.id, f]))
 
 describe('variantTotals', () => {
@@ -27,23 +27,42 @@ describe('variantTotals', () => {
   })
 })
 
-describe('variantScores', () => {
-  it('weighs the weight-loss grade by calories, so a little oil still counts', () => {
-    const light = variant({ recipeId: 'r', ingredients: [{ foodId: egg.id, grams: 200 }, { foodId: oil.id, grams: 10 }] })
-    const oily = variant({ recipeId: 'r', ingredients: [{ foodId: egg.id, grams: 200 }, { foodId: oil.id, grams: 30 }] })
+describe('protein and volume grades', () => {
+  const n = (kcal: number, proteinG: number) => ({ kcal, proteinG, carbsG: 0, fatG: 0, fiberG: 0, sodiumMg: 0 })
 
-    expect(variantScores(light, foods).weightLossGrade).toBe('A')
-    expect(variantScores(oily, foods).weightLossGrade).toBe('B')
+  it('gives A only with a big share of calories from protein and enough grams', () => {
+    expect(proteinGrade(n(120, 23))).toBe('A')
+    expect(proteinGrade(n(358, 24))).toBe('B')
+    expect(proteinGrade(n(34, 2.8))).toBe('C')
+    expect(proteinGrade(n(0, 0))).toBeNull()
+  })
+
+  it('grades volume by the calories in 100 g', () => {
+    expect(volumeGrade(n(150, 0))).toBe('A')
+    expect(volumeGrade(n(265, 0))).toBe('B')
+    expect(volumeGrade(n(884, 0))).toBe('C')
+  })
+
+  it('takes the glycemic grade of a food from the database', () => {
+    expect(foodGrades(bread)).toEqual({ glycemic: 'C', protein: 'C', volume: 'B' })
+  })
+
+  it('grades a recipe on its totals, so a little oil still counts', () => {
+    const eggs = variant({ recipeId: 'r', ingredients: [{ foodId: egg.id, grams: 200 }] })
+    const withOil = variant({ recipeId: 'r', ingredients: [{ foodId: egg.id, grams: 200 }, { foodId: oil.id, grams: 10 }] })
+
+    expect(variantGrades(eggs, foods)).toMatchObject({ protein: 'A', volume: 'A' })
+    expect(variantGrades(withOil, foods)).toMatchObject({ protein: 'B', volume: 'B' })
   })
 
   it('gives A when a serving has almost no carbohydrates', () => {
     const omelette = variant({ recipeId: 'r', ingredients: [{ foodId: egg.id, grams: 200 }] })
-    expect(variantScores(omelette, foods).glycemicGrade).toBe('A')
+    expect(variantGrades(omelette, foods).glycemic).toBe('A')
   })
 
   it('weighs the glycemic grade by the carbohydrates each ingredient brings', () => {
     const sandwich = variant({ recipeId: 'r', ingredients: [{ foodId: bread.id, grams: 100 }, { foodId: apple.id, grams: 50 }] })
-    expect(variantScores(sandwich, foods).glycemicGrade).toBe('C')
+    expect(variantGrades(sandwich, foods).glycemic).toBe('C')
   })
 })
 

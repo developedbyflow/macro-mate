@@ -20,7 +20,6 @@ public static class SeedFoods
         double SodiumMg,
         double? UnitWeightG,
         string GlycemicGrade,
-        string WeightLossGrade,
         string Reason);
 
     public static async Task<int> RunAsync(AppDbContext db, Guid createdBy, CancellationToken ct)
@@ -51,7 +50,6 @@ public static class SeedFoods
                     SodiumMg = s.SodiumMg,
                     UnitWeightG = s.UnitWeightG,
                     GlycemicGrade = s.GlycemicGrade,
-                    WeightLossGrade = s.WeightLossGrade,
                     GradesReason = s.Reason,
                     Source = "generic",
                     CreatedBy = createdBy,

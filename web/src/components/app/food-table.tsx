@@ -4,13 +4,14 @@ import { useMemo, useState, type ReactNode } from 'react'
 import type { Food, UserProfile } from '@/api/types'
 import { categoryLabel } from '@/lib/categories'
 import { kcal, num } from '@/lib/format'
+import { foodGrades } from '@/lib/nutrition'
 import { toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
-import { GlycemicBadge, WeightLossBadge } from './badges'
+import { GlycemicBadge, ProteinBadge, VolumeBadge } from './badges'
 import { Photo } from './photo'
 
 type NutrientKey = 'kcal' | 'proteinG' | 'carbsG' | 'fatG' | 'fiberG' | 'sodiumMg'
-type SortKey = 'name' | 'category' | NutrientKey | 'glycemicGrade' | 'weightLossGrade'
+type SortKey = 'name' | 'category' | NutrientKey | 'glycemic' | 'protein' | 'volume'
 type Sort = { key: SortKey; dir: 'asc' | 'desc' }
 
 const nutrientColumns: { key: NutrientKey; label: string; unit: string; dot: string; wide?: boolean }[] = [
@@ -22,11 +23,12 @@ const nutrientColumns: { key: NutrientKey; label: string; unit: string; dot: str
   { key: 'sodiumMg', label: 'Sodiu', unit: 'mg', dot: 'bg-sodium', wide: true },
 ]
 
-const ascendingFirst: SortKey[] = ['name', 'category', 'glycemicGrade', 'weightLossGrade']
+const ascendingFirst: SortKey[] = ['name', 'category', 'glycemic', 'protein', 'volume']
 
 function sortValue(food: Food, key: SortKey) {
   if (key === 'name') return food.name
   if (key === 'category') return categoryLabel(food.category)
+  if (key === 'glycemic' || key === 'protein' || key === 'volume') return foodGrades(food)[key]
   return food[key]
 }
 
@@ -92,13 +94,15 @@ export function FoodTable({ foods, favorites, profile }: { foods: Food[]; favori
                 <div className="pr-[1.125rem] text-[11px] text-muted-foreground/70">{c.unit}</div>
               </th>
             ))}
-            <th className={cn(th, 'w-20 text-center')}>{header('glycemicGrade', 'Glicemic')}</th>
-            <th className={cn(th, 'w-20 rounded-tr-2xl text-center')}>{header('weightLossGrade', 'Slăbit')}</th>
+            <th className={cn(th, 'w-20 text-center')}>{header('glycemic', 'Glicemic')}</th>
+            <th className={cn(th, 'w-20 text-center')}>{header('protein', 'Proteină')}</th>
+            <th className={cn(th, 'w-20 rounded-tr-2xl text-center')}>{header('volume', 'Volum')}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((food) => {
             const favorite = favorites.has(food.id)
+            const grades = foodGrades(food)
             return (
               <tr
                 key={food.id}
@@ -150,10 +154,13 @@ export function FoodTable({ foods, favorites, profile }: { foods: Food[]; favori
                   )
                 })}
                 <td className="px-3 py-2 text-center">
-                  {food.glycemicGrade ? <GlycemicBadge grade={food.glycemicGrade} /> : <span className="text-muted-foreground">—</span>}
+                  {grades.glycemic ? <GlycemicBadge grade={grades.glycemic} /> : <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className="px-3 py-2 text-center">
-                  {food.weightLossGrade ? <WeightLossBadge grade={food.weightLossGrade} /> : <span className="text-muted-foreground">—</span>}
+                  {grades.protein ? <ProteinBadge grade={grades.protein} /> : <span className="text-muted-foreground">—</span>}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  {grades.volume ? <VolumeBadge grade={grades.volume} /> : <span className="text-muted-foreground">—</span>}
                 </td>
               </tr>
             )

@@ -56,14 +56,15 @@ Instrucțiunile pentru AI sunt în `Features/Ai/AiPrompts.cs`, la `FoodEnrich`. 
 2. să completeze valorile lipsă;
 3. să aleagă o categorie din lista fixă;
 4. să dea nota glicemică A, B sau C, după încărcătura glicemică a unei porții obișnuite (criteriile sunt în specificație);
-5. să dea nota de slăbit A, B sau C, al cărei criteriu principal e numărul de calorii la 100 g;
-6. să scrie o propoziție în română cu motivul.
+5. să scrie o propoziție în română cu motivul notei glicemice.
+
+Notele de proteină și de volum nu vin de la AI: le calculează aplicația din valori, în `proteinGrade` și `volumeGrade` din `web/src/lib/nutrition.ts`.
 
 **Regula după care API-ul combină răspunsul** (`EnrichFood` din `AiEndpoints.cs`):
 - o valoare pe care ai dat-o tu sau Open Food Facts **rămâne**. AI-ul nu o poate schimba;
 - o valoare citită de pe etichetă e **exactă**;
 - o valoare completată de AI fără etichetă e **„estimat”** și apare în formular cu un chenar portocaliu;
-- tot ce vine de la AI e adus în limite: calorii 0–900, macro 0–100 g, notele A/B/C (altceva devine B). O categorie care nu e în listă rămâne goală, ca s-o alegi tu.
+- tot ce vine de la AI e adus în limite: calorii 0–900, macro 0–100 g, nota glicemică A/B/C (altceva devine B). O categorie care nu e în listă rămâne goală, ca s-o alegi tu.
 
 DeepSeek e apelat cu `response_format: json_object`, deci răspunsul e sigur JSON valid. Codul e în `DeepSeekClient.cs`.
 
