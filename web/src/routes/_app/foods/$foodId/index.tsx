@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, Heart, Pencil, Star, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { GradeBadge, ScoreBadge } from '@/components/app/badges'
+import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { MacroLine, NutrientTable } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
@@ -58,69 +58,73 @@ function FoodPage() {
           </Button>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8">
-        {food.photoId && <Photo id={food.photoId} className="aspect-[4/3] w-full rounded-2xl" />}
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+        <div className="space-y-4">
+          {food.photoId && <Photo id={food.photoId} className="aspect-[4/3] w-full rounded-2xl" />}
 
-        <section className="space-y-3 rounded-2xl border bg-card p-4">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="flex items-center gap-1.5">
-              Insulină <GradeBadge grade={food.insulinGrade} />
-              {!food.insulinGrade && <span className="text-muted-foreground">—</span>}
-            </span>
-            <span className="flex items-center gap-1.5">
-              Slăbit <ScoreBadge score={food.weightLossScore} />
-              {food.weightLossScore == null && <span className="text-muted-foreground">—</span>}
-            </span>
+          <section className="space-y-3 rounded-2xl border bg-card p-4">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <span className="flex items-center gap-1.5">
+                Glicemic <GlycemicBadge grade={food.glycemicGrade} />
+                {!food.glycemicGrade && <span className="text-muted-foreground">—</span>}
+              </span>
+              <span className="flex items-center gap-1.5">
+                Slăbit <WeightLossBadge grade={food.weightLossGrade} />
+                {!food.weightLossGrade && <span className="text-muted-foreground">—</span>}
+              </span>
+            </div>
+            {food.gradesReason ? (
+              <p className="text-sm text-muted-foreground">{food.gradesReason}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Fără note încă. Deschide „Editează” și apasă „Completează cu AI”.</p>
+            )}
+          </section>
+
+          <div className="grid grid-cols-3 gap-2">
+            <Toggle active={favorite} onClick={() => void toggleInProfile(profile, 'favoriteFoodIds', food.id)} icon={Star} label="Favorit" activeClass="text-carbs [&_svg]:fill-carbs" />
+            <Toggle active={liked} onClick={() => void toggleInProfile(profile, 'likedFoodIds', food.id)} icon={Heart} label="Îmi place" activeClass="text-fat [&_svg]:fill-fat" />
+            <Toggle
+              active={excluded}
+              onClick={() => {
+                void toggleInProfile(profile, 'excludedFoodIds', food.id)
+                toast(excluded ? 'Nu mai e exclus.' : 'Exclus: nu-l mai vezi în liste, alternative și rețete generate.')
+              }}
+              icon={Ban}
+              label={excluded ? 'Exclus' : 'Exclude'}
+              activeClass="text-destructive"
+            />
           </div>
-          {food.scoresReason ? (
-            <p className="text-sm text-muted-foreground">{food.scoresReason}</p>
-          ) : (
-            <p className="text-sm text-muted-foreground">Fără note încă. Deschide „Editează” și apasă „Completează cu AI”.</p>
-          )}
-        </section>
-
-        <div className="grid grid-cols-3 gap-2">
-          <Toggle active={favorite} onClick={() => void toggleInProfile(profile, 'favoriteFoodIds', food.id)} icon={Star} label="Favorit" activeClass="text-carbs [&_svg]:fill-carbs" />
-          <Toggle active={liked} onClick={() => void toggleInProfile(profile, 'likedFoodIds', food.id)} icon={Heart} label="Îmi place" activeClass="text-fat [&_svg]:fill-fat" />
-          <Toggle
-            active={excluded}
-            onClick={() => {
-              void toggleInProfile(profile, 'excludedFoodIds', food.id)
-              toast(excluded ? 'Nu mai e exclus.' : 'Exclus: nu-l mai vezi în liste, alternative și rețete generate.')
-            }}
-            icon={Ban}
-            label={excluded ? 'Exclus' : 'Exclude'}
-            activeClass="text-destructive"
-          />
         </div>
 
-        <NutrientTable n={per100(food)} estimated={food.estimatedFields} caption="La 100 g" />
+        <div className="space-y-4">
+          <NutrientTable n={per100(food)} estimated={food.estimatedFields} caption="La 100 g" />
 
-        {food.unitWeightG && (
-          <div className="rounded-xl border bg-card px-4 py-3">
-            <div className="text-xs text-muted-foreground">O bucată ≈ {Math.round(food.unitWeightG)} g</div>
-            <MacroLine n={forGrams(food, food.unitWeightG)} className="text-sm" />
-          </div>
-        )}
+          {food.unitWeightG && (
+            <div className="rounded-xl border bg-card px-4 py-3">
+              <div className="text-xs text-muted-foreground">O bucată ≈ {Math.round(food.unitWeightG)} g</div>
+              <MacroLine n={forGrams(food, food.unitWeightG)} className="text-sm" />
+            </div>
+          )}
 
-        <p className="text-center text-xs text-muted-foreground">
-          Adăugat de {users.get(food.createdBy) ?? '—'} · {sources[food.source] ?? food.source}
-          {food.barcode && ` · cod ${food.barcode}`}
-        </p>
+          <p className="text-center text-xs text-muted-foreground">
+            Adăugat de {users.get(food.createdBy) ?? '—'} · {sources[food.source] ?? food.source}
+            {food.barcode && ` · cod ${food.barcode}`}
+          </p>
 
-        <ConfirmDelete
-          title={`Ștergi ${food.name}?`}
-          description="Dispare din listă pentru toți. Rețetele și jurnalul care îl folosesc își păstrează valorile."
-          onConfirm={async () => {
-            await deleteRow('foods', food.id)
-            await navigate({ to: '/foods' })
-          }}
-          trigger={
-            <Button variant="ghost" className="w-full text-destructive">
-              <Trash2 className="size-4" /> Șterge alimentul
-            </Button>
-          }
-        />
+          <ConfirmDelete
+            title={`Ștergi ${food.name}?`}
+            description="Dispare din listă pentru toți. Rețetele și jurnalul care îl folosesc își păstrează valorile."
+            onConfirm={async () => {
+              await deleteRow('foods', food.id)
+              await navigate({ to: '/foods' })
+            }}
+            trigger={
+              <Button variant="ghost" className="w-full text-destructive">
+                <Trash2 className="size-4" /> Șterge alimentul
+              </Button>
+            }
+          />
+        </div>
       </main>
     </>
   )

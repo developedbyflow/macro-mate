@@ -12,7 +12,7 @@ type Food = {
   name: string
   category: string
   kcal: number
-  insulinGrade: null | string
+  glycemicGrade: null | string
 }
 ```
 
@@ -24,7 +24,7 @@ public class Food : SharedEntity
     public string Name { get; set; } = "";
     public string Category { get; set; } = "";
     public double Kcal { get; set; }
-    public string? InsulinGrade { get; set; }
+    public string? GlycemicGrade { get; set; }
 }
 ```
 
@@ -38,12 +38,12 @@ CREATE TABLE foods (
     name character varying(200) NOT NULL,
     category character varying(40) NOT NULL,
     kcal double precision NOT NULL,
-    insulin_grade character varying(1),
+    glycemic_grade character varying(1),
     ...
 );
 ```
 
-Numele trec din `PascalCase` în `snake_case` (`InsulinGrade` → `insulin_grade`) prin `UseSnakeCaseNamingConvention()` din `Program.cs`. Așa se scriu de obicei numele în Postgres.
+Numele trec din `PascalCase` în `snake_case` (`GlycemicGrade` → `glycemic_grade`) prin `UseSnakeCaseNamingConvention()` din `Program.cs`. Așa se scriu de obicei numele în Postgres.
 
 ## Clasele de bază
 

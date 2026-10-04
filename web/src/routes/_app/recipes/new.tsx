@@ -22,7 +22,7 @@ function NewRecipePage() {
   return (
     <>
       <PageHeader title="Rețetă nouă" back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8">
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
         <RecipeForm initial={emptyRecipe()} submitLabel="Salvează rețeta" onSubmit={save} />
       </main>
     </>

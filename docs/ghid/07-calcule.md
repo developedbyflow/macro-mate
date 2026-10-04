@@ -27,24 +27,24 @@ Funcția întreagă e `variantTotals` din `nutrition.ts`.
 
 ## Notele unei variante
 
-### Scorul de slăbit: media ponderată după calorii
+### Nota de slăbit: media ponderată după calorii
 
-Fiecare ingredient contează cât caloriile pe care le aduce:
+Fiecare ingredient contează cât caloriile pe care le aduce. A = 1, B = 2, C = 3:
 
-| Ingredient | kcal | Scor | kcal × scor |
+| Ingredient | kcal | Notă | kcal × notă |
 |---|---|---|---|
-| Ou | 238,8 | 7 | 1671,6 |
-| Spanac | 23 | 10 | 230 |
-| Ulei | 88,4 | 1 | 88,4 |
-| **Total** | **350,2** | | **1990** |
+| Ou | 238,8 | A (1) | 238,8 |
+| Spanac | 23 | A (1) | 23 |
+| Ulei | 88,4 | C (3) | 265,2 |
+| **Total** | **350,2** | | **527** |
 
-Scorul variantei: 1990 / 350,2 = 5,68, rotunjit la **6**.
+Media: 527 / 350,2 = 1,50. Sub 1,5 dă A, sub 2,5 dă B, altfel C, deci varianta are **B**. Fără ulei ar avea A.
 
 **De ce după calorii și nu după grame.** După grame, cele 10 g de ulei ar conta aproape deloc (10 din 277). Dar uleiul aduce un sfert din calorii. Întrebarea e „cât de bune sunt caloriile din farfurie”, deci fiecare ingredient contează după caloriile lui.
 
-### Nota de insulină: media ponderată după carbohidrați
+### Nota glicemică: media ponderată după carbohidrați
 
-Insulina urcă din cauza carbohidraților, deci fiecare ingredient contează după carbohidrații pe care îi aduce. A = 1, B = 2, C = 3. Media se rotunjește: sub 1,5 dă A, sub 2,5 dă B, altfel C.
+Glicemia urcă din cauza carbohidraților, deci fiecare ingredient contează după carbohidrații pe care îi aduce. A = 1, B = 2, C = 3. Media se rotunjește: sub 1,5 dă A, sub 2,5 dă B, altfel C.
 
 Regula în plus: dacă o porție are sub 5 g de carbohidrați, nota e **A**. Omleta are 4,8 g pe porție, deci are A.
 

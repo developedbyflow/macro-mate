@@ -23,6 +23,7 @@ import {
   useRecipesById,
   useVariantsById,
 } from '@/hooks/use-data'
+import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
 import { addDays, formatDay, today } from '@/lib/dates'
 import { kcal } from '@/lib/format'
@@ -149,103 +150,107 @@ function TodayPage() {
           </span>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4">
-        <DaySummary eaten={eaten} target={target} />
-        {!target && (
-          <Link to="/profile" className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-3 text-sm">
-            <Target className="size-5 text-primary" />
-            <span className="flex-1">Calculează-ți țintele de calorii și macro ca să vezi cât mai ai.</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </Link>
-        )}
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8 lg:pb-8">
+        <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
+          <DaySummary eaten={eaten} target={target} />
+          {!target && (
+            <Link to="/profile" className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-3 text-sm">
+              <Target className="size-5 text-primary" />
+              <span className="flex-1">Calculează-ți țintele de calorii și macro ca să vezi cât mai ai.</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </Link>
+          )}
 
-        <div className="flex items-center gap-3">
-          <span className="shrink-0 text-sm font-medium">Planul zilei</span>
-          <NativeSelect className="flex-1" value={activePlan?.id ?? ''} onChange={(e) => void choosePlan(e.target.value)}>
-            <option value="">Fără plan</option>
-            {plans.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </NativeSelect>
+          <div className="flex items-center gap-3">
+            <span className="shrink-0 text-sm font-medium">Planul zilei</span>
+            <NativeSelect className="flex-1" value={activePlan?.id ?? ''} onChange={(e) => void choosePlan(e.target.value)}>
+              <option value="">Fără plan</option>
+              {plans.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
         </div>
 
-        {groups.map((group) => {
-          const loggedIds = new Set(group.entries.map((e) => e.mealItemId))
-          const planned = group.meal?.items.filter((i) => !loggedIds.has(i.id)) ?? []
-          const groupKcal = sum(group.entries.map(entryNutrients)).kcal
-          return (
-            <section key={group.label} className="overflow-hidden rounded-2xl border bg-card">
-              <div className="flex items-center gap-2 border-b px-4 py-2.5">
-                <h2 className="flex-1 font-semibold">{group.label}</h2>
-                <span className="text-sm text-muted-foreground tabular-nums">{kcal(groupKcal)} kcal</span>
-                {planned.length > 0 && (
-                  <Button size="sm" variant="secondary" onClick={() => void logWholeMeal(group)}>
-                    <Check className="size-4" /> Tot
-                  </Button>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Opțiuni ${group.label}`} />}>
-                    <MoreHorizontal className="size-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => void copyFromYesterday(group.label)}>
-                      <Copy className="size-4" /> Copiază de ieri
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <ul className="divide-y">
-                {group.entries.map((entry) => (
-                  <li key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
-                    <button
-                      type="button"
-                      aria-label="Scoate din jurnal"
-                      onClick={() => void deleteRow('journalEntries', entry.id)}
-                      className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                    >
-                      <Check className="size-4" />
-                    </button>
-                    <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setEditing(entry)}>
-                      <div className="truncate text-sm font-medium">{entry.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {entry.kind === 'food' ? `${Math.round(entry.grams ?? 0)} g` : `${entry.servings} ${entry.servings === 1 ? 'porție' : 'porții'}`}
-                        {' · '}
-                        <MacroLine n={entryNutrients(entry)} className="inline-flex" />
+        <div className="space-y-4">
+          {groups.map((group) => {
+            const loggedIds = new Set(group.entries.map((e) => e.mealItemId))
+            const planned = group.meal?.items.filter((i) => !loggedIds.has(i.id)) ?? []
+            const groupKcal = sum(group.entries.map(entryNutrients)).kcal
+            return (
+              <section key={group.label} className="overflow-hidden rounded-2xl border bg-card">
+                <div className="flex items-center gap-2 border-b px-4 py-2.5">
+                  <h2 className="flex-1 font-semibold">{group.label}</h2>
+                  <span className="text-sm text-muted-foreground tabular-nums">{kcal(groupKcal)} kcal</span>
+                  {planned.length > 0 && (
+                    <Button size="sm" variant="secondary" onClick={() => void logWholeMeal(group)}>
+                      <Check className="size-4" /> Tot
+                    </Button>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Opțiuni ${group.label}`} />}>
+                      <MoreHorizontal className="size-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => void copyFromYesterday(group.label)}>
+                        <Copy className="size-4" /> Copiază de ieri
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <ul className="divide-y">
+                  {group.entries.map((entry) => (
+                    <li key={entry.id} className="flex items-center gap-3 px-4 py-2.5">
+                      <button
+                        type="button"
+                        aria-label="Scoate din jurnal"
+                        onClick={() => void deleteRow('journalEntries', entry.id)}
+                        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                      >
+                        <Check className="size-4" />
+                      </button>
+                      <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setEditing(entry)}>
+                        <div className="truncate text-sm font-medium">{entry.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {entry.kind === 'food' ? `${Math.round(entry.grams ?? 0)} g` : `${entry.servings} ${entry.servings === 1 ? 'porție' : 'porții'}`}
+                          {' · '}
+                          <MacroLine n={entryNutrients(entry)} className="inline-flex" />
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                  {planned.map((item) => (
+                    <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
+                      <button
+                        type="button"
+                        aria-label="Trece în jurnal"
+                        onClick={() => void logItem(group.label, item)}
+                        className="size-7 shrink-0 rounded-full border-2 border-dashed border-muted-foreground/40 transition-colors active:bg-accent"
+                      />
+                      <div className="min-w-0 flex-1 opacity-70">
+                        <div className="truncate text-sm">{nameOf(item)}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.kind === 'food' ? `${Math.round(item.grams ?? 0)} g` : `${item.servings} ${item.servings === 1 ? 'porție' : 'porții'}`}
+                          {' · '}
+                          {kcal(mealItemNutrients(item, foods, variants).kcal)} kcal · din plan
+                        </div>
                       </div>
-                    </button>
-                  </li>
-                ))}
-                {planned.map((item) => (
-                  <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
-                    <button
-                      type="button"
-                      aria-label="Trece în jurnal"
-                      onClick={() => void logItem(group.label, item)}
-                      className="size-7 shrink-0 rounded-full border-2 border-dashed border-muted-foreground/40 transition-colors active:bg-accent"
-                    />
-                    <div className="min-w-0 flex-1 opacity-70">
-                      <div className="truncate text-sm">{nameOf(item)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {item.kind === 'food' ? `${Math.round(item.grams ?? 0)} g` : `${item.servings} ${item.servings === 1 ? 'porție' : 'porții'}`}
-                        {' · '}
-                        {kcal(mealItemNutrients(item, foods, variants).kcal)} kcal · din plan
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                onClick={() => setPickerLabel(group.label)}
-                className={cn('flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary active:bg-muted', (group.entries.length > 0 || planned.length > 0) && 'border-t')}
-              >
-                <Plus className="size-4" /> Adaugă
-              </button>
-            </section>
-          )
-        })}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setPickerLabel(group.label)}
+                  className={cn('flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary active:bg-muted', (group.entries.length > 0 || planned.length > 0) && 'border-t')}
+                >
+                  <Plus className="size-4" /> Adaugă
+                </button>
+              </section>
+            )
+          })}
+        </div>
       </main>
 
       <ItemPicker
@@ -269,6 +274,7 @@ function EntryEditor({
   onClose: () => void
   onSave: (entry: JournalEntry, quantity: number) => Promise<unknown>
 }) {
+  const desktop = useDesktop()
   const [quantity, setQuantity] = useState(0)
   const [current, setCurrent] = useState<string | null>(null)
 
@@ -280,7 +286,7 @@ function EntryEditor({
   const isFood = entry?.kind === 'food'
 
   return (
-    <Drawer open={entry !== null} onOpenChange={(open) => !open && (onClose(), setCurrent(null))}>
+    <Drawer swipeDirection={desktop ? 'right' : 'down'} open={entry !== null} onOpenChange={(open) => !open && (onClose(), setCurrent(null))}>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>{entry?.name}</DrawerTitle>

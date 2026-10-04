@@ -3,7 +3,7 @@ import { ArrowLeftRight, Copy, Plus, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import type { RecipeVariant, VariantIngredient } from '@/api/types'
-import { GradeBadge, ScoreBadge } from '@/components/app/badges'
+import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { ItemPicker } from '@/components/app/item-picker'
 import { MacroLine, NutrientTable } from '@/components/app/nutrients'
@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { deleteRow, newId, saveRow } from '@/db/mutations'
 import { useExclusions, useFoods, useFoodsById, useRecipe, useVariant } from '@/hooks/use-data'
+import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
 import { kcal } from '@/lib/format'
 import { alternativesFor, forGrams, variantScores, variantTotals } from '@/lib/nutrition'
@@ -57,6 +58,7 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
   const [dirty, setDirty] = useState(variantId === null)
   const [picking, setPicking] = useState(false)
   const [swapIndex, setSwapIndex] = useState<number | null>(null)
+  const desktop = useDesktop()
 
   const asVariant = { ...draft, id: variantId ?? 'draft', recipeId } as RecipeVariant
   const totals = variantTotals(asVariant, foods)
@@ -87,99 +89,103 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
   return (
     <>
       <PageHeader title={variantId ? draft.name || 'Variantă' : 'Variantă nouă'} subtitle={recipeName} back />
-      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-28">
-        <div className="grid grid-cols-[1fr_auto] items-end gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="variant-name">Nume</Label>
-            <Input id="variant-name" value={draft.name} onChange={(e) => update({ name: e.target.value })} placeholder={suggestedName} className="h-10" />
+      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-28 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+        <div className="space-y-5">
+          <div className="grid grid-cols-[1fr_auto] items-end gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="variant-name">Nume</Label>
+              <Input id="variant-name" value={draft.name} onChange={(e) => update({ name: e.target.value })} placeholder={suggestedName} className="h-10" />
+            </div>
+            <div className="space-y-1.5">
+              <span className="block text-sm font-medium">Porții</span>
+              <NumberStepper value={draft.servings} onChange={(v) => update({ servings: Math.max(1, Math.round(v)) })} min={1} max={50} label="porții" className="w-32" />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <span className="block text-sm font-medium">Porții</span>
-            <NumberStepper value={draft.servings} onChange={(v) => update({ servings: Math.max(1, Math.round(v)) })} min={1} max={50} label="porții" className="w-32" />
-          </div>
+
+          <section className="space-y-2 rounded-2xl border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Pe o porție</span>
+              <span className="flex gap-1">
+                <GlycemicBadge grade={scores.glycemicGrade} />
+                <WeightLossBadge grade={scores.weightLossGrade} />
+              </span>
+            </div>
+            <MacroLine n={totals.perServing} className="text-sm" />
+            <p className="text-xs text-muted-foreground">
+              Toată rețeta: {kcal(totals.total.kcal)} kcal · {Math.round(totals.grams)} g
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="font-semibold">Ingrediente (pentru toată rețeta)</h2>
+            <ul className="divide-y rounded-2xl border bg-card">
+              {draft.ingredients.map((ingredient, index) => {
+                const food = foods.get(ingredient.foodId)
+                return (
+                  <li key={`${ingredient.foodId}-${index}`} className="space-y-2 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{food?.name ?? 'Aliment șters'}</div>
+                        {food && <div className="text-xs text-muted-foreground tabular-nums">{kcal(forGrams(food, ingredient.grams).kcal)} kcal</div>}
+                      </div>
+                      <Button variant="ghost" size="icon-sm" aria-label="Schimbă cu un aliment similar" disabled={!food} onClick={() => setSwapIndex(index)}>
+                        <ArrowLeftRight className="size-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon-sm" aria-label="Scoate" onClick={() => update({ ingredients: draft.ingredients.filter((_, i) => i !== index) })}>
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                    <NumberStepper
+                      value={ingredient.grams}
+                      onChange={(grams) => setIngredient(index, { ...ingredient, grams })}
+                      step={food?.unitWeightG ? Math.round(food.unitWeightG / 2) : 10}
+                      min={1}
+                      unit="g"
+                      size="sm"
+                      className="w-full"
+                      label={`grame ${food?.name ?? ''}`}
+                    />
+                  </li>
+                )
+              })}
+              <li>
+                <button type="button" onClick={() => setPicking(true)} className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-primary">
+                  <Plus className="size-4" /> Adaugă ingredient
+                </button>
+              </li>
+            </ul>
+          </section>
         </div>
 
-        <section className="space-y-2 rounded-2xl border bg-card p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Pe o porție</span>
-            <span className="flex gap-1">
-              <GradeBadge grade={scores.insulinGrade} />
-              <ScoreBadge score={scores.weightLossScore} />
-            </span>
-          </div>
-          <MacroLine n={totals.perServing} className="text-sm" />
-          <p className="text-xs text-muted-foreground">
-            Toată rețeta: {kcal(totals.total.kcal)} kcal · {Math.round(totals.grams)} g
-          </p>
-        </section>
+        <div className="space-y-5 lg:sticky lg:top-[4.5rem]">
+          <NutrientTable n={totals.perServing} caption="Valori pe o porție" />
 
-        <section className="space-y-2">
-          <h2 className="font-semibold">Ingrediente (pentru toată rețeta)</h2>
-          <ul className="divide-y rounded-2xl border bg-card">
-            {draft.ingredients.map((ingredient, index) => {
-              const food = foods.get(ingredient.foodId)
-              return (
-                <li key={`${ingredient.foodId}-${index}`} className="space-y-2 p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{food?.name ?? 'Aliment șters'}</div>
-                      {food && <div className="text-xs text-muted-foreground tabular-nums">{kcal(forGrams(food, ingredient.grams).kcal)} kcal</div>}
-                    </div>
-                    <Button variant="ghost" size="icon-sm" aria-label="Schimbă cu un aliment similar" disabled={!food} onClick={() => setSwapIndex(index)}>
-                      <ArrowLeftRight className="size-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Scoate" onClick={() => update({ ingredients: draft.ingredients.filter((_, i) => i !== index) })}>
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                  <NumberStepper
-                    value={ingredient.grams}
-                    onChange={(grams) => setIngredient(index, { ...ingredient, grams })}
-                    step={food?.unitWeightG ? Math.round(food.unitWeightG / 2) : 10}
-                    min={1}
-                    unit="g"
-                    size="sm"
-                    className="w-full"
-                    label={`grame ${food?.name ?? ''}`}
-                  />
-                </li>
-              )
-            })}
-            <li>
-              <button type="button" onClick={() => setPicking(true)} className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-primary">
-                <Plus className="size-4" /> Adaugă ingredient
-              </button>
-            </li>
-          </ul>
-        </section>
-
-        <NutrientTable n={totals.perServing} caption="Valori pe o porție" />
-
-        {variantId && (
-          <div className="flex flex-col gap-1 border-t pt-4">
-            <Button variant="ghost" onClick={() => void navigate({ to: '/recipes/$recipeId/variants/$variantId', params: { recipeId, variantId: 'new' }, search: { from: variantId } })}>
-              <Copy className="size-4" /> Fă o variantă nouă pornind de aici
-            </Button>
-            <ConfirmDelete
-              title="Ștergi varianta?"
-              description="Planurile care o folosesc o vor pierde."
-              onConfirm={async () => {
-                await deleteRow('recipeVariants', variantId)
-                await navigate({ to: '/recipes/$recipeId', params: { recipeId } })
-              }}
-              trigger={
-                <Button variant="ghost" className="text-destructive">
-                  <Trash2 className="size-4" /> Șterge varianta
-                </Button>
-              }
-            />
-          </div>
-        )}
+          {variantId && (
+            <div className="flex flex-col gap-1 border-t pt-4">
+              <Button variant="ghost" onClick={() => void navigate({ to: '/recipes/$recipeId/variants/$variantId', params: { recipeId, variantId: 'new' }, search: { from: variantId } })}>
+                <Copy className="size-4" /> Fă o variantă nouă pornind de aici
+              </Button>
+              <ConfirmDelete
+                title="Ștergi varianta?"
+                description="Planurile care o folosesc o vor pierde."
+                onConfirm={async () => {
+                  await deleteRow('recipeVariants', variantId)
+                  await navigate({ to: '/recipes/$recipeId', params: { recipeId } })
+                }}
+                trigger={
+                  <Button variant="ghost" className="text-destructive">
+                    <Trash2 className="size-4" /> Șterge varianta
+                  </Button>
+                }
+              />
+            </div>
+          )}
+        </div>
       </main>
 
       {dirty && (
-        <div className="pb-safe fixed inset-x-0 bottom-16 z-30 border-t bg-background/95 backdrop-blur-md">
-          <div className="mx-auto max-w-2xl px-4 py-3">
+        <div className="pb-safe fixed inset-x-0 bottom-16 z-30 border-t bg-background/95 backdrop-blur-md lg:bottom-0 lg:left-60">
+          <div className="mx-auto max-w-2xl px-4 py-3 lg:mx-0 lg:max-w-5xl lg:px-8">
             <Button size="lg" className="h-12 w-full text-base" onClick={() => void save()} disabled={draft.ingredients.length === 0}>
               Salvează varianta · {kcal(totals.perServing.kcal)} kcal / porție
             </Button>
@@ -196,7 +202,7 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
         onPick={(picked) => picked.kind === 'food' && update({ ingredients: [...draft.ingredients, { foodId: picked.food.id, grams: picked.grams }] })}
       />
 
-      <Drawer open={swapIndex !== null} onOpenChange={(open) => !open && setSwapIndex(null)}>
+      <Drawer swipeDirection={desktop ? 'right' : 'down'} open={swapIndex !== null} onOpenChange={(open) => !open && setSwapIndex(null)}>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>În loc de {swapFood?.name}</DrawerTitle>
@@ -219,8 +225,8 @@ function VariantEditor({ recipeId, recipeName, variantId, initial }: { recipeId:
                   </div>
                   <MacroLine n={forGrams(food, grams)} />
                 </div>
-                <GradeBadge grade={food.insulinGrade} />
-                <ScoreBadge score={food.weightLossScore} />
+                <GlycemicBadge grade={food.glycemicGrade} />
+                <WeightLossBadge grade={food.weightLossGrade} />
               </button>
             ))}
             {alternatives.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nu am găsit alimente similare în aceeași categorie.</p>}

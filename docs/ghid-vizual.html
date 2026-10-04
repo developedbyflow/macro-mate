@@ -252,7 +252,7 @@ pnpm --dir web dev</code></pre>
 <p class="look"><span>Caută</span> <code>Tests 17 passed</code>.</p>
 </div></div>
 
-<h3>Te uiți în baze</h3><p>În Postgres, cu <code>docker exec -it macromate-db-1 psql -U macromate</code>:</p><pre><code>select name, kcal, insulin_grade, weight_loss_score from foods order by name limit 10;
+<h3>Te uiți în baze</h3><p>În Postgres, cu <code>docker exec -it macromate-db-1 psql -U macromate</code>:</p><pre><code>select name, kcal, glycemic_grade, weight_loss_grade from foods order by name limit 10;
 select name, version, deleted_at from recipes order by version desc;
 select name, meals from meal_plans;</code></pre>
 <p class="look"><span>Caută</span> la a doua, rândurile cu <code>version</code> cel mai mare sunt cele modificate cel mai recent; la a treia, coloana <code>meals</code> e JSON.</p>
@@ -382,14 +382,14 @@ db.Update(incoming);</code></pre></div>
   name: string
   category: string
   kcal: number
-  insulinGrade: null | string
+  glycemicGrade: null | string
 }</code></pre></div>
 <div><p class="cap">C# · Data/Food.cs</p><pre><code>public class Food : SharedEntity
 {
     public string Name { get; set; } = "";
     public string Category { get; set; } = "";
     public double Kcal { get; set; }
-    public string? InsulinGrade { get; set; }
+    public string? GlycemicGrade { get; set; }
 }</code></pre></div>
 </div>
 
@@ -398,7 +398,7 @@ db.Update(incoming);</code></pre></div>
     name character varying(200) NOT NULL,
     category character varying(40) NOT NULL,
     kcal double precision NOT NULL,
-    insulin_grade character varying(1),
+    glycemic_grade character varying(1),
     ...
 );</code></pre>
 
@@ -521,7 +521,7 @@ db.Update(incoming);</code></pre></div>
 { "name": "Iaurt grecesc", "brand": "Olympus",
   "values": { "kcal": 73, "proteinG": 10, "carbsG": null, ... },
   "labelImageDataUrl": null }</code></pre>
-<p>Regula după care API-ul combină răspunsul (<code>EnrichFood</code> din <code>AiEndpoints.cs</code>):</p><div class="tablewrap"><table class=""><tr><th>Valoarea vine de la…</th><th>Ce se întâmplă</th></tr><tr><td>tine sau Open Food Facts</td><td>rămâne; AI-ul nu o poate schimba</td></tr><tr><td>eticheta din poză</td><td>e exactă</td></tr><tr><td>AI, fără etichetă</td><td>apare cu un chenar portocaliu, ca „estimat”</td></tr><tr><td>orice de la AI</td><td>e adus în limite: calorii 0–900, macro 0–100 g, nota A/B/C, scorul 1–10; o categorie din afara listei rămâne goală</td></tr></table></div>
+<p>Regula după care API-ul combină răspunsul (<code>EnrichFood</code> din <code>AiEndpoints.cs</code>):</p><div class="tablewrap"><table class=""><tr><th>Valoarea vine de la…</th><th>Ce se întâmplă</th></tr><tr><td>tine sau Open Food Facts</td><td>rămâne; AI-ul nu o poate schimba</td></tr><tr><td>eticheta din poză</td><td>e exactă</td></tr><tr><td>AI, fără etichetă</td><td>apare cu un chenar portocaliu, ca „estimat”</td></tr><tr><td>orice de la AI</td><td>e adus în limite: calorii 0–900, macro 0–100 g, notele A/B/C (altceva devine B); o categorie din afara listei rămâne goală</td></tr></table></div>
 
 <h3>Rețeta generată</h3><pre class="mermaid">sequenceDiagram
   participant T as Telefonul
@@ -560,9 +560,9 @@ db.Update(incoming);</code></pre></div>
   return scale(per100(food), grams / 100)
 }</code></pre>
 
-<h3>Scorul de slăbit: media ponderată după calorii</h3><div class="tablewrap"><table class=""><tr><th>Ingredient</th><th>kcal</th><th>Scor</th><th>kcal × scor</th></tr><tr><td>Ou</td><td><span class="m kcal">238,8</span></td><td><span class="score sa">7<small>/10</small></span></td><td>1671,6</td></tr><tr><td>Spanac</td><td><span class="m kcal">23</span></td><td><span class="score sa">10<small>/10</small></span></td><td>230</td></tr><tr><td>Ulei</td><td><span class="m kcal">88,4</span></td><td><span class="score sc">1<small>/10</small></span></td><td>88,4</td></tr><tr><td><strong>Total</strong></td><td><span class="m kcal">350,2</span></td><td></td><td><strong>1990</strong></td></tr></table></div>
-<p>1990 / 350,2 = 5,68, deci scorul variantei e <span class="score sb">6<small>/10</small></span>. După grame, cele 10 g de ulei ar conta aproape deloc, deși aduc un sfert din calorii. Întrebarea e „cât de bune sunt caloriile din farfurie”, deci fiecare ingredient contează după caloriile lui.</p>
-<h3>Nota de insulină: media ponderată după carbohidrați</h3><p>A = 1, B = 2, C = 3; sub 1,5 dă A, sub 2,5 dă B, altfel C. Dacă o porție are sub 5 g de carbohidrați, nota e <span class="grade ga">A</span>: omleta are <span class="m carb">4,8 g</span>.</p><p>Un exemplu cu carbohidrați: 100 g pâine albă (<span class="m carb">49 g</span>, <span class="grade gc">C</span>) și 50 g măr (<span class="m carb">7 g</span>, <span class="grade ga">A</span>) dau (49 × 3 + 7 × 1) / 56 = 2,75, deci <span class="grade gc">C</span>. Pâinea domină.</p>
+<h3>Nota de slăbit: media ponderată după calorii</h3><div class="tablewrap"><table class=""><tr><th>Ingredient</th><th>kcal</th><th>Notă</th><th>kcal × notă</th></tr><tr><td>Ou</td><td><span class="m kcal">238,8</span></td><td><span class="grade ga">A</span> (1)</td><td>238,8</td></tr><tr><td>Spanac</td><td><span class="m kcal">23</span></td><td><span class="grade ga">A</span> (1)</td><td>23</td></tr><tr><td>Ulei</td><td><span class="m kcal">88,4</span></td><td><span class="grade gc">C</span> (3)</td><td>265,2</td></tr><tr><td><strong>Total</strong></td><td><span class="m kcal">350,2</span></td><td></td><td><strong>527</strong></td></tr></table></div>
+<p>527 / 350,2 = 1,50; sub 1,5 dă A, sub 2,5 dă B, deci varianta are <span class="grade gb">B</span>. Fără ulei ar avea A. După grame, cele 10 g de ulei ar conta aproape deloc, deși aduc un sfert din calorii. Întrebarea e „cât de bune sunt caloriile din farfurie”, deci fiecare ingredient contează după caloriile lui.</p>
+<h3>Nota glicemică: media ponderată după carbohidrați</h3><p>A = 1, B = 2, C = 3; sub 1,5 dă A, sub 2,5 dă B, altfel C. Dacă o porție are sub 5 g de carbohidrați, nota e <span class="grade ga">A</span>: omleta are <span class="m carb">4,8 g</span>.</p><p>Un exemplu cu carbohidrați: 100 g pâine albă (<span class="m carb">49 g</span>, <span class="grade gc">C</span>) și 50 g măr (<span class="m carb">7 g</span>, <span class="grade ga">A</span>) dau (49 × 3 + 7 × 1) / 56 = 2,75, deci <span class="grade gc">C</span>. Pâinea domină.</p>
 <h3>Alternativele unui ingredient</h3><div class="tablewrap"><table class=""><tr><th>În loc de</th><th>Propune</th><th>Calorii</th></tr><tr><td>Spanac · 100 g</td><td>Ciuperci champignon · 105 g</td><td><span class="m kcal">23 kcal</span></td></tr><tr><td>Spanac · 100 g</td><td>Dovlecel · 135 g</td><td><span class="m kcal">23 kcal</span></td></tr></table></div>
 <ol><li><strong>Aceeași categorie</strong>: căpșunile sunt „fructe de pădure”, deci roșiile nu au cum să apară.</li><li><strong>Fără ce ai exclus tu.</strong></li><li><strong>Cele mai apropiate ca fel de calorii</strong>: ce parte vine din proteine, din carbohidrați și din grăsimi. Spanacul și ciupercile au amândouă cam jumătate din calorii din proteine.</li><li><strong>Aceleași calorii</strong>: 100 × 23 / 22 = 105 g de ciuperci.</li></ol><p class="cap">alternativesFor, fragment</p><pre><code>.filter((candidate) =&gt;
   candidate.id !== food.id &amp;&amp;

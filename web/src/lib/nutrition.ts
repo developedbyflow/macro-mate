@@ -84,21 +84,21 @@ export function variantScores(variant: RecipeVariant, foods: FoodsById) {
     const food = foods.get(ingredient.foodId)
     if (!food) continue
     const n = forGrams(food, ingredient.grams)
-    if (food.insulinGrade) {
+    if (food.glycemicGrade) {
       carbs += n.carbsG
-      carbsWeighted += n.carbsG * gradeValue[food.insulinGrade as Grade]
+      carbsWeighted += n.carbsG * gradeValue[food.glycemicGrade as Grade]
     }
-    if (food.weightLossScore != null) {
+    if (food.weightLossGrade) {
       kcal += n.kcal
-      kcalWeighted += n.kcal * food.weightLossScore
+      kcalWeighted += n.kcal * gradeValue[food.weightLossGrade as Grade]
     }
   }
 
   const carbsPerServing = carbs / Math.max(1, variant.servings)
-  const insulinGrade: Grade | null =
+  const glycemicGrade: Grade | null =
     variant.ingredients.length === 0 ? null : carbsPerServing < 5 ? 'A' : gradeFromValue(carbsWeighted / carbs)
-  const weightLossScore = kcal > 0 ? Math.round(kcalWeighted / kcal) : null
-  return { insulinGrade, weightLossScore }
+  const weightLossGrade: Grade | null = kcal > 0 ? gradeFromValue(kcalWeighted / kcal) : null
+  return { glycemicGrade, weightLossGrade }
 }
 
 export function mealItemNutrients(item: MealItem, foods: FoodsById, variants: VariantsById): Nutrients {

@@ -19,8 +19,8 @@ public static class SyncRules
             return "invalid-macros";
         if (!InRange(f.SodiumMg, 0, 40000)) return "invalid-sodium";
         if (f.UnitWeightG is { } unit && !InRange(unit, 0.1, 5000)) return "invalid-unit-weight";
-        if (f.InsulinGrade is { } grade && !Grades.Contains(grade)) return "invalid-insulin-grade";
-        if (f.WeightLossScore is { } score && score is < 1 or > 10) return "invalid-weight-loss-score";
+        if (f.GlycemicGrade is { } glycemic && !Grades.Contains(glycemic)) return "invalid-glycemic-grade";
+        if (f.WeightLossGrade is { } weightLoss && !Grades.Contains(weightLoss)) return "invalid-weight-loss-grade";
         return null;
     }
 

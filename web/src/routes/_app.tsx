@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { BottomNav } from '@/components/app/bottom-nav'
+import { SideNav } from '@/components/app/side-nav'
 import { db, getMeta } from '@/db/database'
 import { verifySession } from '@/db/session'
 import { startBackgroundSync } from '@/db/sync'
@@ -32,7 +33,8 @@ function AppLayout() {
   }, [navigate])
 
   return (
-    <div className="min-h-dvh pb-[calc(5rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-dvh pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60">
+      <SideNav />
       <Outlet />
       <BottomNav />
     </div>

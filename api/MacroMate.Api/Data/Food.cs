@@ -13,9 +13,9 @@ public class Food : SharedEntity
     public double FiberG { get; set; }
     public double SodiumMg { get; set; }
     public double? UnitWeightG { get; set; }
-    public string? InsulinGrade { get; set; }
-    public int? WeightLossScore { get; set; }
-    public string? ScoresReason { get; set; }
+    public string? GlycemicGrade { get; set; }
+    public string? WeightLossGrade { get; set; }
+    public string? GradesReason { get; set; }
     public List<string> EstimatedFields { get; set; } = [];
     public string Source { get; set; } = "manual";
     public Guid? PhotoId { get; set; }

@@ -464,10 +464,9 @@ export interface components {
             sodiumMg: number;
             /** Format: double */
             unitWeightG: null | number;
-            insulinGrade: null | string;
-            /** Format: int32 */
-            weightLossScore: null | number;
-            scoresReason: null | string;
+            glycemicGrade: null | string;
+            weightLossGrade: null | string;
+            gradesReason: null | string;
             estimatedFields: string[];
             source: string;
             /** Format: uuid */
@@ -507,9 +506,8 @@ export interface components {
             sodiumMg: number;
             estimatedFields: string[];
             category: string;
-            insulinGrade: string;
-            /** Format: int32 */
-            weightLossScore: number;
+            glycemicGrade: string;
+            weightLossGrade: string;
             reason: string;
         };
         JournalEntry: {

@@ -13,16 +13,19 @@ public static class AiPrompts
         1. If a label photo is present, read the values per 100 g from it. List in "fromLabel" the fields you read from the label.
         2. Fill every missing value per 100 g with your best estimate for this exact product.
         3. Choose one category code from this list: {{CategoryList}}.
-        4. Give an insulin sensitivity grade:
-           - "A": few carbohydrates, or slow carbohydrates (low glycemic index) with a lot of fiber.
+        4. Give a glycemic grade, for people with insulin resistance. Judge the glycemic load of one usual portion of this food: glycemic index × grams of carbohydrates in the portion / 100.
+           - "A": glycemic load 10 or less.
+           - "B": glycemic load 11 to 19.
+           - "C": glycemic load 20 or more.
+           Exceptions: milk and whey protein raise insulin more than their glycemic index suggests, so they get at least "B". Sugar, honey and syrups get "C" whatever the portion; other sweets and sauces with added sugar get at least "B".
+        5. Give a weight-loss grade. The main criterion is calories per 100 g: few calories for a large volume is good. Protein and fiber move the grade toward "A"; sugar and a lot of fat move it toward "C".
+           - "A": good for weight loss (vegetables, fruit, lean meat and fish, low-fat dairy).
            - "B": in between.
-           - "C": sugar, white flour, carbohydrates that raise blood sugar fast (high glycemic index).
-           Milk and whey protein raise insulin more than their glycemic index suggests: give them at least "B".
-        5. Give a weight-loss score from 1 to 10 (10 = best). The main criterion is calories per 100 g: few calories for a large volume means a high score. Protein and fiber raise the score; sugar and a lot of fat lower it.
-        6. "reason": one short sentence in Romanian explaining the grade and the score.
+           - "C": calorie-dense (oils, nuts, fatty cheese, sweets, white flour products).
+        6. "reason": one short sentence in Romanian explaining both grades.
 
         JSON shape:
-        {"name": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "insulinGrade": "A"|"B"|"C", "weightLossScore": number, "reason": string}
+        {"name": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "glycemicGrade": "A"|"B"|"C", "weightLossGrade": "A"|"B"|"C", "reason": string}
 
         "name" is the product name in Romanian, short (keep the brand out of it). Sodium is in milligrams. Field names in "fromLabel" use the same keys as above.
         """;

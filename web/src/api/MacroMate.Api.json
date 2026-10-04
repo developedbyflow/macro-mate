@@ -410,9 +410,9 @@
           "fiberG",
           "sodiumMg",
           "unitWeightG",
-          "insulinGrade",
-          "weightLossScore",
-          "scoresReason",
+          "glycemicGrade",
+          "weightLossGrade",
+          "gradesReason",
           "estimatedFields",
           "source",
           "photoId",
@@ -474,20 +474,19 @@
             ],
             "format": "double"
           },
-          "insulinGrade": {
+          "glycemicGrade": {
             "type": [
               "null",
               "string"
             ]
           },
-          "weightLossScore": {
+          "weightLossGrade": {
             "type": [
               "null",
-              "integer"
-            ],
-            "format": "int32"
+              "string"
+            ]
           },
-          "scoresReason": {
+          "gradesReason": {
             "type": [
               "null",
               "string"
@@ -581,8 +580,8 @@
           "sodiumMg",
           "estimatedFields",
           "category",
-          "insulinGrade",
-          "weightLossScore",
+          "glycemicGrade",
+          "weightLossGrade",
           "reason"
         ],
         "type": "object",
@@ -623,12 +622,11 @@
           "category": {
             "type": "string"
           },
-          "insulinGrade": {
+          "glycemicGrade": {
             "type": "string"
           },
-          "weightLossScore": {
-            "type": "integer",
-            "format": "int32"
+          "weightLossGrade": {
+            "type": "string"
           },
           "reason": {
             "type": "string"

@@ -26,7 +26,7 @@ function EditFoodPage() {
   return (
     <>
       <PageHeader title={food ? `Editează ${food.name}` : 'Editează'} back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8">{food && <FoodForm initial={draftFromFood(food)} submitLabel="Salvează" onSubmit={save} />}</main>
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">{food && <FoodForm initial={draftFromFood(food)} submitLabel="Salvează" onSubmit={save} />}</main>
     </>
   )
 }

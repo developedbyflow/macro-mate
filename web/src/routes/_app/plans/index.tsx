@@ -58,12 +58,12 @@ function PlansPage() {
           </Button>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4">
+      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:px-8 lg:pb-8 xl:grid-cols-3">
         {plans.map((plan) => {
           const { total } = planTotals(plan, foods, variants)
           return (
             <div key={plan.id} className="flex items-center gap-2 rounded-2xl border bg-card p-1 pr-2">
-              <Link to="/plans/$planId" params={{ planId: plan.id }} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-3 active:bg-muted">
+              <Link to="/plans/$planId" params={{ planId: plan.id }} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-3 transition-colors hover:bg-muted active:bg-muted">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
                   <CalendarRange className="size-5" />
                 </span>
@@ -83,7 +83,7 @@ function PlansPage() {
           )
         })}
         {plans.length === 0 && (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+          <div className="col-span-full px-6 py-16 text-center text-sm text-muted-foreground">
             Un meal plan e o zi: 1–5 mese, fiecare cu rețete și alimente. Fă primul plan și refolosește-l oricând.
           </div>
         )}

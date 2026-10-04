@@ -80,7 +80,7 @@ Câteva interogări utile:
 
 ```sql
 \dt
-select name, kcal, insulin_grade, weight_loss_score from foods order by name limit 10;
+select name, kcal, glycemic_grade, weight_loss_grade from foods order by name limit 10;
 select name, version, deleted_at from recipes order by version desc;
 select name, meals from meal_plans;
 ```

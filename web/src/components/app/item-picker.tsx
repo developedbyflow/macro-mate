@@ -14,12 +14,13 @@ import {
   useRecipes,
   useVariants,
 } from '@/hooks/use-data'
+import { useDesktop } from '@/hooks/use-desktop'
 import { forGrams, isExcluded, scale, variantTotals } from '@/lib/nutrition'
 import { search } from '@/lib/search'
 import { categoryLabel } from '@/lib/categories'
 import { units } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { GradeBadge, ScoreBadge } from './badges'
+import { GlycemicBadge, WeightLossBadge } from './badges'
 import { MacroLine } from './nutrients'
 import { NumberStepper } from './number-stepper'
 import { Scanner } from './scanner'
@@ -41,6 +42,7 @@ type Props = {
 type Tab = 'all' | 'recent' | 'favorites' | 'recipes'
 
 export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = true, confirmLabel = 'Adaugă', askQuantity = true }: Props) {
+  const desktop = useDesktop()
   const foods = useFoods()
   const foodsById = useFoodsById()
   const recipes = useRecipes()
@@ -120,13 +122,14 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
   return (
     <>
       <Drawer
+        swipeDirection={desktop ? 'right' : 'down'}
         open={open}
         onOpenChange={(next) => {
           onOpenChange(next)
           if (!next) reset()
         }}
       >
-        <DrawerContent className="h-[88dvh]">
+        <DrawerContent className="data-[swipe-axis=y]:h-[88dvh] lg:w-[30rem]">
           <DrawerHeader className="pb-2">
             <DrawerTitle className="flex items-center gap-1 text-left">
               {selected && (
@@ -212,8 +215,8 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
                             {Math.round(food.kcal)} kcal / 100 g · {categoryLabel(food.category)}
                           </div>
                         </div>
-                        <GradeBadge grade={food.insulinGrade} />
-                        <ScoreBadge score={food.weightLossScore} />
+                        <GlycemicBadge grade={food.glycemicGrade} />
+                        <WeightLossBadge grade={food.weightLossGrade} />
                       </button>
                     ))}
                     {foodRows.length === 0 && (
@@ -254,8 +257,8 @@ function SelectedItem({
     return (
       <div className="flex flex-1 flex-col gap-5 px-4 pt-2 pb-6">
         <div className="flex items-center gap-2">
-          <GradeBadge grade={food.insulinGrade} />
-          <ScoreBadge score={food.weightLossScore} />
+          <GlycemicBadge grade={food.glycemicGrade} />
+          <WeightLossBadge grade={food.weightLossGrade} />
           <span className="text-xs text-muted-foreground">{categoryLabel(food.category)}</span>
         </div>
         <div className="space-y-2">

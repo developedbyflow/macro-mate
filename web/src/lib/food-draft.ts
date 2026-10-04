@@ -19,9 +19,9 @@ export type FoodDraft = {
   category: string
   values: Record<NutrientKey, string>
   unitWeightG: string
-  insulinGrade: string | null
-  weightLossScore: number | null
-  scoresReason: string | null
+  glycemicGrade: string | null
+  weightLossGrade: string | null
+  gradesReason: string | null
   estimatedFields: string[]
   source: string
   photoId: string | null
@@ -35,9 +35,9 @@ export function emptyDraft(): FoodDraft {
     category: '',
     values: { kcal: '', proteinG: '', carbsG: '', fatG: '', fiberG: '', sodiumMg: '' },
     unitWeightG: '',
-    insulinGrade: null,
-    weightLossScore: null,
-    scoresReason: null,
+    glycemicGrade: null,
+    weightLossGrade: null,
+    gradesReason: null,
     estimatedFields: [],
     source: 'manual',
     photoId: null,
@@ -52,9 +52,9 @@ export function draftFromFood(food: Food): FoodDraft {
     category: food.category,
     values: Object.fromEntries(nutrientFields.map((f) => [f.key, String(food[f.key])])) as Record<NutrientKey, string>,
     unitWeightG: food.unitWeightG ? String(food.unitWeightG) : '',
-    insulinGrade: food.insulinGrade,
-    weightLossScore: food.weightLossScore,
-    scoresReason: food.scoresReason,
+    glycemicGrade: food.glycemicGrade,
+    weightLossGrade: food.weightLossGrade,
+    gradesReason: food.gradesReason,
     estimatedFields: food.estimatedFields,
     source: food.source,
     photoId: food.photoId,
@@ -83,9 +83,9 @@ export async function enrichDraft(draft: FoodDraft, labelImageDataUrl?: string):
     name: draft.name.trim() || result.name,
     category: draft.category || result.category,
     values: Object.fromEntries(nutrientFields.map((f) => [f.key, String(result[f.key])])) as Record<NutrientKey, string>,
-    insulinGrade: result.insulinGrade,
-    weightLossScore: result.weightLossScore,
-    scoresReason: result.reason,
+    glycemicGrade: result.glycemicGrade,
+    weightLossGrade: result.weightLossGrade,
+    gradesReason: result.reason,
     estimatedFields: [...new Set([...draft.estimatedFields.filter((k) => values[k as NutrientKey] == null), ...result.estimatedFields])],
     source: labelImageDataUrl ? 'label_photo' : draft.source,
   }
@@ -105,9 +105,9 @@ export function foodFromDraft(draft: FoodDraft) {
     fiberG: values.fiberG ?? 0,
     sodiumMg: values.sodiumMg ?? 0,
     unitWeightG: parseNumber(draft.unitWeightG),
-    insulinGrade: draft.insulinGrade,
-    weightLossScore: draft.weightLossScore,
-    scoresReason: draft.scoresReason,
+    glycemicGrade: draft.glycemicGrade,
+    weightLossGrade: draft.weightLossGrade,
+    gradesReason: draft.gradesReason,
     estimatedFields: draft.estimatedFields,
     source: draft.source,
     photoId: draft.photoId,

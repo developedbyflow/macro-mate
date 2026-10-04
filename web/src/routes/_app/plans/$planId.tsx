@@ -87,119 +87,123 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
   return (
     <>
       <PageHeader title={plan.name} subtitle={`${kcal(totals.total.kcal)} kcal pe zi`} back />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8">
-        <Input
-          aria-label="Numele planului"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={() => name.trim() && name !== plan.name && void save({ name: name.trim() })}
-          className="h-11 text-base font-semibold"
-        />
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+        <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
+          <Input
+            aria-label="Numele planului"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={() => name.trim() && name !== plan.name && void save({ name: name.trim() })}
+            className="h-11 text-base font-semibold"
+          />
 
-        <DaySummary eaten={totals.total} target={target} />
+          <DaySummary eaten={totals.total} target={target} />
+        </div>
 
-        {plan.meals.map((meal, index) => (
-          <section key={meal.id} className="overflow-hidden rounded-2xl border bg-card">
-            <div className="flex items-center gap-2 border-b px-3 py-2">
-              <MealLabel meal={meal} onRename={(label) => void updateMeal(meal.id, (m) => ({ ...m, label }))} />
-              <span className="text-sm text-muted-foreground tabular-nums">{kcal(totals.meals[index].kcal)} kcal</span>
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Opțiuni ${meal.label}`} />}>
-                  <MoreHorizontal className="size-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem disabled={index === 0} onClick={() => void move(index, -1)}>
-                    <ArrowUp className="size-4" /> Mută mai sus
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled={index === plan.meals.length - 1} onClick={() => void move(index, 1)}>
-                    <ArrowDown className="size-4" /> Mută mai jos
-                  </DropdownMenuItem>
-                  <DropdownMenuItem variant="destructive" onClick={() => void setMeals(plan.meals.filter((m) => m.id !== meal.id))}>
-                    <Trash2 className="size-4" /> Șterge masa
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <ul className="divide-y">
-              {meal.items.map((item) => {
-                const n = mealItemNutrients(item, foods, variants)
-                return (
-                  <li key={item.id} className="space-y-2 px-3 py-2.5">
-                    <div className="flex items-start gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{entryName(item, foods, variants, recipeName)}</div>
-                        <MacroLine n={n} />
+        <div className="space-y-4">
+          {plan.meals.map((meal, index) => (
+            <section key={meal.id} className="overflow-hidden rounded-2xl border bg-card">
+              <div className="flex items-center gap-2 border-b px-3 py-2">
+                <MealLabel meal={meal} onRename={(label) => void updateMeal(meal.id, (m) => ({ ...m, label }))} />
+                <span className="text-sm text-muted-foreground tabular-nums">{kcal(totals.meals[index].kcal)} kcal</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Opțiuni ${meal.label}`} />}>
+                    <MoreHorizontal className="size-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem disabled={index === 0} onClick={() => void move(index, -1)}>
+                      <ArrowUp className="size-4" /> Mută mai sus
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled={index === plan.meals.length - 1} onClick={() => void move(index, 1)}>
+                      <ArrowDown className="size-4" /> Mută mai jos
+                    </DropdownMenuItem>
+                    <DropdownMenuItem variant="destructive" onClick={() => void setMeals(plan.meals.filter((m) => m.id !== meal.id))}>
+                      <Trash2 className="size-4" /> Șterge masa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <ul className="divide-y">
+                {meal.items.map((item) => {
+                  const n = mealItemNutrients(item, foods, variants)
+                  return (
+                    <li key={item.id} className="space-y-2 px-3 py-2.5">
+                      <div className="flex items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{entryName(item, foods, variants, recipeName)}</div>
+                          <MacroLine n={n} />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Scoate"
+                          onClick={() => void updateMeal(meal.id, (m) => ({ ...m, items: m.items.filter((i) => i.id !== item.id) }))}
+                        >
+                          <X className="size-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Scoate"
-                        onClick={() => void updateMeal(meal.id, (m) => ({ ...m, items: m.items.filter((i) => i.id !== item.id) }))}
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                    {item.kind === 'food' ? (
-                      <NumberStepper
-                        value={item.grams ?? 100}
-                        onChange={(grams) => void updateItem(meal.id, item.id, { grams })}
-                        step={foods.get(item.foodId ?? '')?.unitWeightG ? Math.round(foods.get(item.foodId ?? '')!.unitWeightG! / 2) : 10}
-                        min={1}
-                        unit="g"
-                        size="sm"
-                        className="w-full"
-                        label="grame"
-                      />
-                    ) : (
-                      <NumberStepper
-                        value={item.servings ?? 1}
-                        onChange={(servings) => void updateItem(meal.id, item.id, { servings })}
-                        step={0.5}
-                        min={0.5}
-                        max={20}
-                        unit="porții"
-                        size="sm"
-                        className="w-full"
-                        label="porții"
-                      />
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-            <button
-              type="button"
-              onClick={() => setPickingFor(meal.id)}
-              className="flex w-full items-center gap-2 border-t px-4 py-2.5 text-sm font-medium text-primary active:bg-muted"
+                      {item.kind === 'food' ? (
+                        <NumberStepper
+                          value={item.grams ?? 100}
+                          onChange={(grams) => void updateItem(meal.id, item.id, { grams })}
+                          step={foods.get(item.foodId ?? '')?.unitWeightG ? Math.round(foods.get(item.foodId ?? '')!.unitWeightG! / 2) : 10}
+                          min={1}
+                          unit="g"
+                          size="sm"
+                          className="w-full"
+                          label="grame"
+                        />
+                      ) : (
+                        <NumberStepper
+                          value={item.servings ?? 1}
+                          onChange={(servings) => void updateItem(meal.id, item.id, { servings })}
+                          step={0.5}
+                          min={0.5}
+                          max={20}
+                          unit="porții"
+                          size="sm"
+                          className="w-full"
+                          label="porții"
+                        />
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+              <button
+                type="button"
+                onClick={() => setPickingFor(meal.id)}
+                className="flex w-full items-center gap-2 border-t px-4 py-2.5 text-sm font-medium text-primary active:bg-muted"
+              >
+                <Plus className="size-4" /> Adaugă rețetă sau aliment
+              </button>
+            </section>
+          ))}
+
+          {plan.meals.length < 5 && (
+            <Button
+              variant="outline"
+              className="h-11 w-full border-dashed"
+              onClick={() => void setMeals([...plan.meals, { id: newId(), label: `Masa ${plan.meals.length + 1}`, items: [] }])}
             >
-              <Plus className="size-4" /> Adaugă rețetă sau aliment
-            </button>
-          </section>
-        ))}
-
-        {plan.meals.length < 5 && (
-          <Button
-            variant="outline"
-            className="h-11 w-full border-dashed"
-            onClick={() => void setMeals([...plan.meals, { id: newId(), label: `Masa ${plan.meals.length + 1}`, items: [] }])}
-          >
-            <Plus className="size-4" /> Adaugă masă ({plan.meals.length}/5)
-          </Button>
-        )}
-
-        <ConfirmDelete
-          title={`Ștergi ${plan.name}?`}
-          description="Dispare pentru toți. Jurnalul păstrează ce ai notat deja."
-          onConfirm={async () => {
-            await deleteRow('mealPlans', plan.id)
-            await navigate({ to: '/plans' })
-          }}
-          trigger={
-            <Button variant="ghost" className="w-full text-destructive">
-              <Trash2 className="size-4" /> Șterge planul
+              <Plus className="size-4" /> Adaugă masă ({plan.meals.length}/5)
             </Button>
-          }
-        />
+          )}
+
+          <ConfirmDelete
+            title={`Ștergi ${plan.name}?`}
+            description="Dispare pentru toți. Jurnalul păstrează ce ai notat deja."
+            onConfirm={async () => {
+              await deleteRow('mealPlans', plan.id)
+              await navigate({ to: '/plans' })
+            }}
+            trigger={
+              <Button variant="ghost" className="w-full text-destructive">
+                <Trash2 className="size-4" /> Șterge planul
+              </Button>
+            }
+          />
+        </div>
       </main>
 
       <ItemPicker

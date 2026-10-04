@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, ChefHat, ChevronRight, Clock, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { GradeBadge, ScoreBadge } from '@/components/app/badges'
+import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { MacroLine } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
@@ -57,114 +57,118 @@ function RecipePage() {
           </>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-8">
-        {recipe.photoId ? <Photo id={recipe.photoId} className="aspect-[16/9] w-full rounded-2xl" /> : null}
+      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
+        <div className="space-y-5">
+          {recipe.photoId ? <Photo id={recipe.photoId} className="aspect-[16/9] w-full rounded-2xl" /> : null}
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          {recipe.prepTimeMin != null && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {recipe.prepTimeMin != null && (
+              <span className="flex items-center gap-1">
+                <Clock className="size-4" /> {recipe.prepTimeMin} min
+              </span>
+            )}
             <span className="flex items-center gap-1">
-              <Clock className="size-4" /> {recipe.prepTimeMin} min
+              <ChefHat className="size-4" /> {difficultyLabel(recipe.difficulty)}
             </span>
-          )}
-          <span className="flex items-center gap-1">
-            <ChefHat className="size-4" /> {difficultyLabel(recipe.difficulty)}
-          </span>
-          <span>de {users.get(recipe.createdBy) ?? '—'}</span>
+            <span>de {users.get(recipe.createdBy) ?? '—'}</span>
+          </div>
+
+          <section className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">Variante</h2>
+              <Button size="sm" variant="secondary" render={<Link to="/recipes/$recipeId/variants/$variantId" params={{ recipeId, variantId: 'new' }} />}>
+                <Plus className="size-4" /> Variantă
+              </Button>
+            </div>
+            {variants.length === 0 && (
+              <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                Rețeta main n-are cantități. Fă o variantă cu gramaje (ex. „600 kcal”) ca să o poți pune în planuri.
+              </p>
+            )}
+            <ul className="space-y-2">
+              {variants.map((variant) => {
+                const totals = variantTotals(variant, foods)
+                const scores = variantScores(variant, foods)
+                return (
+                  <li key={variant.id}>
+                    <Link
+                      to="/recipes/$recipeId/variants/$variantId"
+                      params={{ recipeId, variantId: variant.id }}
+                      className="flex items-center gap-3 rounded-xl border bg-card p-3 active:bg-muted"
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="font-medium">{variant.name}</div>
+                        <MacroLine n={totals.perServing} />
+                        <div className="text-xs text-muted-foreground">
+                          pe porție · {variant.servings} {variant.servings === 1 ? 'porție' : 'porții'} · {Math.round(totals.gramsPerServing)} g / porție
+                        </div>
+                      </div>
+                      <GlycemicBadge grade={scores.glycemicGrade} />
+                      <WeightLossBadge grade={scores.weightLossGrade} />
+                      <ChevronRight className="size-4 text-muted-foreground" />
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
         </div>
 
-        <section className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Variante</h2>
-            <Button size="sm" variant="secondary" render={<Link to="/recipes/$recipeId/variants/$variantId" params={{ recipeId, variantId: 'new' }} />}>
-              <Plus className="size-4" /> Variantă
-            </Button>
-          </div>
-          {variants.length === 0 && (
-            <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-              Rețeta main n-are cantități. Fă o variantă cu gramaje (ex. „600 kcal”) ca să o poți pune în planuri.
-            </p>
-          )}
-          <ul className="space-y-2">
-            {variants.map((variant) => {
-              const totals = variantTotals(variant, foods)
-              const scores = variantScores(variant, foods)
-              return (
-                <li key={variant.id}>
-                  <Link
-                    to="/recipes/$recipeId/variants/$variantId"
-                    params={{ recipeId, variantId: variant.id }}
-                    className="flex items-center gap-3 rounded-xl border bg-card p-3 active:bg-muted"
-                  >
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="font-medium">{variant.name}</div>
-                      <MacroLine n={totals.perServing} />
-                      <div className="text-xs text-muted-foreground">
-                        pe porție · {variant.servings} {variant.servings === 1 ? 'porție' : 'porții'} · {Math.round(totals.gramsPerServing)} g / porție
-                      </div>
-                    </div>
-                    <GradeBadge grade={scores.insulinGrade} />
-                    <ScoreBadge score={scores.weightLossScore} />
-                    <ChevronRight className="size-4 text-muted-foreground" />
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="font-semibold">Ingrediente</h2>
-          <ul className="flex flex-wrap gap-1.5">
-            {recipe.ingredientFoodIds.map((id) => (
-              <li key={id} className="rounded-full bg-muted px-3 py-1 text-sm">
-                {foods.get(id)?.name ?? 'Aliment șters'}
-              </li>
-            ))}
-            {recipe.ingredientFoodIds.length === 0 && <li className="text-sm text-muted-foreground">Niciun ingredient în lista main.</li>}
-          </ul>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="font-semibold">Mod de preparare</h2>
-          {steps.length > 0 ? (
-            <ol className="space-y-2">
-              {steps.map((step, index) => (
-                <li key={index} className="flex gap-3 text-sm leading-relaxed">
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">{index + 1}</span>
-                  <span className="pt-0.5">{step.replace(/^\d+[.)]\s*/, '')}</span>
+        <div className="space-y-5">
+          <section className="space-y-2">
+            <h2 className="font-semibold">Ingrediente</h2>
+            <ul className="flex flex-wrap gap-1.5">
+              {recipe.ingredientFoodIds.map((id) => (
+                <li key={id} className="rounded-full bg-muted px-3 py-1 text-sm">
+                  {foods.get(id)?.name ?? 'Aliment șters'}
                 </li>
               ))}
-            </ol>
-          ) : (
-            <p className="text-sm text-muted-foreground">Nescris încă.</p>
-          )}
-        </section>
+              {recipe.ingredientFoodIds.length === 0 && <li className="text-sm text-muted-foreground">Niciun ingredient în lista main.</li>}
+            </ul>
+          </section>
 
-        <div className="flex flex-col gap-1 border-t pt-4">
-          <Button
-            variant="ghost"
-            className={cn(excluded && 'text-destructive')}
-            onClick={() => {
-              void toggleInProfile(profile, 'excludedRecipeIds', recipe.id)
-              toast(excluded ? 'Rețeta nu mai e exclusă.' : 'Exclusă: n-o mai vezi în liste.')
-            }}
-          >
-            <Ban className="size-4" /> {excluded ? 'Exclusă pentru mine (anulează)' : 'Exclude pentru mine'}
-          </Button>
-          <ConfirmDelete
-            title={`Ștergi ${recipe.name}?`}
-            description="Se șterg rețeta și toate variantele ei, pentru toți."
-            onConfirm={async () => {
-              for (const v of variants) await deleteRow('recipeVariants', v.id)
-              await deleteRow('recipes', recipe.id)
-              await navigate({ to: '/recipes' })
-            }}
-            trigger={
-              <Button variant="ghost" className="text-destructive">
-                <Trash2 className="size-4" /> Șterge rețeta
-              </Button>
-            }
-          />
+          <section className="space-y-2">
+            <h2 className="font-semibold">Mod de preparare</h2>
+            {steps.length > 0 ? (
+              <ol className="space-y-2">
+                {steps.map((step, index) => (
+                  <li key={index} className="flex gap-3 text-sm leading-relaxed">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">{index + 1}</span>
+                    <span className="pt-0.5">{step.replace(/^\d+[.)]\s*/, '')}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nescris încă.</p>
+            )}
+          </section>
+
+          <div className="flex flex-col gap-1 border-t pt-4">
+            <Button
+              variant="ghost"
+              className={cn(excluded && 'text-destructive')}
+              onClick={() => {
+                void toggleInProfile(profile, 'excludedRecipeIds', recipe.id)
+                toast(excluded ? 'Rețeta nu mai e exclusă.' : 'Exclusă: n-o mai vezi în liste.')
+              }}
+            >
+              <Ban className="size-4" /> {excluded ? 'Exclusă pentru mine (anulează)' : 'Exclude pentru mine'}
+            </Button>
+            <ConfirmDelete
+              title={`Ștergi ${recipe.name}?`}
+              description="Se șterg rețeta și toate variantele ei, pentru toți."
+              onConfirm={async () => {
+                for (const v of variants) await deleteRow('recipeVariants', v.id)
+                await deleteRow('recipes', recipe.id)
+                await navigate({ to: '/recipes' })
+              }}
+              trigger={
+                <Button variant="ghost" className="text-destructive">
+                  <Trash2 className="size-4" /> Șterge rețeta
+                </Button>
+              }
+            />
+          </div>
         </div>
       </main>
     </>

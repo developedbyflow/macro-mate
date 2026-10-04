@@ -21,7 +21,7 @@ flowchart LR
   J --> RE
 ```
 
-- **Aliment**: valori la 100 g, notă de insulină A–C și scor de slăbit 1–10.
+- **Aliment**: valori la 100 g, notă glicemică A–C și notă de slăbit A–C.
 - **Rețetă main**: lista de ingrediente și modul de preparare, fără cantități.
 - **Variantă**: aceeași rețetă cu gramaje (ex. „600 kcal”, „700 kcal”). Valorile se arată pe o porție.
 - **Masă**: variante de rețete și alimente simple. Ex.: „Breakfast” = omletă, 1 porție + 1 banană.
@@ -131,7 +131,7 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - **„Copiază de ieri”** pe o masă.
    - Fără reclame și fără duplicate: baza e doar a voastră, fiecare aliment apare o singură dată.
 2. **Alimente**
-   - Listă cu căutare și filtre: categorie, notă de insulină, scor de slăbit, favorite.
+   - Listă cu căutare și filtre: categorie, notă glicemică, notă de slăbit, favorite.
    - Fișa alimentului arată valorile, notele, motivul notelor și cine l-a adăugat.
    - Un aliment nou se adaugă scanând codul, cu o poză la etichetă sau manual (§6).
 3. **Rețete**
@@ -168,15 +168,19 @@ flowchart TD
 ```
 
 - Ce citește DeepSeek din poza etichetei e exact. Ce completează doar după nume e marcat „estimat”.
-- La fiecare aliment, DeepSeek întoarce: valorile care lipsesc, categoria, `insulin_grade`, `weight_loss_score` și un motiv de o propoziție.
+- La fiecare aliment, DeepSeek întoarce: valorile care lipsesc, categoria, `glycemic_grade`, `weight_loss_grade` și un motiv de o propoziție.
 - Fără internet, alimentul se salvează cu ce ai completat tu. Notele vin când revine internetul.
 
 **Criteriile date AI-ului**, ca notele să fie la fel de la un aliment la altul:
-- **Insulină**
-  - **A**: puțini carbohidrați, sau carbohidrați care cresc glicemia încet (indice glicemic mic), cu multe fibre.
+- **Glicemic**, pentru cine are rezistență la insulină. Se judecă după **încărcătura glicemică** a unei porții obișnuite: indicele glicemic × gramele de carbohidrați din porție / 100.
+  - **A**: 10 sau mai puțin.
+  - **B**: 11–19.
+  - **C**: 20 sau mai mult.
+  - Excepții: laptele și proteina din zer primesc cel puțin B, pentru că urcă insulina mai mult decât arată indicele glicemic. Zahărul, mierea și siropurile primesc C indiferent de porție; alte dulciuri și sosurile cu zahăr adăugat primesc cel puțin B.
+- **Slăbit**: criteriul principal e câte kcal are la 100 g (puține kcal la volum mare = bine). Proteinele și fibrele împing nota spre A, zahărul și grăsimea multă spre C.
+  - **A**: bun pentru slăbit (legume, fructe, carne și pește slabe, lactate degresate).
   - **B**: la mijloc.
-  - **C**: zahăr, făină albă, carbohidrați care cresc glicemia repede.
-- **Slăbit, 1–10**: criteriul principal e câte kcal are la 100 g (puține kcal la volum mare = scor mare). Proteinele și fibrele urcă scorul, zahărul și grăsimea multă îl coboară.
+  - **C**: multe calorii la puțin volum (uleiuri, nuci, brânzeturi grase, dulciuri, făinoase albe).
 
 **Categorii** (listă fixă, AI-ul alege una dintre ele): legume, legume cu amidon, fructe, fructe de pădure, carne albă, carne roșie, mezeluri, pește și fructe de mare, ouă, lactate, brânzeturi, cereale și paste, pâine și panificație, leguminoase, nuci și semințe, uleiuri și grăsimi, sosuri și condimente, dulciuri, băuturi.
 
@@ -189,8 +193,8 @@ flowchart TD
 - Valorile pe o porție = totalul împărțit la `servings`.
 
 **Notele unei variante**
-- Nota de insulină = media notelor ingredientelor (A=1, B=2, C=3), ponderată după carbohidrații pe care îi aduce fiecare ingredient, apoi rotunjită. Dacă rețeta aproape nu are carbohidrați, nota e A.
-- Scorul de slăbit = media scorurilor ingredientelor, ponderată după kcal. Uleiul contează după caloriile pe care le aduce, nu după cele câteva grame.
+- Nota glicemică = media notelor ingredientelor (A=1, B=2, C=3), ponderată după carbohidrații pe care îi aduce fiecare ingredient, apoi rotunjită. Dacă rețeta aproape nu are carbohidrați, nota e A.
+- Nota de slăbit = media notelor ingredientelor (A=1, B=2, C=3), ponderată după kcal, apoi rotunjită. Uleiul contează după caloriile pe care le aduce, nu după cele câteva grame.
 
 **Alternativele unui ingredient**
 - Se caută în aceeași categorie, fără alimentele excluse de tine.

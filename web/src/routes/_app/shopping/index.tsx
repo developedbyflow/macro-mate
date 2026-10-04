@@ -33,9 +33,9 @@ function ShoppingPage() {
           </Button>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4">
+      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:px-8 lg:pb-8 xl:grid-cols-3">
         {lists.map((list) => (
-          <Link key={list.id} to="/shopping/$listId" params={{ listId: list.id }} className="flex items-center gap-3 rounded-2xl border bg-card p-3 active:bg-muted">
+          <Link key={list.id} to="/shopping/$listId" params={{ listId: list.id }} className="flex items-center gap-3 rounded-2xl border bg-card p-3 transition-colors hover:bg-muted active:bg-muted">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
               <ShoppingBasket className="size-5" />
             </span>
@@ -51,7 +51,7 @@ function ShoppingPage() {
           </Link>
         ))}
         {lists.length === 0 && (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+          <div className="col-span-full px-6 py-16 text-center text-sm text-muted-foreground">
             Alegi planurile și câte zile le folosești, iar lista se face singură, grupată pe rețete.
           </div>
         )}

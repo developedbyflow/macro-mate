@@ -30,10 +30,12 @@ function ProfilePage() {
   return (
     <>
       <PageHeader title={me?.displayName ?? 'Profil'} subtitle={me?.email} back />
-      <main className="mx-auto max-w-2xl space-y-6 px-4 pt-4 pb-8">
+      <main className="mx-auto max-w-2xl space-y-6 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
         {profile && <TargetsSection key={profile.id + profile.updatedAt} profile={profile} />}
-        {profile && <PreferencesSection profile={profile} />}
-        <AppSection />
+        <div className="space-y-6">
+          {profile && <PreferencesSection profile={profile} />}
+          <AppSection />
+        </div>
       </main>
     </>
   )

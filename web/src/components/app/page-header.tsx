@@ -15,7 +15,7 @@ export function PageHeader({ title, subtitle, back, actions }: Props) {
   const router = useRouter()
   return (
     <header className="pt-safe sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3">
+      <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3 lg:mx-0 lg:max-w-6xl lg:px-7">
         {back && (
           <Button variant="ghost" size="icon" aria-label="Înapoi" onClick={() => router.history.back()}>
             <ChevronLeft className="size-5" />
@@ -27,12 +27,12 @@ export function PageHeader({ title, subtitle, back, actions }: Props) {
         </div>
         {actions}
         {!back && (
-          <>
+          <div className="flex items-center gap-2 lg:hidden">
             <SyncIndicator />
             <Button variant="ghost" size="icon" aria-label="Profil" render={<Link to="/profile" />}>
               <UserRound className="size-5" />
             </Button>
-          </>
+          </div>
         )}
       </div>
     </header>

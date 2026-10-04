@@ -1,3 +1,4 @@
+import { Droplet, Weight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const gradeTone = {
@@ -6,31 +7,32 @@ const gradeTone = {
   C: 'bg-grade-c/15 text-grade-c ring-grade-c/30',
 } as const
 
-export function GradeBadge({ grade, className }: { grade: string | null | undefined; className?: string }) {
+const grades = {
+  glycemic: { icon: Droplet, label: 'Impact glicemic', meaning: { A: 'mic', B: 'mediu', C: 'mare' } },
+  weightLoss: { icon: Weight, label: 'Slăbit', meaning: { A: 'bun', B: 'mediu', C: 'slab' } },
+} as const
+
+function GradeBadge({ kind, grade, className }: { kind: keyof typeof grades; grade: string | null | undefined; className?: string }) {
   if (!grade) return null
-  const tone = gradeTone[grade as keyof typeof gradeTone] ?? gradeTone.B
+  const key = (grade in gradeTone ? grade : 'B') as keyof typeof gradeTone
+  const { icon: Icon, label, meaning } = grades[kind]
   return (
     <span
-      title={`Sensibilitate la insulină: ${grade}`}
-      className={cn('inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-xs font-bold ring-1 ring-inset', tone, className)}
+      title={`${label}: ${grade} (${meaning[key]})`}
+      className={cn('inline-flex h-6 items-center justify-center gap-0.5 rounded-md px-1.5 text-xs font-bold ring-1 ring-inset', gradeTone[key], className)}
     >
+      <Icon className="size-3 opacity-70" />
       {grade}
     </span>
   )
 }
 
-export function ScoreBadge({ score, className }: { score: number | null | undefined; className?: string }) {
-  if (score == null) return null
-  const tone = score >= 7 ? gradeTone.A : score >= 4 ? gradeTone.B : gradeTone.C
-  return (
-    <span
-      title={`Scor pentru slăbit: ${score} din 10`}
-      className={cn('inline-flex h-6 items-center justify-center gap-0.5 rounded-md px-1.5 text-xs font-semibold ring-1 ring-inset', tone, className)}
-    >
-      {score}
-      <span className="font-normal opacity-70">/10</span>
-    </span>
-  )
+export function GlycemicBadge(props: { grade: string | null | undefined; className?: string }) {
+  return <GradeBadge kind="glycemic" {...props} />
+}
+
+export function WeightLossBadge(props: { grade: string | null | undefined; className?: string }) {
+  return <GradeBadge kind="weightLoss" {...props} />
 }
 
 export function EstimatedBadge() {

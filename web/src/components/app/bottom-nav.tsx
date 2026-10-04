@@ -1,19 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { Apple, CalendarRange, ChefHat, ShoppingBasket, Sun } from 'lucide-react'
-
-const tabs = [
-  { to: '/', label: 'Azi', icon: Sun, exact: true },
-  { to: '/plans', label: 'Planuri', icon: CalendarRange, exact: false },
-  { to: '/recipes', label: 'Rețete', icon: ChefHat, exact: false },
-  { to: '/foods', label: 'Alimente', icon: Apple, exact: false },
-  { to: '/shopping', label: 'Cumpărături', icon: ShoppingBasket, exact: false },
-] as const
+import { navTabs } from './nav-tabs'
 
 export function BottomNav() {
   return (
-    <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 backdrop-blur-md">
+    <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 backdrop-blur-md lg:hidden">
       <ul className="mx-auto grid h-16 max-w-2xl grid-cols-5">
-        {tabs.map(({ to, label, icon: Icon, exact }) => (
+        {navTabs.map(({ to, label, icon: Icon, exact }) => (
           <li key={to}>
             <Link
               to={to}

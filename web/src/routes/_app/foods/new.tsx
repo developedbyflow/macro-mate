@@ -101,9 +101,9 @@ function NewFoodPage() {
   return (
     <>
       <PageHeader title="Aliment nou" back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8">
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
         {step.kind === 'choose' && (
-          <div className="space-y-3">
+          <div className="space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
             <BigChoice icon={ScanBarcode} title="Scanează codul de bare" text="Caut produsul în Open Food Facts, iar ce lipsește completează DeepSeek." onClick={() => setStep({ kind: 'scanning' })} />
             <BigChoice icon={Camera} title="Poză la etichetă" text="DeepSeek citește valorile nutriționale din poză." onClick={() => setStep({ kind: 'label' })} />
             <BigChoice icon={Keyboard} title="Scriu manual" text="Completezi tu, iar AI-ul poate umple golurile." onClick={() => setStep({ kind: 'form', draft: emptyDraft() })} />
@@ -129,7 +129,7 @@ function NewFoodPage() {
 
 function BigChoice({ icon: Icon, title, text, onClick }: { icon: typeof Camera; title: string; text: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="flex w-full items-start gap-4 rounded-2xl border bg-card p-4 text-left shadow-xs transition-colors active:bg-muted">
+    <button type="button" onClick={onClick} className="flex w-full items-start gap-4 rounded-2xl border bg-card p-4 text-left shadow-xs transition-colors hover:bg-muted active:bg-muted">
       <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
         <Icon className="size-5" />
       </span>
@@ -152,7 +152,7 @@ function LabelStep({ onRead, disabledReason }: { onRead: (draft: FoodDraft, imag
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 lg:max-w-xl">
       <p className="text-sm text-muted-foreground">Fă o poză clară la tabelul cu valori nutriționale. Numele e opțional: dacă îl lași gol, îl citește DeepSeek de pe ambalaj.</p>
       <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nume (opțional)" className="h-10" />
       {image ? (

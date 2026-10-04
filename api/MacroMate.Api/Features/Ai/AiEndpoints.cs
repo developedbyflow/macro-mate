@@ -19,8 +19,8 @@ public sealed record FoodEnrichResponse(
     double SodiumMg,
     List<string> EstimatedFields,
     string Category,
-    string InsulinGrade,
-    int WeightLossScore,
+    string GlycemicGrade,
+    string WeightLossGrade,
     string Reason);
 
 public sealed record AiStatus(bool Configured);
@@ -62,8 +62,8 @@ public static class AiEndpoints
         double? SodiumMg,
         List<string>? FromLabel,
         string? Category,
-        string? InsulinGrade,
-        double? WeightLossScore,
+        string? GlycemicGrade,
+        string? WeightLossGrade,
         string? Reason);
 
     static async Task<IResult> EnrichFood(FoodEnrichRequest request, DeepSeekClient ai, CancellationToken ct)
@@ -107,13 +107,15 @@ public static class AiEndpoints
                 SodiumMg: Pick("sodiumMg", v.SodiumMg, answer.SodiumMg, 40000),
                 EstimatedFields: estimated,
                 Category: answer.Category is { } c && FoodCategories.IsValid(c) ? c : "",
-                InsulinGrade: answer.InsulinGrade is "A" or "B" or "C" ? answer.InsulinGrade : "B",
-                WeightLossScore: (int)Math.Clamp(Math.Round(answer.WeightLossScore ?? 5), 1, 10),
+                GlycemicGrade: Grade(answer.GlycemicGrade),
+                WeightLossGrade: Grade(answer.WeightLossGrade),
                 Reason: answer.Reason?.Trim() ?? "");
 
             return Results.Ok(response);
         });
     }
+
+    static string Grade(string? value) => value?.Trim().ToUpperInvariant() is ("A" or "B" or "C") and var grade ? grade : "B";
 
     sealed record GenerateAnswer(
         string? Name,

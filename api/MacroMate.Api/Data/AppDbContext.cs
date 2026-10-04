@@ -32,7 +32,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             b.Property(f => f.Brand).HasMaxLength(200);
             b.Property(f => f.Barcode).HasMaxLength(32);
             b.Property(f => f.Category).HasMaxLength(40);
-            b.Property(f => f.InsulinGrade).HasMaxLength(1);
+            b.Property(f => f.GlycemicGrade).HasMaxLength(1);
+            b.Property(f => f.WeightLossGrade).HasMaxLength(1);
             b.Property(f => f.Source).HasMaxLength(20);
         });
 

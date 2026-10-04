@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, ApiError } from '@/api/client'
 import type { RecipeDraft, RecipeVariant } from '@/api/types'
-import { GradeBadge, ScoreBadge } from '@/components/app/badges'
+import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
 import { useAiStatus } from '@/hooks/use-ai-status'
 import { MacroLine } from '@/components/app/nutrients'
 import { NumberStepper } from '@/components/app/number-stepper'
@@ -89,44 +89,52 @@ function GeneratePage() {
   return (
     <>
       <PageHeader title="Generează rețetă" back />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8">
-        <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ce ai poftă să mănânci?" className="min-h-24 text-base" maxLength={500} />
-        {!prompt && (
-          <div className="flex flex-wrap gap-1.5">
-            {ideas.map((idea) => (
-              <button key={idea} type="button" className="rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground" onClick={() => setPrompt(idea)}>
-                {idea}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="space-y-3 rounded-2xl border bg-card p-4 text-sm">
-          <label className="flex items-center gap-3">
-            <Checkbox checked={limitOn} onCheckedChange={(v) => setLimitOn(v === true)} />
-            <span className="flex-1">Limită pe porție</span>
-            {limitOn && <NumberStepper value={maxKcal} onChange={setMaxKcal} step={50} min={50} max={2000} unit="kcal" size="sm" className="w-36" label="kcal pe porție" />}
-          </label>
-          {!limitOn && (
-            <label className="flex items-center gap-3">
-              <Checkbox checked={useRemaining} onCheckedChange={(v) => setUseRemaining(v === true)} disabled={!remaining} />
-              <span className="flex-1">
-                Să încapă în ce mai am azi
-                {remaining ? <span className="block text-xs text-muted-foreground">mai ai {Math.round(remaining.kcal)} kcal</span> : <span className="block text-xs text-muted-foreground">setează-ți întâi țintele în profil</span>}
-              </span>
-            </label>
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
+        <div className="space-y-4">
+          <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ce ai poftă să mănânci?" className="min-h-24 text-base" maxLength={500} />
+          {!prompt && (
+            <div className="flex flex-wrap gap-1.5">
+              {ideas.map((idea) => (
+                <button key={idea} type="button" className="rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground" onClick={() => setPrompt(idea)}>
+                  {idea}
+                </button>
+              ))}
+            </div>
           )}
-          <p className="text-xs text-muted-foreground">Folosește doar alimente din bază, fără cele excluse de tine. Cele marcate „îmi place” au prioritate.</p>
+
+          <div className="space-y-3 rounded-2xl border bg-card p-4 text-sm">
+            <label className="flex items-center gap-3">
+              <Checkbox checked={limitOn} onCheckedChange={(v) => setLimitOn(v === true)} />
+              <span className="flex-1">Limită pe porție</span>
+              {limitOn && <NumberStepper value={maxKcal} onChange={setMaxKcal} step={50} min={50} max={2000} unit="kcal" size="sm" className="w-36" label="kcal pe porție" />}
+            </label>
+            {!limitOn && (
+              <label className="flex items-center gap-3">
+                <Checkbox checked={useRemaining} onCheckedChange={(v) => setUseRemaining(v === true)} disabled={!remaining} />
+                <span className="flex-1">
+                  Să încapă în ce mai am azi
+                  {remaining ? <span className="block text-xs text-muted-foreground">mai ai {Math.round(remaining.kcal)} kcal</span> : <span className="block text-xs text-muted-foreground">setează-ți întâi țintele în profil</span>}
+                </span>
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">Folosește doar alimente din bază, fără cele excluse de tine. Cele marcate „îmi place” au prioritate.</p>
+          </div>
+
+          {blocked && <p className="text-sm text-destructive">{blocked}</p>}
+
+          <Button size="lg" className="h-12 w-full text-base" disabled={!prompt.trim() || !!blocked || generate.isPending} onClick={() => generate.mutate()}>
+            {generate.isPending ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
+            {generate.isPending ? 'DeepSeek gătește…' : 'Generează'}
+          </Button>
         </div>
 
-        {blocked && <p className="text-sm text-destructive">{blocked}</p>}
-
-        <Button size="lg" className="h-12 w-full text-base" disabled={!prompt.trim() || !!blocked || generate.isPending} onClick={() => generate.mutate()}>
-          {generate.isPending ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
-          {generate.isPending ? 'DeepSeek gătește…' : 'Generează'}
-        </Button>
-
-        {draft && <DraftPreview draft={draft} onSave={() => void saveDraft(draft)} onRetry={() => generate.mutate()} retrying={generate.isPending} />}
+        <div className="space-y-4">
+          {draft ? (
+            <DraftPreview draft={draft} onSave={() => void saveDraft(draft)} onRetry={() => generate.mutate()} retrying={generate.isPending} />
+          ) : (
+            <p className="hidden rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground lg:block">Rețeta generată apare aici.</p>
+          )}
+        </div>
       </main>
     </>
   )
@@ -149,8 +157,8 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
       </div>
       <div className="flex items-center gap-2">
         <MacroLine n={totals.perServing} className="flex-1 text-sm" />
-        <GradeBadge grade={scores.insulinGrade} />
-        <ScoreBadge score={scores.weightLossScore} />
+        <GlycemicBadge grade={scores.glycemicGrade} />
+        <WeightLossBadge grade={scores.weightLossGrade} />
       </div>
       <p className="text-xs text-muted-foreground">Valorile sunt calculate de aplicație din alimentele din bază, pe o porție.</p>
 
