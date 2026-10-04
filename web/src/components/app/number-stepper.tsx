@@ -1,5 +1,6 @@
 import { Minus, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -19,6 +20,7 @@ function round(value: number) {
 }
 
 export function NumberStepper({ value, onChange, step = 1, min = 0, max = 100000, unit, className, size = 'md', label }: Props) {
+  const { t } = useTranslation()
   const [draft, setDraft] = useState<string | null>(null)
   const text = draft ?? String(round(value))
 
@@ -36,7 +38,7 @@ export function NumberStepper({ value, onChange, step = 1, min = 0, max = 100000
 
   return (
     <div className={cn('inline-flex items-center overflow-hidden rounded-lg border border-input bg-card', height, className)}>
-      <button type="button" className={button} aria-label={`Scade ${label ?? ''}`} disabled={value <= min} onClick={() => commit(value - step)}>
+      <button type="button" className={button} aria-label={t('common.decrease', { label: label ?? '' })} disabled={value <= min} onClick={() => commit(value - step)}>
         <Minus className="size-4" />
       </button>
       <label className="flex min-w-0 flex-1 items-baseline justify-center gap-0.5">
@@ -62,7 +64,7 @@ export function NumberStepper({ value, onChange, step = 1, min = 0, max = 100000
         />
         {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
       </label>
-      <button type="button" className={button} aria-label={`Crește ${label ?? ''}`} disabled={value >= max} onClick={() => commit(value + step)}>
+      <button type="button" className={button} aria-label={t('common.increase', { label: label ?? '' })} disabled={value >= max} onClick={() => commit(value + step)}>
         <Plus className="size-4" />
       </button>
     </div>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Email sau parolă greșită.</value>
+  </data>
+  <data name="TooManyAttempts" xml:space="preserve">
+    <value>Prea multe încercări. Încearcă din nou peste 5 minute.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Parola trebuie să aibă cel puțin {0} caractere.</value>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Parola trebuie să aibă cel puțin {0} caractere diferite.</value>
+  </data>
+  <data name="InvalidEmail" xml:space="preserve">
+    <value>Adresa de email nu e validă.</value>
+  </data>
+  <data name="DuplicateEmail" xml:space="preserve">
+    <value>Există deja un cont cu adresa asta.</value>
+  </data>
+  <data name="InviteExpired" xml:space="preserve">
+    <value>Invitația nu mai e valabilă. Cere un link nou.</value>
+  </data>
+  <data name="DisplayNameInvalid" xml:space="preserve">
+    <value>Scrie un nume de cel mult 60 de caractere.</value>
+  </data>
+  <data name="EmailAlreadyRegistered" xml:space="preserve">
+    <value>Există deja un cont cu adresa asta. Intră în cont și deschide din nou linkul.</value>
+  </data>
+  <data name="AlreadyInKitchen" xml:space="preserve">
+    <value>Ești deja în bucătăria asta.</value>
+  </data>
+  <data name="LeaveSharedKitchenFirst" xml:space="preserve">
+    <value>Ești într-o bucătărie cu alți membri. Ieși întâi din ea, din Profil.</value>
+  </data>
+  <data name="AloneInKitchen" xml:space="preserve">
+    <value>Ești singur în bucătăria ta, deci nu ai din ce să ieși.</value>
+  </data>
+  <data name="CannotRemoveYourself" xml:space="preserve">
+    <value>Ca să pleci tu, folosește „Ieși din bucătărie”.</value>
+  </data>
+  <data name="MemberNotInKitchen" xml:space="preserve">
+    <value>Persoana nu e în bucătăria ta.</value>
+  </data>
+  <data name="OnlyOwnerCanRemove" xml:space="preserve">
+    <value>Doar proprietarul bucătăriei poate scoate membri.</value>
+  </data>
+  <data name="FoodNameOrPhotoRequired" xml:space="preserve">
+    <value>Dă un nume sau o poză la etichetă.</value>
+  </data>
+  <data name="LabelPhotoInvalid" xml:space="preserve">
+    <value>Poza trebuie să fie o imagine mai mică de 6 MB.</value>
+  </data>
+  <data name="RecipePromptInvalid" xml:space="preserve">
+    <value>Scrie ce ai poftă, în maxim 500 de caractere.</value>
+  </data>
+  <data name="NoFoodsForRecipe" xml:space="preserve">
+    <value>Nu sunt alimente în bază din care să fac o rețetă.</value>
+  </data>
+  <data name="DefaultRecipeName" xml:space="preserve">
+    <value>Rețetă nouă</value>
+  </data>
+  <data name="AiNotConfigured" xml:space="preserve">
+    <value>AI-ul nu e configurat: lipsește cheia DeepSeek pe server.</value>
+  </data>
+  <data name="AiUnreachable" xml:space="preserve">
+    <value>Nu am putut ajunge la DeepSeek.</value>
+  </data>
+  <data name="AiFailedStatus" xml:space="preserve">
+    <value>DeepSeek a răspuns {0}.</value>
+  </data>
+  <data name="AiEmptyAnswer" xml:space="preserve">
+    <value>DeepSeek a trimis un răspuns gol.</value>
+  </data>
+  <data name="AiEmptyJson" xml:space="preserve">
+    <value>DeepSeek a trimis JSON gol.</value>
+  </data>
+  <data name="AiInvalidJson" xml:space="preserve">
+    <value>DeepSeek a trimis un JSON care nu se potrivește.</value>
+  </data>
+  <data name="AiUsedNoFoods" xml:space="preserve">
+    <value>DeepSeek n-a folosit niciun aliment din bază.</value>
+  </data>
+  <data name="InvalidBarcode" xml:space="preserve">
+    <value>Codul de bare are doar cifre, între 6 și 32.</value>
+  </data>
+  <data name="ProductNotFound" xml:space="preserve">
+    <value>Produsul nu e în Open Food Facts.</value>
+  </data>
+  <data name="PhotoMustBeJpeg" xml:space="preserve">
+    <value>Poza trebuie să fie JPEG.</value>
+  </data>
+  <data name="PhotoTooLarge" xml:space="preserve">
+    <value>Poza trebuie să aibă sub 8 MB.</value>
+  </data>
+  <data name="TooManyChanges" xml:space="preserve">
+    <value>Prea multe modificări într-o singură cerere.</value>
+  </data>
+  <data name="InvalidLink" xml:space="preserve">
+    <value>Linkul nu mai e valabil. Cere altul.</value>
+  </data>
+  <data name="WrongCurrentPassword" xml:space="preserve">
+    <value>Parola actuală nu e corectă.</value>
+  </data>
+  <data name="SameEmail" xml:space="preserve">
+    <value>Asta e deja adresa contului.</value>
+  </data>
+  <data name="EmailUnavailable" xml:space="preserve">
+    <value>Trimiterea de emailuri nu e configurată pe server.</value>
+  </data>
+  <data name="ResetPasswordSubject" xml:space="preserve">
+    <value>Resetează parola MacroMate</value>
+  </data>
+  <data name="ResetPasswordText" xml:space="preserve">
+    <value>Salut, {0}!
+
+Cineva a cerut resetarea parolei contului tău MacroMate. Dacă ai fost tu, deschide linkul de mai jos în următoarele 2 ore:
+
+{1}
+
+Dacă n-ai cerut tu, ignoră emailul. Parola rămâne aceeași.</value>
+  </data>
+  <data name="ChangeEmailSubject" xml:space="preserve">
+    <value>Confirmă noua adresă de email</value>
+  </data>
+  <data name="ChangeEmailText" xml:space="preserve">
+    <value>Salut, {0}!
+
+Ai cerut ca aceasta să fie adresa contului tău MacroMate. Deschide linkul de mai jos în următoarele 2 ore ca să confirmi:
+
+{1}
+
+Dacă n-ai cerut tu, ignoră emailul.</value>
+  </data>
+</root>

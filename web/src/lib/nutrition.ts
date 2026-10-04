@@ -163,7 +163,7 @@ export function foodDistance(a: Food, b: Food) {
   return Math.abs(ca.p - cb.p) + Math.abs(ca.c - cb.c) + Math.abs(ca.f - cb.f) + 0.2 * density
 }
 
-export function alternativesFor(food: Food, grams: number, all: Food[], exclusions: Exclusions, count = 2): Alternative[] {
+export function alternativesFor(food: Food, grams: number, all: Food[], exclusions: Exclusions, pantry: Set<string> = new Set(), count = 2): Alternative[] {
   return all
     .filter(
       (candidate) =>
@@ -173,8 +173,8 @@ export function alternativesFor(food: Food, grams: number, all: Food[], exclusio
         !exclusions.foodIds.has(candidate.id) &&
         !exclusions.categories.has(candidate.category),
     )
-    .map((candidate) => ({ candidate, distance: foodDistance(food, candidate) }))
-    .sort((a, b) => a.distance - b.distance)
+    .map((candidate) => ({ candidate, distance: foodDistance(food, candidate), inPantry: pantry.has(candidate.id) }))
+    .sort((a, b) => Number(b.inPantry) - Number(a.inPantry) || a.distance - b.distance)
     .slice(0, count)
     .map(({ candidate }) => ({
       food: candidate,

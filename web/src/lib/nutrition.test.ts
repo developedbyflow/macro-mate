@@ -90,6 +90,11 @@ describe('alternativesFor', () => {
     const exclusions = { foodIds: new Set([blackberries.id, raspberries.id]), categories: new Set<string>() }
     expect(alternativesFor(strawberries, 100, all, exclusions).map((a) => a.food.name)).toEqual(['Afine'])
   })
+
+  it('puts the foods from the pantry first', () => {
+    const pantry = new Set([blueberries.id])
+    expect(alternativesFor(strawberries, 100, all, none, pantry)[0].food.name).toBe('Afine')
+  })
 })
 
 describe('mealItemNutrients', () => {

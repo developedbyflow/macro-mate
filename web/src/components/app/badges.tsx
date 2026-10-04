@@ -1,4 +1,5 @@
 import { Droplet, Dumbbell, Salad } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Grades } from '@/lib/nutrition'
 import { cn } from '@/lib/utils'
 
@@ -9,18 +10,19 @@ const gradeTone = {
 } as const
 
 const grades = {
-  glycemic: { icon: Droplet, label: 'Impact glicemic', meaning: { A: 'mic', B: 'mediu', C: 'mare' } },
-  protein: { icon: Dumbbell, label: 'Proteină', meaning: { A: 'multă, pe calorie', B: 'medie', C: 'puțină' } },
-  volume: { icon: Salad, label: 'Volum', meaning: { A: 'puține calorii la 100 g', B: 'mediu', C: 'multe calorii la 100 g' } },
+  glycemic: Droplet,
+  protein: Dumbbell,
+  volume: Salad,
 } as const
 
 function GradeBadge({ kind, grade, className }: { kind: keyof typeof grades; grade: string | null | undefined; className?: string }) {
+  const { t } = useTranslation()
   if (!grade) return null
   const key = (grade in gradeTone ? grade : 'B') as keyof typeof gradeTone
-  const { icon: Icon, label, meaning } = grades[kind]
+  const Icon = grades[kind]
   return (
     <span
-      title={`${label}: ${grade} (${meaning[key]})`}
+      title={t('grades.title', { label: t(`grades.${kind}.label`), grade, meaning: t(`grades.${kind}.${key}`) })}
       className={cn('inline-flex h-6 items-center justify-center gap-0.5 rounded-md px-1.5 text-xs font-bold ring-1 ring-inset', gradeTone[key], className)}
     >
       <Icon className="size-3 opacity-70" />
@@ -53,5 +55,6 @@ export function GradeBadges({ grades }: { grades: Grades | null }) {
 }
 
 export function EstimatedBadge() {
-  return <span className="rounded bg-kcal/15 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-kcal uppercase">estimat</span>
+  const { t } = useTranslation()
+  return <span className="rounded bg-kcal/15 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-kcal uppercase">{t('common.estimated')}</span>
 }

@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Toaster } from '@/components/ui/sonner'
@@ -20,6 +21,7 @@ function Root() {
 }
 
 function UpdatePrompt() {
+  const { t } = useTranslation()
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
@@ -27,11 +29,11 @@ function UpdatePrompt() {
 
   useEffect(() => {
     if (!needRefresh) return
-    toast('Există o versiune nouă a aplicației.', {
+    toast(t('common.newVersion'), {
       duration: Infinity,
-      action: { label: 'Actualizează', onClick: () => void updateServiceWorker(true) },
+      action: { label: t('common.update'), onClick: () => void updateServiceWorker(true) },
     })
-  }, [needRefresh, updateServiceWorker])
+  }, [needRefresh, updateServiceWorker, t])
 
   return null
 }

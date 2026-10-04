@@ -16,6 +16,19 @@ export async function login(email: string, password: string): Promise<MeResponse
   return me
 }
 
+export async function register(token: string, email: string, displayName: string, password: string): Promise<MeResponse> {
+  const me = await api.register(token, email, displayName, password)
+  const previous = await getMeta('me')
+  if (previous && previous.id !== me.id) await clearLocalData()
+  await setMeta({ key: 'me', value: me })
+  await syncNow()
+  return me
+}
+
+export async function saveMe(me: MeResponse) {
+  await setMeta({ key: 'me', value: me })
+}
+
 export async function logout() {
   if ((await db.outbox.count()) > 0) await syncNow()
   await api.logout().catch(() => undefined)

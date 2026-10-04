@@ -1,24 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using MacroMate.Api.Features.Sync;
+using static MacroMate.Api.Tests.SyncCalls;
 
 namespace MacroMate.Api.Tests;
 
-public sealed class SyncTests(ApiFactory factory) : IClassFixture<ApiFactory>
+[Collection("api")]
+public sealed class SyncTests(ApiFactory factory)
 {
-    static async Task<SyncPullResponse> PullAsync(HttpClient client, long since) =>
-        (await client.GetFromJsonAsync<SyncPullResponse>($"/api/sync?since={since}", JsonSerializerOptions.Web))!;
-
-    static async Task<SyncPushResponse> PushAsync(HttpClient client, params object[] changes)
-    {
-        var response = await client.PostAsJsonAsync("/api/sync", new { changes });
-        response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<SyncPushResponse>(JsonSerializerOptions.Web))!;
-    }
-
-    static object Upsert(string table, Guid id, object data) => new { table, op = "upsert", id, data };
-
     [Fact]
     public async Task Requests_without_login_are_rejected()
     {
@@ -27,18 +16,19 @@ public sealed class SyncTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task A_recipe_written_by_one_user_reaches_the_other()
+    public async Task A_food_written_by_one_user_reaches_everyone()
     {
         var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);
         var second = await factory.LoginAsync(ApiFactory.SecondEmail);
         var cursor = (await PullAsync(second, 0)).Cursor;
 
-        var recipeId = Guid.NewGuid();
-        await PushAsync(florin, Upsert("recipes", recipeId, new { name = "Omletă", difficulty = "easy", ingredientFoodIds = Array.Empty<Guid>() }));
+        var foodId = Guid.NewGuid();
+        await PushAsync(florin, Upsert("foods", foodId, new { name = "Iaurt", nameEn = "Yogurt", category = "dairy", kcal = 60 }));
 
         var pulled = await PullAsync(second, cursor);
-        var recipe = Assert.Single(pulled.Recipes, r => r.Id == recipeId);
-        Assert.Equal("Omletă", recipe.Name);
+        var food = Assert.Single(pulled.Foods, f => f.Id == foodId);
+        Assert.Equal("Iaurt", food.Name);
+        Assert.Equal("Yogurt", food.NameEn);
         Assert.True(pulled.Cursor > cursor);
     }
 
@@ -91,6 +81,20 @@ public sealed class SyncTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var result = await PushAsync(second, Upsert("journalEntries", entryId, entry with { }));
         Assert.Contains(result.Rejected, r => r.Id == entryId && r.Reason == "not-owner");
+    }
+
+    [Fact]
+    public async Task A_completed_day_keeps_its_time_and_stays_personal()
+    {
+        var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);
+        var second = await factory.LoginAsync(ApiFactory.SecondEmail);
+
+        var dayId = Guid.NewGuid();
+        await PushAsync(florin, Upsert("dayPlans", dayId, new { date = "2026-10-05", mealPlanId = (Guid?)null, completedAt = "2026-10-05T20:30:00+00:00" }));
+
+        var day = Assert.Single((await PullAsync(florin, 0)).DayPlans, d => d.Id == dayId);
+        Assert.Equal(new DateTimeOffset(2026, 10, 5, 20, 30, 0, TimeSpan.Zero), day.CompletedAt);
+        Assert.DoesNotContain((await PullAsync(second, 0)).DayPlans, d => d.Id == dayId);
     }
 
     [Fact]

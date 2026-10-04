@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ChevronLeft, ScanBarcode, Search, Star } from 'lucide-react'
+import { ChevronLeft, Refrigerator, ScanBarcode, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { Food, Recipe, RecipeVariant } from '@/api/types'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
@@ -10,6 +11,7 @@ import {
   useExclusions,
   useFoods,
   useFoodsById,
+  usePantryFoodIds,
   useProfile,
   useRecentFoodIds,
   useRecipes,
@@ -19,12 +21,13 @@ import { useDesktop } from '@/hooks/use-desktop'
 import { foodGrades, forGrams, isExcluded, scale, variantTotals } from '@/lib/nutrition'
 import { search } from '@/lib/search'
 import { categoryLabel } from '@/lib/categories'
-import { units } from '@/lib/format'
+import { num, units } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { GradeBadges } from './badges'
 import { MacroLine } from './nutrients'
 import { NumberStepper } from './number-stepper'
 import { Scanner } from './scanner'
+import { foodName, foodSearchText } from '@/lib/food-name'
 
 export type PickedItem =
   | { kind: 'food'; food: Food; grams: number }
@@ -41,9 +44,10 @@ type Props = {
   startScanning?: boolean
 }
 
-type Tab = 'all' | 'recent' | 'favorites' | 'recipes'
+type Tab = 'all' | 'recent' | 'pantry' | 'recipes'
 
-export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = true, confirmLabel = 'Adaugă', askQuantity = true, startScanning = false }: Props) {
+export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = true, confirmLabel, askQuantity = true, startScanning = false }: Props) {
+  const { t } = useTranslation()
   const desktop = useDesktop()
   const navigate = useNavigate()
   const foods = useFoods()
@@ -75,7 +79,7 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
   const effectiveTab: Tab = tab === 'recent' && recent.length === 0 ? 'all' : tab
 
   const visibleFoods = useMemo(() => foods.filter((f) => !isExcluded(f, exclusions)), [foods, exclusions])
-  const favoriteIds = useMemo(() => new Set(profile?.favoriteFoodIds ?? []), [profile])
+  const pantry = usePantryFoodIds()
   const excludedRecipes = useMemo(() => new Set(profile?.excludedRecipeIds ?? []), [profile])
 
   const recipeRows = useMemo(() => {
@@ -90,11 +94,11 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
   }, [recipes, variants, foodsById, exclusions, excludedRecipes])
 
   const foodRows = useMemo(() => {
-    if (query.trim()) return search(visibleFoods, query, (f) => `${f.name} ${f.brand ?? ''}`)
+    if (query.trim()) return search(visibleFoods, query, foodSearchText)
     if (effectiveTab === 'recent') return recent.map((id) => foodsById.get(id)).filter((f): f is Food => !!f && !f.deletedAt && !isExcluded(f, exclusions))
-    if (effectiveTab === 'favorites') return visibleFoods.filter((f) => favoriteIds.has(f.id))
+    if (effectiveTab === 'pantry') return visibleFoods.filter((f) => pantry.has(f.id))
     return visibleFoods
-  }, [query, effectiveTab, visibleFoods, recent, foodsById, exclusions, favoriteIds])
+  }, [query, effectiveTab, visibleFoods, recent, foodsById, exclusions, pantry])
 
   const filteredRecipes = useMemo(
     () => (query.trim() ? search(recipeRows, query, (r) => `${r.recipe.name} ${r.variant.name}`) : recipeRows),
@@ -108,8 +112,8 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
     const food = foods.find((f) => f.barcode === code)
     if (food) choose({ kind: 'food', food, grams: food.unitWeightG ?? 100 })
     else
-      toast('Produsul nu e încă în bază.', {
-        action: { label: 'Adaugă-l', onClick: () => void navigate({ to: '/foods/new', search: { barcode: code } }) },
+      toast(t('foods.picker.notInDatabase'), {
+        action: { label: t('foods.picker.addIt'), onClick: () => void navigate({ to: '/foods/new', search: { barcode: code } }) },
       })
   }
 
@@ -126,10 +130,10 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
   }
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'recent', label: 'Recente' },
-    { key: 'favorites', label: 'Favorite' },
-    { key: 'all', label: 'Toate' },
-    ...(allowRecipes ? [{ key: 'recipes' as const, label: 'Rețete' }] : []),
+    { key: 'recent', label: t('foods.picker.recent') },
+    { key: 'pantry', label: t('foods.pantry.title') },
+    { key: 'all', label: t('foods.picker.all') },
+    ...(allowRecipes ? [{ key: 'recipes' as const, label: t('nav.recipes') }] : []),
   ]
 
   return (
@@ -146,40 +150,40 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
           <DrawerHeader className="pb-2">
             <DrawerTitle className="flex items-center gap-1 text-left">
               {selected && (
-                <Button variant="ghost" size="icon-sm" aria-label="Înapoi la listă" onClick={() => setSelected(null)}>
+                <Button variant="ghost" size="icon-sm" aria-label={t('foods.picker.backToList')} onClick={() => setSelected(null)}>
                   <ChevronLeft className="size-5" />
                 </Button>
               )}
-              {selected ? (selected.kind === 'food' ? selected.food.name : selected.recipe.name) : title}
+              {selected ? (selected.kind === 'food' ? foodName(selected.food) : selected.recipe.name) : title}
             </DrawerTitle>
           </DrawerHeader>
 
           {selected ? (
-            <SelectedItem selected={selected} onChange={setSelected} onConfirm={() => confirm()} confirmLabel={confirmLabel} />
+            <SelectedItem selected={selected} onChange={setSelected} onConfirm={() => confirm()} confirmLabel={confirmLabel ?? t('common.add')} />
           ) : (
             <>
               <div className="flex gap-2 px-4 pb-2">
                 <div className="relative flex-1">
                   <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Caută aliment sau rețetă" className="h-10 pl-9" />
+                  <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('foods.picker.search')} className="h-10 pl-9" />
                 </div>
-                <Button variant="outline" size="icon-lg" className="size-10" aria-label="Scanează codul de bare" onClick={() => setScanning(true)}>
+                <Button variant="outline" size="icon-lg" className="size-10" aria-label={t('foods.scanBarcode')} onClick={() => setScanning(true)}>
                   <ScanBarcode className="size-5" />
                 </Button>
               </div>
               {!query.trim() && (
                 <div className="flex gap-1.5 px-4 pb-2">
-                  {tabs.map((t) => (
+                  {tabs.map((option) => (
                     <button
-                      key={t.key}
+                      key={option.key}
                       type="button"
-                      onClick={() => setTab(t.key)}
+                      onClick={() => setTab(option.key)}
                       className={cn(
                         'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-                        effectiveTab === t.key ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+                        effectiveTab === option.key ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
                       )}
                     >
-                      {t.label}
+                      {option.label}
                     </button>
                   ))}
                 </div>
@@ -187,7 +191,7 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-6">
                 {showRecipes && filteredRecipes.length > 0 && (
                   <section>
-                    {query.trim() && <h3 className="px-2 pt-2 pb-1 text-xs font-semibold text-muted-foreground uppercase">Rețete</h3>}
+                    {query.trim() && <h3 className="px-2 pt-2 pb-1 text-xs font-semibold text-muted-foreground uppercase">{t('nav.recipes')}</h3>}
                     {filteredRecipes.map(({ recipe, variant, perServing }) => (
                       <button
                         key={variant.id}
@@ -201,7 +205,7 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
                           </div>
                           <MacroLine n={perServing} />
                         </div>
-                        <span className="text-[11px] text-muted-foreground">/ porție</span>
+                        <span className="text-[11px] text-muted-foreground">{t('foods.picker.perServing')}</span>
                       </button>
                     ))}
                   </section>
@@ -209,7 +213,7 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
                 {effectiveTab !== 'recipes' || query.trim() ? (
                   <section>
                     {query.trim() && showRecipes && filteredRecipes.length > 0 && (
-                      <h3 className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">Alimente</h3>
+                      <h3 className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">{t('nav.foods')}</h3>
                     )}
                     {foodRows.map((food) => (
                       <button
@@ -220,8 +224,8 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 truncate text-sm font-medium">
-                            {favoriteIds.has(food.id) && <Star className="size-3.5 shrink-0 fill-carbs text-carbs" />}
-                            <span className="truncate">{food.name}</span>
+                            {pantry.has(food.id) && <Refrigerator className="size-3.5 shrink-0 text-primary" />}
+                            <span className="truncate">{foodName(food)}</span>
                             {food.brand && <span className="truncate text-muted-foreground">· {food.brand}</span>}
                           </div>
                           <div className="text-xs text-muted-foreground">
@@ -233,12 +237,12 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
                     ))}
                     {foodRows.length === 0 && (
                       <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-                        {effectiveTab === 'favorites' && !query ? 'Nu ai favorite încă.' : 'Nu am găsit nimic.'}
+                        {effectiveTab === 'pantry' && !query ? t('foods.picker.pantryEmpty') : t('foods.picker.nothingFound')}
                       </p>
                     )}
                   </section>
                 ) : (
-                  filteredRecipes.length === 0 && <p className="px-4 py-10 text-center text-sm text-muted-foreground">Nu ai încă rețete cu variante.</p>
+                  filteredRecipes.length === 0 && <p className="px-4 py-10 text-center text-sm text-muted-foreground">{t('foods.picker.noRecipes')}</p>
                 )}
               </div>
             </>
@@ -261,6 +265,7 @@ function SelectedItem({
   onConfirm: () => void
   confirmLabel: string
 }) {
+  const { t } = useTranslation()
   const foodsById = useFoodsById()
 
   if (selected.kind === 'food') {
@@ -273,8 +278,8 @@ function SelectedItem({
           <span className="text-xs text-muted-foreground">{categoryLabel(food.category)}</span>
         </div>
         <div className="space-y-2">
-          <span className="block text-sm font-medium">Cantitate</span>
-          <NumberStepper value={grams} onChange={(g) => onChange({ ...selected, grams: g })} step={unit ? unit / 2 : 10} min={1} unit="g" className="w-full" label="grame" />
+          <span className="block text-sm font-medium">{t('foods.picker.quantity')}</span>
+          <NumberStepper value={grams} onChange={(g) => onChange({ ...selected, grams: g })} step={unit ? unit / 2 : 10} min={1} unit="g" className="w-full" label={t('foods.grams')} />
           {unit && (
             <div className="flex gap-2">
               {[0.5, 1, 2, 3].map((count) => (
@@ -300,11 +305,11 @@ function SelectedItem({
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 pt-2 pb-6">
       <p className="text-sm text-muted-foreground">
-        Varianta {variant.name} · rețeta are {variant.servings} {variant.servings === 1 ? 'porție' : 'porții'}
+        {t('foods.picker.variantServings', { variant: variant.name, count: variant.servings, value: num(variant.servings) })}
       </p>
       <div className="space-y-2">
-        <span className="block text-sm font-medium">Porții</span>
-        <NumberStepper value={servings} onChange={(s) => onChange({ ...selected, servings: s })} step={0.5} min={0.5} max={20} className="w-full" label="porții" />
+        <span className="block text-sm font-medium">{t('foods.picker.servings')}</span>
+        <NumberStepper value={servings} onChange={(s) => onChange({ ...selected, servings: s })} step={0.5} min={0.5} max={20} className="w-full" label={t('units.servings')} />
       </div>
       <div className="rounded-xl bg-muted/60 p-3">
         <MacroLine n={scale(totals.perServing, servings)} className="text-sm" />

@@ -1,8 +1,13 @@
+import i18n, { currentLanguage } from '@/i18n'
 import type {
   AiStatus,
   BarcodeProduct,
   FoodEnrichRequest,
   FoodEnrichResponse,
+  InviteCreated,
+  InviteInfo,
+  KitchenInfo,
+  LeaveResult,
   MeResponse,
   RecipeDraft,
   RecipeGenerateRequest,
@@ -22,7 +27,7 @@ export class ApiError extends Error {
 
 export class OfflineError extends Error {
   constructor() {
-    super('Nu ai internet.')
+    super(i18n.t('errors.offline'))
   }
 }
 
@@ -32,9 +37,13 @@ async function request<T>(method: string, url: string, body?: unknown, init?: Re
     response = await fetch(url, {
       method,
       credentials: 'same-origin',
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
       ...init,
+      headers: {
+        'Accept-Language': currentLanguage(),
+        ...(body === undefined ? undefined : { 'Content-Type': 'application/json' }),
+        ...init?.headers,
+      },
     })
   } catch {
     throw new OfflineError()
@@ -42,10 +51,10 @@ async function request<T>(method: string, url: string, body?: unknown, init?: Re
 
   if (!response.ok) {
     const problem = await response.json().catch(() => null)
-    if (!problem && response.status >= 502 && response.status <= 504) throw new ApiError(response.status, 'Serverul nu răspunde. Modificările așteaptă în telefon.')
-    throw new ApiError(response.status, problem?.detail ?? problem?.title ?? `Eroare ${response.status}`)
+    if (!problem && response.status >= 502 && response.status <= 504) throw new ApiError(response.status, i18n.t('errors.serverDown'))
+    throw new ApiError(response.status, problem?.detail ?? problem?.title ?? i18n.t('errors.status', { status: response.status }))
   }
-  if (response.status === 204) return undefined as T
+  if (response.status === 204 || response.status === 202) return undefined as T
   return (await response.json()) as T
 }
 
@@ -60,6 +69,22 @@ export const api = {
   login: (email: string, password: string) => request<MeResponse>('POST', '/api/auth/login', { email, password }),
   logout: () => request<void>('POST', '/api/auth/logout'),
   me: () => request<MeResponse>('GET', '/api/auth/me'),
+  forgotPassword: (email: string) => request<void>('POST', '/api/auth/forgot-password', { email }),
+  resetPassword: (email: string, token: string, password: string) => request<void>('POST', '/api/auth/reset-password', { email, token, password }),
+  confirmEmail: (userId: string, email: string, token: string) => request<MeResponse>('POST', '/api/auth/confirm-email', { userId, email, token }),
+  changeName: (displayName: string) => request<MeResponse>('PUT', '/api/auth/me/name', { displayName }),
+  changePassword: (currentPassword: string, newPassword: string) => request<void>('POST', '/api/auth/me/password', { currentPassword, newPassword }),
+  changeEmail: (newEmail: string, currentPassword: string) => request<void>('POST', '/api/auth/me/email', { newEmail, currentPassword }),
+
+  kitchen: () => request<KitchenInfo>('GET', '/api/kitchen'),
+  createInvite: () => request<InviteCreated>('POST', '/api/kitchen/invites'),
+  leaveKitchen: () => request<LeaveResult>('POST', '/api/kitchen/leave'),
+  restoreArchive: () => request<KitchenInfo>('POST', '/api/kitchen/archive/restore'),
+  removeMember: (memberId: string) => request<KitchenInfo>('POST', `/api/kitchen/members/${memberId}/remove`),
+  invite: (token: string) => request<InviteInfo>('GET', `/api/invites/${encodeURIComponent(token)}`),
+  acceptInvite: (token: string, bringMine: boolean) => request<KitchenInfo>('POST', `/api/invites/${encodeURIComponent(token)}/accept`, { bringMine }),
+  register: (token: string, email: string, displayName: string, password: string) =>
+    request<MeResponse>('POST', `/api/invites/${encodeURIComponent(token)}/register`, { token, email, displayName, password }),
 
   pull: (since: number) => request<SyncPullResponse>('GET', `/api/sync?since=${since}`),
   push: (changes: SyncChange[]) => request<SyncPushResponse>('POST', '/api/sync', { changes }),

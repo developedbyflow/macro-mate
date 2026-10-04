@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/app/page-header'
 import { RecipeForm } from '@/components/app/recipe-form'
 import { emptyRecipe, type RecipeDraft } from '@/lib/recipes'
@@ -10,6 +11,7 @@ export const Route = createFileRoute('/_app/recipes/new')({
 })
 
 function NewRecipePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
 
@@ -21,9 +23,9 @@ function NewRecipePage() {
 
   return (
     <>
-      <PageHeader title="Rețetă nouă" back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
-        <RecipeForm initial={emptyRecipe()} submitLabel="Salvează rețeta" onSubmit={save} />
+      <PageHeader title={t('recipes.new.title')} back />
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-none lg:px-8">
+        <RecipeForm initial={emptyRecipe()} submitLabel={t('recipes.saveRecipe')} onSubmit={save} />
       </main>
     </>
   )

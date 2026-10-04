@@ -181,6 +181,528 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ForgotPasswordRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ResetPasswordRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/confirm-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ConfirmEmailRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MeResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeNameRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MeResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangePasswordRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeEmailRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kitchen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["KitchenInfo"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kitchen/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InviteCreated"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kitchen/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kitchen/archive/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["KitchenInfo"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/kitchen/members/{memberId}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["KitchenInfo"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invites/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InviteInfo"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invites/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AcceptInviteRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["KitchenInfo"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invites/{token}/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MeResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sync": {
         parameters: {
             query?: never;
@@ -412,8 +934,21 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AcceptInviteRequest: {
+            bringMine: boolean;
+        };
         AiStatus: {
             configured: boolean;
+        };
+        ArchiveSummary: {
+            /** Format: int32 */
+            recipes: number;
+            /** Format: int32 */
+            mealPlans: number;
+            /** Format: int32 */
+            shoppingLists: number;
+            /** Format: int32 */
+            pantryItems: number;
         };
         BarcodeProduct: {
             barcode: string;
@@ -421,11 +956,30 @@ export interface components {
             brand: null | string;
             values: components["schemas"]["NutritionValues"];
         };
+        ChangeEmailRequest: {
+            newEmail: string;
+            currentPassword: string;
+        };
+        ChangeNameRequest: {
+            displayName: string;
+        };
+        ChangePasswordRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        ConfirmEmailRequest: {
+            /** Format: uuid */
+            userId: string;
+            email: string;
+            token: string;
+        };
         DayPlan: {
             /** Format: date */
             date: string;
             /** Format: uuid */
             mealPlanId: null | string;
+            /** Format: date-time */
+            completedAt: null | string;
             /** Format: uuid */
             userId: string;
             /** Format: uuid */
@@ -447,6 +1001,7 @@ export interface components {
         };
         Food: {
             name: string;
+            nameEn: null | string;
             brand: null | string;
             barcode: null | string;
             category: string;
@@ -485,12 +1040,14 @@ export interface components {
         };
         FoodEnrichRequest: {
             name: null | string;
+            nameEn: null | string;
             brand: null | string;
             values: components["schemas"]["NutritionValues"];
             labelImageDataUrl: null | string;
         };
         FoodEnrichResponse: {
             name: string;
+            nameEn: string;
             /** Format: double */
             kcal: number;
             /** Format: double */
@@ -507,6 +1064,19 @@ export interface components {
             category: string;
             glycemicGrade: string;
             reason: string;
+        };
+        ForgotPasswordRequest: {
+            email: string;
+        };
+        InviteCreated: {
+            token: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        InviteInfo: {
+            members: string[];
+            /** Format: date-time */
+            expiresAt: string;
         };
         JournalEntry: {
             /** Format: date */
@@ -550,6 +1120,22 @@ export interface components {
             version: number;
         };
         JsonElement: unknown;
+        KitchenInfo: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerId: null | string;
+            members: components["schemas"]["KitchenMember"][];
+            archive: null | components["schemas"]["ArchiveSummary"];
+        };
+        KitchenMember: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+        };
+        LeaveResult: {
+            hasArchive: boolean;
+        };
         LoginRequest: {
             email: string;
             password: string;
@@ -586,6 +1172,8 @@ export interface components {
         MealPlan: {
             name: string;
             meals: components["schemas"]["Meal"][];
+            /** Format: uuid */
+            kitchenId: string;
             /** Format: uuid */
             createdBy: string;
             /** Format: uuid */
@@ -624,6 +1212,24 @@ export interface components {
             /** Format: double */
             sodiumMg: null | number;
         };
+        PantryItem: {
+            /** Format: uuid */
+            foodId: string;
+            /** Format: uuid */
+            kitchenId: string;
+            /** Format: uuid */
+            createdBy: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number;
+        };
         Recipe: {
             name: string;
             instructions: string;
@@ -633,6 +1239,8 @@ export interface components {
             /** Format: uuid */
             photoId: null | string;
             ingredientFoodIds: string[];
+            /** Format: uuid */
+            kitchenId: string;
             /** Format: uuid */
             createdBy: string;
             /** Format: uuid */
@@ -671,6 +1279,8 @@ export interface components {
             servings: number;
             ingredients: components["schemas"]["VariantIngredient"][];
             /** Format: uuid */
+            kitchenId: string;
+            /** Format: uuid */
             createdBy: string;
             /** Format: uuid */
             id: string;
@@ -683,10 +1293,23 @@ export interface components {
             /** Format: int64 */
             version: number;
         };
+        RegisterRequest: {
+            token: string;
+            email: string;
+            displayName: string;
+            password: string;
+        };
+        ResetPasswordRequest: {
+            email: string;
+            token: string;
+            password: string;
+        };
         ShoppingList: {
             name: string;
             plans: components["schemas"]["ShoppingListPlan"][];
             checkedKeys: string[];
+            /** Format: uuid */
+            kitchenId: string;
             /** Format: uuid */
             createdBy: string;
             /** Format: uuid */
@@ -716,12 +1339,15 @@ export interface components {
         SyncPullResponse: {
             /** Format: int64 */
             cursor: number;
+            /** Format: uuid */
+            kitchenId: string;
             users: components["schemas"]["SyncUser"][];
             foods: components["schemas"]["Food"][];
             recipes: components["schemas"]["Recipe"][];
             recipeVariants: components["schemas"]["RecipeVariant"][];
             mealPlans: components["schemas"]["MealPlan"][];
             shoppingLists: components["schemas"]["ShoppingList"][];
+            pantryItems: components["schemas"]["PantryItem"][];
             dayPlans: components["schemas"]["DayPlan"][];
             journalEntries: components["schemas"]["JournalEntry"][];
             userProfiles: components["schemas"]["UserProfile"][];
@@ -776,7 +1402,6 @@ export interface components {
             targetFiberG: null | number;
             /** Format: double */
             targetSodiumMg: null | number;
-            favoriteFoodIds: string[];
             favoriteRecipeIds: string[];
             excludedFoodIds: string[];
             excludedCategories: string[];

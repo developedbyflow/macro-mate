@@ -1,7 +1,7 @@
 import type { UserProfile } from '@/api/types'
 import { saveRow } from '@/db/mutations'
 
-type ListField = 'favoriteFoodIds' | 'favoriteRecipeIds' | 'excludedFoodIds' | 'excludedCategories' | 'excludedRecipeIds' | 'likedFoodIds'
+type ListField = 'favoriteRecipeIds' | 'excludedFoodIds' | 'excludedCategories' | 'excludedRecipeIds' | 'likedFoodIds'
 
 export async function toggleInProfile(profile: UserProfile | undefined, field: ListField, value: string) {
   if (!profile) return

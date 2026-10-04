@@ -1,8 +1,10 @@
 import type { JournalEntry, MealItem } from '@/api/types'
 import type { PickedItem } from '@/components/app/item-picker'
 import { newId, saveRow } from '@/db/mutations'
+import i18n from '@/i18n'
 import { rememberRecentFood } from '@/hooks/use-data'
 import { mealItemNutrients, type FoodsById, type Nutrients, type VariantsById } from './nutrition'
+import { foodName } from './food-name'
 
 type EntryInput = Omit<JournalEntry, 'userId' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'version'>
 
@@ -21,13 +23,17 @@ function round(value: number) {
   return Math.round(value * 10) / 10
 }
 
+export function entryDisplayName(entry: JournalEntry, foods: FoodsById) {
+  return (entry.kind === 'food' && entry.foodId ? foodName(foods.get(entry.foodId)) : undefined) ?? entry.name
+}
+
 export function entryName(item: MealItem, foods: FoodsById, variants: VariantsById, recipeName: (recipeId: string) => string) {
-  if (item.kind === 'food' && item.foodId) return foods.get(item.foodId)?.name ?? 'Aliment'
+  if (item.kind === 'food' && item.foodId) return foodName(foods.get(item.foodId)) ?? i18n.t('fallback.food')
   if (item.kind === 'variant' && item.variantId) {
     const variant = variants.get(item.variantId)
-    return variant ? `${recipeName(variant.recipeId)} · ${variant.name}` : 'Rețetă'
+    return variant ? `${recipeName(variant.recipeId)} · ${variant.name}` : i18n.t('fallback.recipe')
   }
-  return 'Element'
+  return i18n.t('fallback.item')
 }
 
 export async function logMealItem(
@@ -59,7 +65,7 @@ export function pickedToMealItem(picked: PickedItem): MealItem {
 }
 
 export function pickedName(picked: PickedItem) {
-  return picked.kind === 'food' ? picked.food.name : `${picked.recipe.name} · ${picked.variant.name}`
+  return picked.kind === 'food' ? foodName(picked.food) : `${picked.recipe.name} · ${picked.variant.name}`
 }
 
 export async function updateEntryQuantity(entry: JournalEntry, quantity: number, foods: FoodsById, variants: VariantsById, ownerId: string) {

@@ -1,6 +1,6 @@
 namespace MacroMate.Api.Data;
 
-public class Recipe : SharedEntity
+public class Recipe : KitchenEntity
 {
     public string Name { get; set; } = "";
     public string Instructions { get; set; } = "";
@@ -10,7 +10,7 @@ public class Recipe : SharedEntity
     public List<Guid> IngredientFoodIds { get; set; } = [];
 }
 
-public class RecipeVariant : SharedEntity
+public class RecipeVariant : KitchenEntity
 {
     public Guid RecipeId { get; set; }
     public string Name { get; set; } = "";

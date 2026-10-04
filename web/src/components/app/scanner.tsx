@@ -1,6 +1,7 @@
 import { BarcodeDetector, prepareZXingModule } from 'barcode-detector/ponyfill'
 import { Flashlight, X } from 'lucide-react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import readerWasmUrl from 'zxing-wasm/reader/zxing_reader.wasm?url'
 import { Button } from '@/components/ui/button'
 
@@ -23,8 +24,9 @@ function extractCode(raw: string) {
 }
 
 export function Scanner({ onDetected, onClose }: Props) {
+  const { t } = useTranslation()
   const video = useRef<HTMLVideoElement>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<'noCamera' | 'failed' | null>(null)
   const [torch, setTorch] = useState<MediaStreamTrack | null>(null)
   const [torchOn, setTorchOn] = useState(false)
   const handleDetected = useEffectEvent((code: string) => onDetected(code))
@@ -42,7 +44,7 @@ export function Scanner({ onDetected, onClose }: Props) {
           audio: false,
         })
       } catch {
-        setError('Nu am acces la cameră. Verifică permisiunea din browser.')
+        setError('noCamera')
         return
       }
       if (stopped || !video.current) return
@@ -64,7 +66,7 @@ export function Scanner({ onDetected, onClose }: Props) {
               return
             }
           } catch {
-            setError('Scannerul nu a pornit.')
+            setError('failed')
             return
           }
         }
@@ -77,7 +79,7 @@ export function Scanner({ onDetected, onClose }: Props) {
     return () => {
       stopped = true
       window.clearTimeout(frame)
-      stream?.getTracks().forEach((t) => t.stop())
+      stream?.getTracks().forEach((track) => track.stop())
     }
   }, [])
 
@@ -91,15 +93,15 @@ export function Scanner({ onDetected, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-black text-white">
       <div className="pt-safe flex items-center justify-between p-3">
-        <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" aria-label="Închide" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" aria-label={t('foods.scanner.close')} onClick={onClose}>
           <X className="size-6" />
         </Button>
-        <span className="text-sm font-medium">Scanează codul de bare</span>
+        <span className="text-sm font-medium">{t('foods.scanBarcode')}</span>
         <Button
           variant="ghost"
           size="icon"
           className="text-white hover:bg-white/10 disabled:opacity-30"
-          aria-label="Lanterna"
+          aria-label={t('foods.scanner.torch')}
           disabled={!torch}
           onClick={() => void toggleTorch()}
         >
@@ -111,9 +113,9 @@ export function Scanner({ onDetected, onClose }: Props) {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="h-40 w-72 rounded-2xl border-2 border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
         </div>
-        {error && <p className="absolute inset-x-6 bottom-10 rounded-xl bg-black/70 p-4 text-center text-sm">{error}</p>}
+        {error && <p className="absolute inset-x-6 bottom-10 rounded-xl bg-black/70 p-4 text-center text-sm">{t(`foods.scanner.${error}`)}</p>}
       </div>
-      <p className="pb-safe p-5 text-center text-sm text-white/70">Ține codul în cadru. Merge și cu coduri QR.</p>
+      <p className="pb-safe p-5 text-center text-sm text-white/70">{t('foods.scanner.hint')}</p>
     </div>
   )
 }

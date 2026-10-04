@@ -1,4 +1,5 @@
 using MacroMate.Api.Data;
+using MacroMate.Api.Features.Kitchens;
 using Microsoft.AspNetCore.Identity;
 
 namespace MacroMate.Api.Admin;
@@ -24,11 +25,11 @@ public static class AdminCommands
                 }
                 var password = ReadPassword();
                 var users = services.GetRequiredService<UserManager<AppUser>>();
-                var result = await users.CreateAsync(new AppUser { UserName = email, Email = email, DisplayName = name }, password);
-                if (!result.Succeeded)
+                var (user, errors) = await KitchenService.CreateUserAsync(users, services.GetRequiredService<AppDbContext>(), email, name, password, null, CancellationToken.None);
+                if (user is null)
                 {
-                    foreach (var error in result.Errors)
-                        Console.Error.WriteLine(error.Description);
+                    foreach (var error in errors)
+                        Console.Error.WriteLine(error);
                     return 1;
                 }
                 Console.WriteLine($"Contul {email} a fost creat.");

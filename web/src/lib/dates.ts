@@ -1,3 +1,5 @@
+import i18n, { locale } from '@/i18n'
+
 export function toIsoDate(date: Date) {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -15,16 +17,16 @@ export function addDays(isoDate: string, days: number) {
 }
 
 export function formatDay(isoDate: string) {
-  if (isoDate === today()) return 'Azi'
-  if (isoDate === addDays(today(), -1)) return 'Ieri'
-  if (isoDate === addDays(today(), 1)) return 'Mâine'
+  if (isoDate === today()) return i18n.t('dates.today')
+  if (isoDate === addDays(today(), -1)) return i18n.t('dates.yesterday')
+  if (isoDate === addDays(today(), 1)) return i18n.t('dates.tomorrow')
   const [y, m, d] = isoDate.split('-').map(Number)
-  return new Intl.DateTimeFormat('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(y, m - 1, d))
+  return new Intl.DateTimeFormat(locale(), { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(y, m - 1, d))
 }
 
 export function shortDate(isoDate: string) {
   const [y, m, d] = isoDate.split('-').map(Number)
-  return new Intl.DateTimeFormat('ro-RO', { day: 'numeric', month: 'short' }).format(new Date(y, m - 1, d)).replace('.', '')
+  return new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'short' }).format(new Date(y, m - 1, d)).replace('.', '')
 }
 
 export function daysBetween(from: string, to: string) {
@@ -35,5 +37,5 @@ export function daysBetween(from: string, to: string) {
 
 export function longDate(isoDate: string) {
   const [y, m, d] = isoDate.split('-').map(Number)
-  return new Intl.DateTimeFormat('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(y, m - 1, d))
+  return new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(y, m - 1, d))
 }

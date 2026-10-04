@@ -1,4 +1,6 @@
 import type { Food, MealPlan, Recipe, RecipeVariant, ShoppingList } from '@/api/types'
+import i18n, { locale } from '@/i18n'
+import { foodName } from './food-name'
 
 export type ShoppingItem = {
   key: string
@@ -49,10 +51,10 @@ export function buildShoppingList(list: ShoppingList, lookups: Lookups): Shoppin
           const recipe = lookups.recipes.get(variant.recipeId)
           const factor = ((item.servings ?? 1) / Math.max(1, variant.servings)) * entry.days
           for (const ingredient of variant.ingredients) {
-            addGrams(`recipe:${variant.recipeId}`, recipe?.name ?? 'Rețetă ștearsă', variant.name, ingredient.foodId, ingredient.grams * factor)
+            addGrams(`recipe:${variant.recipeId}`, recipe?.name ?? i18n.t('fallback.deletedRecipe'), variant.name, ingredient.foodId, ingredient.grams * factor)
           }
         } else if (item.kind === 'food' && item.foodId) {
-          addGrams(simpleGroupKey, 'Alimente simple', null, item.foodId, (item.grams ?? 0) * entry.days)
+          addGrams(simpleGroupKey, i18n.t('fallback.simpleFoods'), null, item.foodId, (item.grams ?? 0) * entry.days)
         }
       }
     }
@@ -70,13 +72,13 @@ export function buildShoppingList(list: ShoppingList, lookups: Lookups): Shoppin
           return {
             key: `${key}:${foodId}`,
             foodId,
-            name: food?.name ?? 'Aliment șters',
+            name: foodName(food) ?? i18n.t('fallback.deletedFood'),
             grams: Math.round(grams),
             units: unit ? Math.ceil(grams / unit) : null,
             category: food?.category ?? '',
           }
         })
-        .sort((a, b) => a.name.localeCompare(b.name, 'ro')),
+        .sort((a, b) => a.name.localeCompare(b.name, locale())),
     }))
-    .sort((a, b) => (a.key === simpleGroupKey ? 1 : b.key === simpleGroupKey ? -1 : a.title.localeCompare(b.title, 'ro')))
+    .sort((a, b) => (a.key === simpleGroupKey ? 1 : b.key === simpleGroupKey ? -1 : a.title.localeCompare(b.title, locale())))
 }

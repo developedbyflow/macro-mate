@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Loader2, RefreshCw, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, ApiError } from '@/api/client'
 import type { RecipeDraft, RecipeVariant } from '@/api/types'
@@ -18,16 +19,17 @@ import { newId, saveRow } from '@/db/mutations'
 import { useFoodsById, useJournal, useProfile } from '@/hooks/use-data'
 import { useOwnerId } from '@/hooks/use-owner'
 import { today } from '@/lib/dates'
+import { kcal, servings } from '@/lib/format'
 import { entryNutrients } from '@/lib/journal'
 import { forGrams, sum, variantGrades, variantTotals } from '@/lib/nutrition'
+import { foodName } from '@/lib/food-name'
 
 export const Route = createFileRoute('/_app/recipes/generate')({
   component: GeneratePage,
 })
 
-const ideas = ['Am poftă de un desert cu mere', 'Ceva sățios cu pui, sub 500 kcal', 'Mic dejun cu ouă, rapid', 'O supă cu legume pentru 4 porții']
-
 function GeneratePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const ai = useAiStatus()
@@ -35,6 +37,7 @@ function GeneratePage() {
   const profile = useProfile()
   const journal = useJournal(today())
 
+  const ideas = [t('recipes.generate.ideas.appleDessert'), t('recipes.generate.ideas.chicken'), t('recipes.generate.ideas.eggs'), t('recipes.generate.ideas.soup')]
   const [prompt, setPrompt] = useState('')
   const [useRemaining, setUseRemaining] = useState(true)
   const [limitOn, setLimitOn] = useState(false)
@@ -58,7 +61,7 @@ function GeneratePage() {
         maxKcalPerServing: limitOn ? maxKcal : null,
         remaining: !limitOn && useRemaining && remaining ? remaining : null,
       }),
-    onError: (error) => toast.error(error instanceof ApiError ? error.message : 'DeepSeek nu a răspuns.'),
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : t('recipes.generate.aiFailed')),
   })
 
   async function saveDraft(draft: RecipeDraft) {
@@ -79,19 +82,19 @@ function GeneratePage() {
     const variant = { recipeId, servings: draft.servings, ingredients: draft.ingredients.map((i) => ({ foodId: i.foodId, grams: i.grams })) }
     const perServing = variantTotals(variant as RecipeVariant, foods).perServing.kcal
     await saveRow('recipeVariants', { id: newId(), name: `${Math.round(perServing / 10) * 10} kcal`, ...variant }, ownerId)
-    toast.success('Rețeta e salvată, cu prima variantă.')
+    toast.success(t('recipes.generate.saved'))
     await navigate({ to: '/recipes/$recipeId', params: { recipeId } })
   }
 
-  const blocked = !ai.online ? 'Ai nevoie de internet pentru generare.' : !ai.configured ? 'Cheia DeepSeek nu e setată pe server.' : null
+  const blocked = !ai.online ? t('recipes.generate.offline') : !ai.configured ? t('recipes.generate.notConfigured') : null
   const draft = generate.data
 
   return (
     <>
-      <PageHeader title="Generează rețetă" back />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
+      <PageHeader title={t('recipes.generate.title')} back />
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
         <div className="space-y-4">
-          <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ce ai poftă să mănânci?" className="min-h-24 text-base" maxLength={500} />
+          <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('recipes.generate.prompt')} className="min-h-24 text-base" maxLength={500} />
           {!prompt && (
             <div className="flex flex-wrap gap-1.5">
               {ideas.map((idea) => (
@@ -105,26 +108,26 @@ function GeneratePage() {
           <div className="space-y-3 rounded-2xl border bg-card p-4 text-sm">
             <label className="flex items-center gap-3">
               <Checkbox checked={limitOn} onCheckedChange={(v) => setLimitOn(v === true)} />
-              <span className="flex-1">Limită pe porție</span>
-              {limitOn && <NumberStepper value={maxKcal} onChange={setMaxKcal} step={50} min={50} max={2000} unit="kcal" size="sm" className="w-36" label="kcal pe porție" />}
+              <span className="flex-1">{t('recipes.generate.limitPerServing')}</span>
+              {limitOn && <NumberStepper value={maxKcal} onChange={setMaxKcal} step={50} min={50} max={2000} unit="kcal" size="sm" className="w-36" label={t('recipes.generate.kcalPerServing')} />}
             </label>
             {!limitOn && (
               <label className="flex items-center gap-3">
                 <Checkbox checked={useRemaining} onCheckedChange={(v) => setUseRemaining(v === true)} disabled={!remaining} />
                 <span className="flex-1">
-                  Să încapă în ce mai am azi
-                  {remaining ? <span className="block text-xs text-muted-foreground">mai ai {Math.round(remaining.kcal)} kcal</span> : <span className="block text-xs text-muted-foreground">setează-ți întâi țintele în profil</span>}
+                  {t('recipes.generate.fitRemaining')}
+                  {remaining ? <span className="block text-xs text-muted-foreground">{t('nutrients.left', { value: kcal(remaining.kcal), unit: 'kcal' })}</span> : <span className="block text-xs text-muted-foreground">{t('recipes.generate.setTargetsFirst')}</span>}
                 </span>
               </label>
             )}
-            <p className="text-xs text-muted-foreground">Folosește doar alimente din bază, fără cele excluse de tine. Cele marcate „îmi place” au prioritate.</p>
+            <p className="text-xs text-muted-foreground">{t('recipes.generate.foodsNote')}</p>
           </div>
 
           {blocked && <p className="text-sm text-destructive">{blocked}</p>}
 
           <Button size="lg" className="h-12 w-full text-base" disabled={!prompt.trim() || !!blocked || generate.isPending} onClick={() => generate.mutate()}>
             {generate.isPending ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
-            {generate.isPending ? 'DeepSeek gătește…' : 'Generează'}
+            {generate.isPending ? t('recipes.generate.cooking') : t('recipes.generate.submit')}
           </Button>
         </div>
 
@@ -132,7 +135,7 @@ function GeneratePage() {
           {draft ? (
             <DraftPreview draft={draft} onSave={() => void saveDraft(draft)} onRetry={() => generate.mutate()} retrying={generate.isPending} />
           ) : (
-            <p className="hidden rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground lg:block">Rețeta generată apare aici.</p>
+            <p className="hidden rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground lg:block">{t('recipes.generate.placeholder')}</p>
           )}
         </div>
       </main>
@@ -141,6 +144,7 @@ function GeneratePage() {
 }
 
 function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft; onSave: () => void; onRetry: () => void; retrying: boolean }) {
+  const { t } = useTranslation()
   const foods = useFoodsById()
   const variant = { id: 'draft', recipeId: 'draft', name: '', servings: draft.servings, ingredients: draft.ingredients } as unknown as RecipeVariant
   const totals = variantTotals(variant, foods)
@@ -152,21 +156,21 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
       <div>
         <h2 className="text-lg font-semibold">{draft.name}</h2>
         <p className="text-xs text-muted-foreground">
-          {draft.prepTimeMin} min · {difficultyLabel(draft.difficulty)} · {draft.servings} {draft.servings === 1 ? 'porție' : 'porții'}
+          {t('recipes.prepTime', { value: draft.prepTimeMin })} · {difficultyLabel(draft.difficulty)} · {servings(draft.servings)}
         </p>
       </div>
       <div className="flex items-center gap-2">
         <MacroLine n={totals.perServing} className="flex-1 text-sm" />
         <GradeBadges grades={scores} />
       </div>
-      <p className="text-xs text-muted-foreground">Valorile sunt calculate de aplicație din alimentele din bază, pe o porție.</p>
+      <p className="text-xs text-muted-foreground">{t('recipes.generate.valuesNote')}</p>
 
       <ul className="divide-y rounded-xl border">
         {draft.ingredients.map((i) => {
           const food = foods.get(i.foodId)
           return (
             <li key={i.foodId} className="flex justify-between px-3 py-2 text-sm">
-              <span>{food?.name ?? 'Aliment necunoscut'}</span>
+              <span>{foodName(food) ?? t('recipes.generate.unknownFood')}</span>
               <span className="text-muted-foreground tabular-nums">
                 {Math.round(i.grams)} g{food ? ` · ${Math.round(forGrams(food, i.grams).kcal)} kcal` : ''}
               </span>
@@ -177,7 +181,7 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
 
       {draft.missing.length > 0 && (
         <div className="rounded-xl bg-kcal/10 p-3 text-sm">
-          <div className="font-medium">Lipsesc din bază</div>
+          <div className="font-medium">{t('recipes.generate.missing')}</div>
           <ul className="mt-1 text-muted-foreground">
             {draft.missing.map((m) => (
               <li key={m.name}>
@@ -185,7 +189,7 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
               </li>
             ))}
           </ul>
-          <p className="mt-1 text-xs text-muted-foreground">Adaugă-le în Alimente, apoi pune-le în variantă. Până atunci nu intră în calcul.</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t('recipes.generate.missingHint')}</p>
         </div>
       )}
 
@@ -200,10 +204,10 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
 
       <div className="flex gap-2">
         <Button variant="outline" className="h-11 flex-1" onClick={onRetry} disabled={retrying}>
-          <RefreshCw className="size-4" /> Altă idee
+          <RefreshCw className="size-4" /> {t('recipes.generate.retry')}
         </Button>
         <Button className="h-11 flex-[2]" onClick={onSave}>
-          Salvează rețeta
+          {t('recipes.saveRecipe')}
         </Button>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowDown, ArrowUp, MoreHorizontal, Plus, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Meal, MealItem, MealPlan } from '@/api/types'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { ItemPicker } from '@/components/app/item-picker'
@@ -15,6 +16,7 @@ import { useFoodsById, useMealPlan, useProfile, useRecipesById, useVariantsById 
 import { useOwnerId } from '@/hooks/use-owner'
 import { kcal } from '@/lib/format'
 import { entryName, pickedToMealItem } from '@/lib/journal'
+import { mealLabel } from '@/lib/meals'
 import { mealItemNutrients, planTotals } from '@/lib/nutrition'
 import { targetFromProfile } from '@/lib/targets'
 
@@ -23,14 +25,15 @@ export const Route = createFileRoute('/_app/plans/$planId')({
 })
 
 function PlanPage() {
+  const { t } = useTranslation()
   const { planId } = Route.useParams()
   const plan = useMealPlan(planId)
-  if (!plan) return <PageHeader title="Plan" back />
+  if (!plan) return <PageHeader title={t('plans.editor.title')} back />
   if (plan.deletedAt) {
     return (
       <>
         <PageHeader title={plan.name} back />
-        <p className="p-8 text-center text-sm text-muted-foreground">Planul a fost șters.</p>
+        <p className="p-8 text-center text-sm text-muted-foreground">{t('plans.editor.deleted')}</p>
       </>
     )
   }
@@ -38,6 +41,7 @@ function PlanPage() {
 }
 
 function PlanEditor({ plan }: { plan: MealPlan }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const foods = useFoodsById()
@@ -73,16 +77,16 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
     return setMeals(meals)
   }
 
-  const recipeName = (id: string) => recipes.get(id)?.name ?? 'Rețetă'
+  const recipeName = (id: string) => recipes.get(id)?.name ?? t('fallback.recipe')
   const pickingMeal = plan.meals.find((m) => m.id === pickingFor)
 
   return (
     <>
-      <PageHeader title={plan.name} subtitle={`${kcal(totals.total.kcal)} kcal pe zi`} back />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+      <PageHeader title={plan.name} subtitle={t('plans.editor.kcalPerDay', { value: kcal(totals.total.kcal) })} back />
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
         <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
           <Input
-            aria-label="Numele planului"
+            aria-label={t('plans.editor.nameLabel')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={() => name.trim() && name !== plan.name && void save({ name: name.trim() })}
@@ -99,18 +103,18 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
                 <MealLabel meal={meal} onRename={(label) => void updateMeal(meal.id, (m) => ({ ...m, label }))} />
                 <span className="text-sm text-muted-foreground tabular-nums">{kcal(totals.meals[index].kcal)} kcal</span>
                 <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Opțiuni ${meal.label}`} />}>
+                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={t('plans.editor.mealOptions', { meal: mealLabel(meal.label) })} />}>
                     <MoreHorizontal className="size-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem disabled={index === 0} onClick={() => void move(index, -1)}>
-                      <ArrowUp className="size-4" /> Mută mai sus
+                      <ArrowUp className="size-4" /> {t('plans.editor.moveUp')}
                     </DropdownMenuItem>
                     <DropdownMenuItem disabled={index === plan.meals.length - 1} onClick={() => void move(index, 1)}>
-                      <ArrowDown className="size-4" /> Mută mai jos
+                      <ArrowDown className="size-4" /> {t('plans.editor.moveDown')}
                     </DropdownMenuItem>
                     <DropdownMenuItem variant="destructive" onClick={() => void setMeals(plan.meals.filter((m) => m.id !== meal.id))}>
-                      <Trash2 className="size-4" /> Șterge masa
+                      <Trash2 className="size-4" /> {t('plans.editor.deleteMeal')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -128,7 +132,7 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          aria-label="Scoate"
+                          aria-label={t('plans.editor.removeItem')}
                           onClick={() => void updateMeal(meal.id, (m) => ({ ...m, items: m.items.filter((i) => i.id !== item.id) }))}
                         >
                           <X className="size-4" />
@@ -143,7 +147,7 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
                           unit="g"
                           size="sm"
                           className="w-full"
-                          label="grame"
+                          label={t('plans.editor.grams')}
                         />
                       ) : (
                         <NumberStepper
@@ -152,10 +156,10 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
                           step={0.5}
                           min={0.5}
                           max={20}
-                          unit="porții"
+                          unit={t('units.servings')}
                           size="sm"
                           className="w-full"
-                          label="porții"
+                          label={t('units.servings')}
                         />
                       )}
                     </li>
@@ -167,7 +171,7 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
                 onClick={() => setPickingFor(meal.id)}
                 className="flex w-full items-center gap-2 border-t px-4 py-2.5 text-sm font-medium text-primary active:bg-muted"
               >
-                <Plus className="size-4" /> Adaugă rețetă sau aliment
+                <Plus className="size-4" /> {t('plans.editor.addItem')}
               </button>
             </section>
           ))}
@@ -176,22 +180,22 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
             <Button
               variant="outline"
               className="h-11 w-full border-dashed"
-              onClick={() => void setMeals([...plan.meals, { id: newId(), label: `Masa ${plan.meals.length + 1}`, items: [] }])}
+              onClick={() => void setMeals([...plan.meals, { id: newId(), label: t('plans.editor.newMealName', { number: plan.meals.length + 1 }), items: [] }])}
             >
-              <Plus className="size-4" /> Adaugă masă ({plan.meals.length}/5)
+              <Plus className="size-4" /> {t('plans.editor.addMeal', { current: plan.meals.length })}
             </Button>
           )}
 
           <ConfirmDelete
-            title={`Ștergi ${plan.name}?`}
-            description="Dispare pentru toți. Jurnalul păstrează ce ai notat deja."
+            title={t('plans.editor.deleteTitle', { name: plan.name })}
+            description={t('plans.editor.deleteDescription')}
             onConfirm={async () => {
               await deleteRow('mealPlans', plan.id)
               await navigate({ to: '/plans' })
             }}
             trigger={
               <Button variant="ghost" className="w-full text-destructive">
-                <Trash2 className="size-4" /> Șterge planul
+                <Trash2 className="size-4" /> {t('plans.editor.deletePlan')}
               </Button>
             }
           />
@@ -201,8 +205,8 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
       <ItemPicker
         open={pickingFor !== null}
         onOpenChange={(open) => !open && setPickingFor(null)}
-        title={`Adaugă la ${pickingMeal?.label ?? ''}`}
-        confirmLabel="Pune în masă"
+        title={t('plans.editor.addTo', { meal: mealLabel(pickingMeal?.label ?? '') })}
+        confirmLabel={t('plans.editor.putInMeal')}
         onPick={(picked) => pickingFor && void updateMeal(pickingFor, (m) => ({ ...m, items: [...m.items, pickedToMealItem(picked)] }))}
       />
     </>
@@ -210,10 +214,11 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
 }
 
 function MealLabel({ meal, onRename }: { meal: Meal; onRename: (label: string) => void }) {
+  const { t } = useTranslation()
   const [value, setValue] = useState(meal.label)
   return (
     <input
-      aria-label="Eticheta mesei"
+      aria-label={t('plans.editor.mealNameLabel')}
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={() => value.trim() && value !== meal.label && onRename(value.trim())}

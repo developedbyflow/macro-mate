@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,8 @@ type Props = {
   confirmLabel?: string
 }
 
-export function ConfirmDelete({ title, description, onConfirm, trigger, confirmLabel = 'Șterge' }: Props) {
+export function ConfirmDelete({ title, description, onConfirm, trigger, confirmLabel }: Props) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -30,7 +32,7 @@ export function ConfirmDelete({ title, description, onConfirm, trigger, confirmL
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Renunță</AlertDialogCancel>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={async () => {
@@ -38,7 +40,7 @@ export function ConfirmDelete({ title, description, onConfirm, trigger, confirmL
               setOpen(false)
             }}
           >
-            {confirmLabel}
+            {confirmLabel ?? t('common.delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

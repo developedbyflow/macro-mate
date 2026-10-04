@@ -1,6 +1,6 @@
 namespace MacroMate.Api.Data;
 
-public class MealPlan : SharedEntity
+public class MealPlan : KitchenEntity
 {
     public string Name { get; set; } = "";
     public List<Meal> Meals { get; set; } = [];

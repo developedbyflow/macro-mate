@@ -271,4 +271,3 @@ Ce mai e de făcut:
 - **Deploy-ul pe VPS**: îl faci tu, după `docs/ghid/09-deploy.md`.
 - **Cheia DeepSeek**: până o pui, butoanele de AI arată „cheia nu e setată”.
 - **Bucătăria, cămara și partajarea**, după deploy: specificația e în [bucataria.md](bucataria.md). Până atunci toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora.
-- **Densitatea nutrițională**: scorul NRF 9.3 din datele USDA, pentru alimentele generice.

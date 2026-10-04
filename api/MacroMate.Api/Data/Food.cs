@@ -3,6 +3,7 @@ namespace MacroMate.Api.Data;
 public class Food : SharedEntity
 {
     public string Name { get; set; } = "";
+    public string? NameEn { get; set; }
     public string? Brand { get; set; }
     public string? Barcode { get; set; }
     public string Category { get; set; } = "";

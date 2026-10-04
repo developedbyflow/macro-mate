@@ -3,6 +3,7 @@ import { addDays } from './dates'
 import { entryNutrients } from './journal'
 import { forGrams, sum, type FoodsById, type Nutrients, type VariantsById } from './nutrition'
 import type { Target } from './targets'
+import { foodName } from './food-name'
 
 export type DayTotal = { date: string; n: Nutrients | null }
 
@@ -71,7 +72,7 @@ export function carbsByGlycemicGrade(entries: JournalEntry[], foods: FoodsById, 
     const key = grade === 'A' || grade === 'B' || grade === 'C' ? grade : 'unknown'
     share[key] += carbsG
     if (key === 'C') {
-      const name = food?.name ?? fallbackName
+      const name = foodName(food) ?? fallbackName
       fromC.set(name, (fromC.get(name) ?? 0) + carbsG)
     }
   }
@@ -85,7 +86,7 @@ export function carbsByGlycemicGrade(entries: JournalEntry[], foods: FoodsById, 
     const factor = (entry.servings ?? 1) / Math.max(1, variant.servings)
     for (const ingredient of variant.ingredients) {
       const food = foods.get(ingredient.foodId)
-      if (food) add(food.id, forGrams(food, ingredient.grams).carbsG * factor, food.name)
+      if (food) add(food.id, forGrams(food, ingredient.grams).carbsG * factor, foodName(food))
     }
   }
 

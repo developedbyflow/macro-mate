@@ -1,23 +1,25 @@
 import { CloudAlert, CloudCheck, CloudOff, CloudUpload, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useOutboxCount } from '@/hooks/use-data'
 import { useOnline } from '@/hooks/use-online'
 import { syncNow, useSyncState } from '@/db/sync'
 
 export function SyncIndicator() {
+  const { t } = useTranslation()
   const online = useOnline()
   const pending = useOutboxCount()
   const { running, lastError } = useSyncState()
 
   const [Icon, label, tone] = !online
-    ? [CloudOff, pending > 0 ? `Offline, ${pending} de trimis` : 'Offline', 'text-muted-foreground']
+    ? [CloudOff, pending > 0 ? t('sync.offlinePending', { pending }) : t('sync.offline'), 'text-muted-foreground']
     : running
-      ? [RefreshCw, 'Se sincronizează', 'text-muted-foreground animate-spin']
+      ? [RefreshCw, t('sync.running'), 'text-muted-foreground animate-spin']
       : lastError
-        ? [CloudAlert, `Sincronizarea a eșuat: ${lastError}`, 'text-destructive']
+        ? [CloudAlert, t('sync.failed', { error: lastError }), 'text-destructive']
         : pending > 0
-          ? [CloudUpload, `${pending} de trimis`, 'text-kcal']
-          : [CloudCheck, 'Sincronizat', 'text-primary']
+          ? [CloudUpload, t('sync.pending', { pending }), 'text-kcal']
+          : [CloudCheck, t('sync.done'), 'text-primary']
 
   return (
     <Button variant="ghost" size="icon" aria-label={label} title={label} onClick={() => void syncNow()} className="relative">

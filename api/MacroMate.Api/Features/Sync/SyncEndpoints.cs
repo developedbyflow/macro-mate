@@ -2,6 +2,7 @@ using System.Data;
 using MacroMate.Api.Data;
 using MacroMate.Api.Features.Auth;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace MacroMate.Api.Features.Sync;
 
@@ -19,12 +20,14 @@ public static class SyncEndpoints
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
         var userId = me.Id;
 
+        var kitchenId = await db.Users.Where(u => u.Id == userId).Select(u => u.KitchenId).SingleAsync(ct);
         var users = await db.Users.AsNoTracking().Select(u => new SyncUser(u.Id, u.DisplayName)).ToListAsync(ct);
         var foods = await db.Foods.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
-        var recipes = await db.Recipes.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
-        var variants = await db.RecipeVariants.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
-        var mealPlans = await db.MealPlans.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
-        var shoppingLists = await db.ShoppingLists.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
+        var recipes = await db.Recipes.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
+        var variants = await db.RecipeVariants.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
+        var mealPlans = await db.MealPlans.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
+        var shoppingLists = await db.ShoppingLists.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
+        var pantry = await db.PantryItems.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
         var dayPlans = await db.DayPlans.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
         var journal = await db.JournalEntries.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
         var profiles = await db.UserProfiles.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
@@ -32,17 +35,19 @@ public static class SyncEndpoints
 
         await tx.CommitAsync(ct);
 
-        IEnumerable<SyncEntity> all = [.. foods, .. recipes, .. variants, .. mealPlans, .. shoppingLists, .. dayPlans, .. journal, .. profiles, .. weights];
+        IEnumerable<SyncEntity> all = [.. foods, .. recipes, .. variants, .. mealPlans, .. shoppingLists, .. pantry, .. dayPlans, .. journal, .. profiles, .. weights];
 
         return new SyncPullResponse
         {
             Cursor = all.Select(x => x.Version).DefaultIfEmpty(since).Max(),
+            KitchenId = kitchenId,
             Users = users,
             Foods = foods,
             Recipes = recipes,
             RecipeVariants = variants,
             MealPlans = mealPlans,
             ShoppingLists = shoppingLists,
+            PantryItems = pantry,
             DayPlans = dayPlans,
             JournalEntries = journal,
             UserProfiles = profiles,
@@ -50,10 +55,10 @@ public static class SyncEndpoints
         };
     }
 
-    static async Task<IResult> Push(SyncPushRequest request, AppDbContext db, CurrentUser me, CancellationToken ct)
+    static async Task<IResult> Push(SyncPushRequest request, AppDbContext db, CurrentUser me, IStringLocalizer<Messages> messages, CancellationToken ct)
     {
         if (request.Changes.Count > 2000)
-            return Results.Problem("Prea multe modificări într-o singură cerere.", statusCode: 413);
+            return Results.Problem(messages["TooManyChanges"], statusCode: 413);
 
         var latestPerRow = request.Changes
             .Select((change, index) => (change, index))
@@ -63,6 +68,8 @@ public static class SyncEndpoints
             .Select(x => x.change)
             .ToList();
 
+        var kitchenId = await db.Users.Where(u => u.Id == me.Id).Select(u => u.KitchenId).SingleAsync(ct);
+        var actor = new SyncActor(me.Id, kitchenId);
         var rejected = new List<SyncRejected>();
         var version = await SyncWriter.WriteAsync(db, async (version, now) =>
         {
@@ -73,7 +80,7 @@ public static class SyncEndpoints
                     rejected.Add(new SyncRejected(change.Table, change.Id, "unknown-table"));
                     continue;
                 }
-                var reason = await table.ApplyAsync(db, me.Id, change, version, now, ct);
+                var reason = await table.ApplyAsync(db, actor, change, version, now, ct);
                 if (reason is not null)
                     rejected.Add(new SyncRejected(change.Table, change.Id, reason));
             }

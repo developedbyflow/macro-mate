@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { CalendarRange, ChevronRight, Copy, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { MealPlan } from '@/api/types'
 import { MacroLine } from '@/components/app/nutrients'
@@ -8,15 +9,15 @@ import { Button } from '@/components/ui/button'
 import { newId, saveRow } from '@/db/mutations'
 import { useFoodsById, useMealPlans, useUsersById, useVariantsById } from '@/hooks/use-data'
 import { useOwnerId } from '@/hooks/use-owner'
+import { defaultMeals } from '@/lib/meals'
 import { planTotals } from '@/lib/nutrition'
 
 export const Route = createFileRoute('/_app/plans/')({
   component: PlansPage,
 })
 
-const defaultMealLabels = ['Mic dejun', 'Prânz', 'Cină']
-
 function PlansPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const plans = useMealPlans()
@@ -28,7 +29,7 @@ function PlansPage() {
     const id = newId()
     await saveRow(
       'mealPlans',
-      { id, name: `Plan ${String.fromCharCode(65 + (plans.length % 26))}`, meals: defaultMealLabels.map((label) => ({ id: newId(), label, items: [] })) },
+      { id, name: t('plans.list.defaultName', { letter: String.fromCharCode(65 + (plans.length % 26)) }), meals: defaultMeals(3).map((label) => ({ id: newId(), label, items: [] })) },
       ownerId,
     )
     await navigate({ to: '/plans/$planId', params: { planId: id } })
@@ -40,25 +41,25 @@ function PlansPage() {
       'mealPlans',
       {
         id,
-        name: `${plan.name} (copie)`,
+        name: t('plans.list.copyName', { name: plan.name }),
         meals: plan.meals.map((m) => ({ ...m, id: newId(), items: m.items.map((i) => ({ ...i, id: newId() })) })),
       },
       ownerId,
     )
-    toast.success('Am făcut o copie.')
+    toast.success(t('plans.list.copied'))
   }
 
   return (
     <>
       <PageHeader
-        title="Meal plan-uri"
+        title={t('plans.list.title')}
         actions={
           <Button size="sm" onClick={() => void create()}>
-            <Plus className="size-4" /> Plan nou
+            <Plus className="size-4" /> {t('plans.list.newPlan')}
           </Button>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:px-8 lg:pb-8 xl:grid-cols-3">
+      <main className="mx-auto max-w-2xl space-y-2 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:px-8 lg:pb-8 xl:grid-cols-3 2xl:grid-cols-4">
         {plans.map((plan) => {
           const { total } = planTotals(plan, foods, variants)
           return (
@@ -71,12 +72,12 @@ function PlansPage() {
                   <div className="truncate font-semibold">{plan.name}</div>
                   <MacroLine n={total} />
                   <div className="text-xs text-muted-foreground">
-                    {plan.meals.length} {plan.meals.length === 1 ? 'masă' : 'mese'} · de {users.get(plan.createdBy) ?? '—'}
+                    {t('plans.list.mealsBy', { count: plan.meals.length, author: users.get(plan.createdBy) ?? '—' })}
                   </div>
                 </div>
                 <ChevronRight className="size-4 text-muted-foreground" />
               </Link>
-              <Button variant="ghost" size="icon" aria-label={`Copiază ${plan.name}`} onClick={() => void duplicate(plan)}>
+              <Button variant="ghost" size="icon" aria-label={t('plans.list.copyLabel', { name: plan.name })} onClick={() => void duplicate(plan)}>
                 <Copy className="size-4" />
               </Button>
             </div>
@@ -84,7 +85,7 @@ function PlansPage() {
         })}
         {plans.length === 0 && (
           <div className="col-span-full px-6 py-16 text-center text-sm text-muted-foreground">
-            Un meal plan e o zi: 1–5 mese, fiecare cu rețete și alimente. Fă primul plan și refolosește-l oricând.
+            {t('plans.list.empty')}
           </div>
         )}
       </main>

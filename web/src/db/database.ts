@@ -5,6 +5,7 @@ import type {
   JournalEntry,
   MealPlan,
   MeResponse,
+  PantryItem,
   Recipe,
   RecipeVariant,
   ShoppingList,
@@ -34,6 +35,7 @@ export type MetaEntry =
   | { key: 'me'; value: MeResponse }
   | { key: 'lastSyncAt'; value: string }
   | { key: 'recentFoods'; value: string[] }
+  | { key: 'kitchenId'; value: string }
 
 export class MacroMateDb extends Dexie {
   foods!: EntityTable<Food, 'id'>
@@ -41,6 +43,7 @@ export class MacroMateDb extends Dexie {
   recipeVariants!: EntityTable<RecipeVariant, 'id'>
   mealPlans!: EntityTable<MealPlan, 'id'>
   shoppingLists!: EntityTable<ShoppingList, 'id'>
+  pantryItems!: EntityTable<PantryItem, 'id'>
   dayPlans!: EntityTable<DayPlan, 'id'>
   journalEntries!: EntityTable<JournalEntry, 'id'>
   userProfiles!: EntityTable<UserProfile, 'id'>
@@ -69,6 +72,9 @@ export class MacroMateDb extends Dexie {
     this.version(2).stores({
       weightEntries: 'id, date',
     })
+    this.version(3).stores({
+      pantryItems: 'id, foodId',
+    })
   }
 }
 
@@ -80,6 +86,7 @@ export const syncedTables: TableName[] = [
   'recipeVariants',
   'mealPlans',
   'shoppingLists',
+  'pantryItems',
   'dayPlans',
   'journalEntries',
   'userProfiles',
@@ -88,6 +95,8 @@ export const syncedTables: TableName[] = [
 
 export const personalTables: TableName[] = ['dayPlans', 'journalEntries', 'userProfiles', 'weightEntries']
 
+export const kitchenTables: TableName[] = ['recipes', 'recipeVariants', 'mealPlans', 'shoppingLists', 'pantryItems']
+
 export async function getMeta<K extends MetaEntry['key']>(key: K) {
   const entry = await db.meta.get(key)
   return entry?.value as Extract<MetaEntry, { key: K }>['value'] | undefined
@@ -95,6 +104,14 @@ export async function getMeta<K extends MetaEntry['key']>(key: K) {
 
 export async function setMeta<E extends MetaEntry>(entry: E) {
   await db.meta.put(entry)
+}
+
+export async function resetKitchenData(kitchenId: string) {
+  await db.transaction('rw', [...kitchenTables.map((t) => db.table(t)), db.meta], async () => {
+    await Promise.all(kitchenTables.map((t) => db.table(t).clear()))
+    await setMeta({ key: 'cursor', value: 0 })
+    await setMeta({ key: 'kitchenId', value: kitchenId })
+  })
 }
 
 export async function clearLocalData() {

@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { UserRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useMe } from '@/hooks/use-data'
 import { sideTabs } from './nav-tabs'
 import { SyncIndicator } from './sync-indicator'
 
@@ -7,6 +8,9 @@ const linkClass =
   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-primary'
 
 export function SideNav() {
+  const { t } = useTranslation()
+  const me = useMe()
+  const name = me?.displayName || t('common.profile')
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border/70 bg-sidebar lg:flex">
       <Link to="/" className="flex h-14 items-center gap-2.5 px-5">
@@ -27,8 +31,8 @@ export function SideNav() {
       </nav>
       <div className="flex items-center gap-1 border-t border-border/70 p-3">
         <Link to="/profile" className={`${linkClass} flex-1`}>
-          <UserRound className="size-5" />
-          Profil
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary uppercase">{name.slice(0, 1)}</span>
+          <span className="min-w-0 truncate">{name}</span>
         </Link>
         <SyncIndicator />
       </div>

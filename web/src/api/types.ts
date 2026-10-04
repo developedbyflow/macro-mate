@@ -15,6 +15,11 @@ export type DayPlan = Schemas['DayPlan']
 export type JournalEntry = Schemas['JournalEntry']
 export type UserProfile = Schemas['UserProfile']
 export type WeightEntry = Schemas['WeightEntry']
+export type PantryItem = Schemas['PantryItem']
+export type KitchenInfo = Schemas['KitchenInfo']
+export type InviteCreated = Schemas['InviteCreated']
+export type InviteInfo = Schemas['InviteInfo']
+export type LeaveResult = Schemas['LeaveResult']
 export type SyncUser = Schemas['SyncUser']
 export type SyncPullResponse = Schemas['SyncPullResponse']
 export type SyncPushResponse = Schemas['SyncPushResponse']
@@ -27,7 +32,7 @@ export type RecipeGenerateRequest = Schemas['RecipeGenerateRequest']
 export type RecipeDraft = Schemas['RecipeDraft']
 export type AiStatus = Schemas['AiStatus']
 
-export type SyncRow = Food | Recipe | RecipeVariant | MealPlan | ShoppingList | DayPlan | JournalEntry | UserProfile | WeightEntry
+export type SyncRow = Food | Recipe | RecipeVariant | MealPlan | ShoppingList | DayPlan | JournalEntry | UserProfile | WeightEntry | PantryItem
 
 export type TableName =
   | 'foods'
@@ -35,6 +40,7 @@ export type TableName =
   | 'recipeVariants'
   | 'mealPlans'
   | 'shoppingLists'
+  | 'pantryItems'
   | 'dayPlans'
   | 'journalEntries'
   | 'userProfiles'
@@ -46,6 +52,7 @@ export type RowOf<T extends TableName> = {
   recipeVariants: RecipeVariant
   mealPlans: MealPlan
   shoppingLists: ShoppingList
+  pantryItems: PantryItem
   dayPlans: DayPlan
   journalEntries: JournalEntry
   userProfiles: UserProfile

@@ -2,6 +2,7 @@ using MacroMate.Api.Data;
 using MacroMate.Api.Features.Sync;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace MacroMate.Api.Features.Auth;
 
@@ -24,17 +25,18 @@ public static class AuthEndpoints
         UserManager<AppUser> users,
         SignInManager<AppUser> signIn,
         AppDbContext db,
+        IStringLocalizer<Messages> messages,
         CancellationToken ct)
     {
         var user = await users.FindByEmailAsync(request.Email.Trim());
         if (user is null)
-            return Results.Problem("Email sau parolă greșită.", statusCode: StatusCodes.Status401Unauthorized);
+            return Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);
 
         var result = await signIn.PasswordSignInAsync(user, request.Password, isPersistent: true, lockoutOnFailure: true);
         if (result.IsLockedOut)
-            return Results.Problem("Prea multe încercări. Încearcă din nou peste 5 minute.", statusCode: StatusCodes.Status429TooManyRequests);
+            return Results.Problem(messages["TooManyAttempts"], statusCode: StatusCodes.Status429TooManyRequests);
         if (!result.Succeeded)
-            return Results.Problem("Email sau parolă greșită.", statusCode: StatusCodes.Status401Unauthorized);
+            return Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);
 
         await EnsureProfileAsync(db, user.Id, ct);
         return Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName));

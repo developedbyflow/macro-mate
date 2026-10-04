@@ -66,6 +66,8 @@ public static class SyncRules
 
     public static string? DayPlan(DayPlan d) => null;
 
+    public static string? PantryItem(PantryItem p) => p.FoodId == Guid.Empty ? "food-required" : null;
+
     public static string? WeightEntry(WeightEntry w) =>
         InRange(w.WeightKg, 20, 400) ? null : "invalid-weight";
 

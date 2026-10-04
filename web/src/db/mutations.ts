@@ -1,8 +1,8 @@
 import type { RowOf, TableName } from '@/api/types'
-import { db, personalTables } from './database'
+import { db, getMeta, kitchenTables, personalTables } from './database'
 import { requestSync } from './sync'
 
-type NewRow<T extends TableName> = Omit<RowOf<T>, 'createdAt' | 'updatedAt' | 'deletedAt' | 'version' | 'createdBy' | 'userId'> &
+type NewRow<T extends TableName> = Omit<RowOf<T>, 'createdAt' | 'updatedAt' | 'deletedAt' | 'version' | 'createdBy' | 'userId' | 'kitchenId'> &
   Partial<Pick<RowOf<T>, 'createdAt' | 'version'>>
 
 export function newId() {
@@ -22,6 +22,7 @@ export async function saveRow<T extends TableName>(table: T, row: NewRow<T>, own
     ...(personalTables.includes(table)
       ? { userId: (existing?.userId as string | undefined) ?? ownerId }
       : { createdBy: (existing?.createdBy as string | undefined) ?? ownerId }),
+    ...(kitchenTables.includes(table) ? { kitchenId: (existing?.kitchenId as string | undefined) ?? (await getMeta('kitchenId')) ?? '' } : {}),
   }
 
   await db.transaction('rw', [db.table(table), db.outbox], async () => {

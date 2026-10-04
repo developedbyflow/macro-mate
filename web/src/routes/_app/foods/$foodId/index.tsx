@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Ban, Heart, Pencil, Star, Trash2 } from 'lucide-react'
+import { Ban, Heart, Pencil, Refrigerator, Trash2, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { GlycemicBadge, ProteinBadge, VolumeBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
@@ -11,93 +12,110 @@ import { Photo } from '@/components/app/photo'
 import { Button } from '@/components/ui/button'
 import { deleteRow } from '@/db/mutations'
 import type { Food } from '@/api/types'
-import { useFood, useProfile, useUsersById } from '@/hooks/use-data'
+import { useFood, usePantryFoodIds, useProfile, useUsersById } from '@/hooks/use-data'
+import { useOwnerId } from '@/hooks/use-owner'
 import { categoryLabel } from '@/lib/categories'
 import { num, units } from '@/lib/format'
 import { foodGrades, forGrams } from '@/lib/nutrition'
+import { togglePantry } from '@/lib/pantry'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
+import { foodName } from '@/lib/food-name'
 
 export const Route = createFileRoute('/_app/foods/$foodId/')({
   component: FoodPage,
 })
 
-const sources: Record<string, string> = {
-  manual: 'scris manual',
-  open_food_facts: 'din Open Food Facts',
-  label_photo: 'citit de pe etichetă',
-  generic: 'valori generice',
+const sources = {
+  manual: 'foods.detail.sources.manual',
+  open_food_facts: 'foods.detail.sources.openFoodFacts',
+  label_photo: 'foods.detail.sources.labelPhoto',
+  generic: 'foods.detail.sources.generic',
+} as const
+
+function sourceKey(source: string) {
+  return Object.hasOwn(sources, source) ? sources[source as keyof typeof sources] : null
 }
 
 function FoodPage() {
+  const { t } = useTranslation()
   const { foodId } = Route.useParams()
   const navigate = useNavigate()
   const food = useFood(foodId)
   const profile = useProfile()
   const users = useUsersById()
+  const pantry = usePantryFoodIds()
+  const ownerId = useOwnerId()
 
-  if (!food) return <PageHeader title="Aliment" back />
+  if (!food) return <PageHeader title={t('fallback.food')} back />
   if (food.deletedAt) {
     return (
       <>
-        <PageHeader title={food.name} back />
-        <p className="p-8 text-center text-sm text-muted-foreground">Alimentul a fost șters.</p>
+        <PageHeader title={foodName(food)} back />
+        <p className="p-8 text-center text-sm text-muted-foreground">{t('foods.detail.deleted')}</p>
       </>
     )
   }
 
-  const favorite = inProfile(profile, 'favoriteFoodIds', food.id)
+  const inPantry = pantry.has(food.id)
   const liked = inProfile(profile, 'likedFoodIds', food.id)
   const excluded = inProfile(profile, 'excludedFoodIds', food.id)
   const grades = foodGrades(food)
+  const source = sourceKey(food.source)
 
   return (
     <>
       <PageHeader
-        title={food.name}
+        title={foodName(food)}
         subtitle={[food.brand, categoryLabel(food.category)].filter(Boolean).join(' · ')}
         back
         actions={
-          <Button variant="ghost" size="icon" aria-label="Editează" render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
+          <Button variant="ghost" size="icon" aria-label={t('foods.edit.action')} render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
             <Pencil className="size-5" />
           </Button>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
         <div className="space-y-4">
           {food.photoId && <Photo id={food.photoId} className="aspect-[4/3] w-full rounded-2xl" />}
 
           <section className="space-y-3 rounded-2xl border bg-card p-4">
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <span className="flex items-center gap-1.5">
-                Glicemic <GlycemicBadge grade={food.glycemicGrade} />
+                {t('foods.glycemic')} <GlycemicBadge grade={food.glycemicGrade} />
                 {!food.glycemicGrade && <span className="text-muted-foreground">—</span>}
               </span>
               <span className="flex items-center gap-1.5">
-                Proteină <ProteinBadge grade={grades.protein} />
+                {t('grades.protein.label')} <ProteinBadge grade={grades.protein} />
               </span>
               <span className="flex items-center gap-1.5">
-                Volum <VolumeBadge grade={grades.volume} />
+                {t('grades.volume.label')} <VolumeBadge grade={grades.volume} />
               </span>
             </div>
             {food.gradesReason ? (
               <p className="text-sm text-muted-foreground">{food.gradesReason}</p>
             ) : (
-              <p className="text-sm text-muted-foreground">Fără notă glicemică încă. Deschide „Editează” și apasă „Completează cu AI”. Proteina și volumul se calculează din valori.</p>
+              <p className="text-sm text-muted-foreground">{t('foods.detail.noGlycemicGrade')}</p>
             )}
           </section>
 
           <div className="grid grid-cols-3 gap-2">
-            <Toggle active={favorite} onClick={() => void toggleInProfile(profile, 'favoriteFoodIds', food.id)} icon={Star} label="Favorit" activeClass="text-carbs [&_svg]:fill-carbs" />
-            <Toggle active={liked} onClick={() => void toggleInProfile(profile, 'likedFoodIds', food.id)} icon={Heart} label="Îmi place" activeClass="text-fat [&_svg]:fill-fat" />
+            <Toggle
+              active={inPantry}
+              onClick={() => void togglePantry(food.id, inPantry, ownerId)}
+              icon={Refrigerator}
+              label={inPantry ? t('foods.pantry.inPantry') : t('foods.pantry.add')}
+              activeClass="text-primary border-primary/50 bg-primary/10"
+            />
+            <Toggle active={liked} onClick={() => void toggleInProfile(profile, 'likedFoodIds', food.id)} icon={Heart} label={t('foods.detail.like')} activeClass="text-fat [&_svg]:fill-fat" />
             <Toggle
               active={excluded}
               onClick={() => {
                 void toggleInProfile(profile, 'excludedFoodIds', food.id)
-                toast(excluded ? 'Nu mai e exclus.' : 'Exclus: nu-l mai vezi în liste, alternative și rețete generate.')
+                toast(excluded ? t('foods.detail.includedToast') : t('foods.detail.excludedToast'))
               }}
               icon={Ban}
-              label={excluded ? 'Exclus' : 'Exclude'}
+              label={excluded ? t('foods.detail.excluded') : t('foods.detail.exclude')}
               activeClass="text-destructive"
             />
           </div>
@@ -107,20 +125,20 @@ function FoodPage() {
           <PortionNutrients food={food} />
 
           <p className="text-center text-xs text-muted-foreground">
-            Adăugat de {users.get(food.createdBy) ?? '—'} · {sources[food.source] ?? food.source}
-            {food.barcode && ` · cod ${food.barcode}`}
+            {t('foods.detail.addedBy', { name: users.get(food.createdBy) ?? '—' })} · {source ? t(source) : food.source}
+            {food.barcode && ` · ${t('foods.detail.barcode', { code: food.barcode })}`}
           </p>
 
           <ConfirmDelete
-            title={`Ștergi ${food.name}?`}
-            description="Dispare din listă pentru toți. Rețetele și jurnalul care îl folosesc își păstrează valorile."
+            title={t('foods.detail.deleteTitle', { name: foodName(food) })}
+            description={t('foods.detail.deleteDescription')}
             onConfirm={async () => {
               await deleteRow('foods', food.id)
               await navigate({ to: '/foods' })
             }}
             trigger={
               <Button variant="ghost" className="w-full text-destructive">
-                <Trash2 className="size-4" /> Șterge alimentul
+                <Trash2 className="size-4" /> {t('foods.detail.deleteFood')}
               </Button>
             }
           />
@@ -139,7 +157,7 @@ function Toggle({
 }: {
   active: boolean
   onClick: () => void
-  icon: typeof Star
+  icon: LucideIcon
   label: string
   activeClass: string
 }) {
@@ -157,6 +175,7 @@ function Toggle({
 }
 
 function PortionNutrients({ food }: { food: Food }) {
+  const { t } = useTranslation()
   const unit = food.unitWeightG ? Math.round(food.unitWeightG) : null
   const [grams, setGrams] = useState(100)
   const presets = [{ grams: 100, label: '100 g' }, ...(unit ? [{ grams: unit, label: `${units(1, food.category)} · ${unit} g` }] : [])]
@@ -177,12 +196,12 @@ function PortionNutrients({ food }: { food: Food }) {
             {preset.label}
           </button>
         ))}
-        <NumberStepper value={grams} onChange={setGrams} step={10} min={1} max={2000} unit="g" size="sm" className="ml-auto w-32" label="grame" />
+        <NumberStepper value={grams} onChange={setGrams} step={10} min={1} max={2000} unit="g" size="sm" className="ml-auto w-32" label={t('foods.grams')} />
       </div>
       <NutrientTable
         n={forGrams(food, grams)}
         estimated={food.estimatedFields}
-        caption={grams === unit ? `La ${units(1, food.category)} (${num(grams)} g)` : `La ${num(grams)} g`}
+        caption={grams === unit ? t('foods.detail.perUnit', { unit: units(1, food.category), grams: num(grams) }) : t('foods.detail.perGrams', { grams: num(grams) })}
       />
     </div>
   )

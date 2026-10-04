@@ -16,12 +16,14 @@ public sealed record SyncUser(Guid Id, string DisplayName);
 public sealed class SyncPullResponse
 {
     public required long Cursor { get; init; }
+    public required Guid KitchenId { get; init; }
     public required List<SyncUser> Users { get; init; }
     public required List<Food> Foods { get; init; }
     public required List<Recipe> Recipes { get; init; }
     public required List<RecipeVariant> RecipeVariants { get; init; }
     public required List<MealPlan> MealPlans { get; init; }
     public required List<ShoppingList> ShoppingLists { get; init; }
+    public required List<PantryItem> PantryItems { get; init; }
     public required List<DayPlan> DayPlans { get; init; }
     public required List<JournalEntry> JournalEntries { get; init; }
     public required List<UserProfile> UserProfiles { get; init; }

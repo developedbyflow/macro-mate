@@ -1,4 +1,5 @@
 using MacroMate.Api.Data;
+using MacroMate.Api.Features.Kitchens;
 using Microsoft.AspNetCore.Identity;
 
 namespace MacroMate.Api.Admin;
@@ -23,20 +24,19 @@ public static class DevSeed
             return;
 
         var users = services.GetRequiredService<UserManager<AppUser>>();
+        var db = services.GetRequiredService<AppDbContext>();
         AppUser? first = null;
         foreach (var seed in options.Users)
         {
             var user = await users.FindByEmailAsync(seed.Email);
             if (user is null)
             {
-                user = new AppUser { UserName = seed.Email, Email = seed.Email, DisplayName = seed.Name };
-                var result = await users.CreateAsync(user, options.Password);
-                if (!result.Succeeded)
-                    throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Description)));
+                var (created, errors) = await KitchenService.CreateUserAsync(users, db, seed.Email, seed.Name, options.Password, null, ct);
+                user = created ?? throw new InvalidOperationException(string.Join(" ", errors));
             }
             first ??= user;
         }
 
-        await SeedFoods.RunAsync(services.GetRequiredService<AppDbContext>(), first!.Id, ct);
+        await SeedFoods.RunAsync(db, first!.Id, ct);
     }
 }

@@ -36,6 +36,10 @@ namespace MacroMate.Api.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
 
+                    b.Property<Guid?>("ArchiveKitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("archive_kitchen_id");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text")
@@ -55,6 +59,10 @@ namespace MacroMate.Api.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
@@ -102,6 +110,9 @@ namespace MacroMate.Api.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_users_kitchen_id");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -118,6 +129,10 @@ namespace MacroMate.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -229,6 +244,11 @@ namespace MacroMate.Api.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
+
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name_en");
 
                     b.Property<Guid?>("PhotoId")
                         .HasColumnType("uuid")
@@ -376,6 +396,67 @@ namespace MacroMate.Api.Data.Migrations
                     b.ToTable("journal_entries", (string)null);
                 });
 
+            modelBuilder.Entity("MacroMate.Api.Data.Kitchen", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_kitchens");
+
+                    b.ToTable("kitchens", (string)null);
+                });
+
+            modelBuilder.Entity("MacroMate.Api.Data.KitchenInvite", b =>
+                {
+                    b.Property<string>("Token")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("token");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid?>("UsedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("used_by");
+
+                    b.HasKey("Token")
+                        .HasName("pk_kitchen_invites");
+
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_kitchen_invites_kitchen_id");
+
+                    b.ToTable("kitchen_invites", (string)null);
+                });
+
             modelBuilder.Entity("MacroMate.Api.Data.MealPlan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -394,6 +475,10 @@ namespace MacroMate.Api.Data.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -444,10 +529,61 @@ namespace MacroMate.Api.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_meal_plans");
 
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_meal_plans_kitchen_id");
+
                     b.HasIndex("Version")
                         .HasDatabaseName("ix_meal_plans_version");
 
                     b.ToTable("meal_plans", (string)null);
+                });
+
+            modelBuilder.Entity("MacroMate.Api.Data.PantryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("FoodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("food_id");
+
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pantry_items");
+
+                    b.HasIndex("Version")
+                        .HasDatabaseName("ix_pantry_items_version");
+
+                    b.HasIndex("KitchenId", "FoodId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pantry_items_kitchen_id_food_id");
+
+                    b.ToTable("pantry_items", (string)null);
                 });
 
             modelBuilder.Entity("MacroMate.Api.Data.Recipe", b =>
@@ -485,6 +621,10 @@ namespace MacroMate.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("instructions");
 
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -510,6 +650,9 @@ namespace MacroMate.Api.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_recipes");
 
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_recipes_kitchen_id");
+
                     b.HasIndex("Version")
                         .HasDatabaseName("ix_recipes_version");
 
@@ -534,6 +677,10 @@ namespace MacroMate.Api.Data.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -573,6 +720,9 @@ namespace MacroMate.Api.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_recipe_variants");
 
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_recipe_variants_kitchen_id");
+
                     b.HasIndex("RecipeId")
                         .HasDatabaseName("ix_recipe_variants_recipe_id");
 
@@ -606,6 +756,10 @@ namespace MacroMate.Api.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<Guid>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -635,6 +789,9 @@ namespace MacroMate.Api.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_shopping_lists");
+
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_shopping_lists_kitchen_id");
 
                     b.HasIndex("Version")
                         .HasDatabaseName("ix_shopping_lists_version");
@@ -679,11 +836,6 @@ namespace MacroMate.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("uuid[]")
                         .HasColumnName("excluded_recipe_ids");
-
-                    b.PrimitiveCollection<List<Guid>>("FavoriteFoodIds")
-                        .IsRequired()
-                        .HasColumnType("uuid[]")
-                        .HasColumnName("favorite_food_ids");
 
                     b.PrimitiveCollection<List<Guid>>("FavoriteRecipeIds")
                         .IsRequired()

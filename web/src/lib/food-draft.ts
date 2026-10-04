@@ -1,19 +1,33 @@
 import { api } from '@/api/client'
 import type { Food } from '@/api/types'
+import i18n from '@/i18n'
+
+const nutrientLabels = { kcal: 'kcal', proteinG: 'protein', carbsG: 'carbs', fatG: 'fat', fiberG: 'fiber', sodiumMg: 'sodium' } as const
+
+function field<K extends keyof typeof nutrientLabels, U extends string>(key: K, unit: U) {
+  return {
+    key,
+    unit,
+    get label() {
+      return i18n.t(`nutrients.${nutrientLabels[key]}`)
+    },
+  }
+}
 
 export const nutrientFields = [
-  { key: 'kcal', label: 'Calorii', unit: 'kcal' },
-  { key: 'proteinG', label: 'Proteine', unit: 'g' },
-  { key: 'carbsG', label: 'Carbohidrați', unit: 'g' },
-  { key: 'fatG', label: 'Grăsimi', unit: 'g' },
-  { key: 'fiberG', label: 'Fibre', unit: 'g' },
-  { key: 'sodiumMg', label: 'Sodiu', unit: 'mg' },
+  field('kcal', 'kcal'),
+  field('proteinG', 'g'),
+  field('carbsG', 'g'),
+  field('fatG', 'g'),
+  field('fiberG', 'g'),
+  field('sodiumMg', 'mg'),
 ] as const
 
 export type NutrientKey = (typeof nutrientFields)[number]['key']
 
 export type FoodDraft = {
   name: string
+  nameEn: string
   brand: string
   barcode: string
   category: string
@@ -29,6 +43,7 @@ export type FoodDraft = {
 export function emptyDraft(): FoodDraft {
   return {
     name: '',
+    nameEn: '',
     brand: '',
     barcode: '',
     category: '',
@@ -45,6 +60,7 @@ export function emptyDraft(): FoodDraft {
 export function draftFromFood(food: Food): FoodDraft {
   return {
     name: food.name,
+    nameEn: food.nameEn ?? '',
     brand: food.brand ?? '',
     barcode: food.barcode ?? '',
     category: food.category,
@@ -71,6 +87,7 @@ export async function enrichDraft(draft: FoodDraft, labelImageDataUrl?: string):
   const values = draftValues(draft)
   const result = await api.enrichFood({
     name: draft.name.trim() || null,
+    nameEn: draft.nameEn.trim() || null,
     brand: draft.brand.trim() || null,
     values,
     labelImageDataUrl: labelImageDataUrl ?? null,
@@ -78,6 +95,7 @@ export async function enrichDraft(draft: FoodDraft, labelImageDataUrl?: string):
   return {
     ...draft,
     name: draft.name.trim() || result.name,
+    nameEn: draft.nameEn.trim() || result.nameEn,
     category: draft.category || result.category,
     values: Object.fromEntries(nutrientFields.map((f) => [f.key, String(result[f.key])])) as Record<NutrientKey, string>,
     glycemicGrade: result.glycemicGrade,
@@ -90,7 +108,8 @@ export async function enrichDraft(draft: FoodDraft, labelImageDataUrl?: string):
 export function foodFromDraft(draft: FoodDraft) {
   const values = draftValues(draft)
   return {
-    name: draft.name.trim(),
+    name: draft.name.trim() || draft.nameEn.trim(),
+    nameEn: draft.nameEn.trim() || null,
     brand: draft.brand.trim() || null,
     barcode: draft.barcode.trim() || null,
     category: draft.category,

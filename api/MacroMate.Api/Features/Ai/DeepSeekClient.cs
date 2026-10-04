@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace MacroMate.Api.Features.Ai;
@@ -16,7 +17,7 @@ public sealed class AiNotConfiguredException() : Exception("Cheia DeepSeek nu e 
 
 public sealed class AiFailedException(string message) : Exception(message);
 
-public sealed class DeepSeekClient(HttpClient http, IOptions<DeepSeekOptions> options)
+public sealed class DeepSeekClient(HttpClient http, IOptions<DeepSeekOptions> options, IStringLocalizer<Messages> messages)
 {
     public bool IsConfigured => !string.IsNullOrWhiteSpace(options.Value.ApiKey);
 
@@ -53,20 +54,20 @@ public sealed class DeepSeekClient(HttpClient http, IOptions<DeepSeekOptions> op
         using var response = await http.SendAsync(request, ct);
         var raw = await response.Content.ReadAsStringAsync(ct);
         if (!response.IsSuccessStatusCode)
-            throw new AiFailedException($"DeepSeek a răspuns {(int)response.StatusCode}.");
+            throw new AiFailedException(messages["AiFailedStatus", (int)response.StatusCode]);
 
         var content = JsonNode.Parse(raw)?["choices"]?[0]?["message"]?["content"]?.GetValue<string>();
         if (string.IsNullOrWhiteSpace(content))
-            throw new AiFailedException("DeepSeek a trimis un răspuns gol.");
+            throw new AiFailedException(messages["AiEmptyAnswer"]);
 
         try
         {
             return JsonSerializer.Deserialize<T>(content, JsonSerializerOptions.Web)
-                ?? throw new AiFailedException("DeepSeek a trimis JSON gol.");
+                ?? throw new AiFailedException(messages["AiEmptyJson"]);
         }
         catch (JsonException)
         {
-            throw new AiFailedException("DeepSeek a trimis un JSON care nu se potrivește.");
+            throw new AiFailedException(messages["AiInvalidJson"]);
         }
     }
 }

@@ -1,21 +1,41 @@
 import type { UserProfile } from '@/api/types'
+import i18n from '@/i18n'
 import type { Nutrients } from './nutrition'
 
 export type Sex = 'male' | 'female'
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'very_active'
 export type Goal = 'lose' | 'maintain' | 'gain'
 
+function activity(level: ActivityLevel, factor: number) {
+  return {
+    factor,
+    get label() {
+      return i18n.t(`targets.activity.${level}`)
+    },
+  }
+}
+
+function goal(name: Goal, rates: number[], defaultRate: number) {
+  return {
+    rates,
+    defaultRate,
+    get label() {
+      return i18n.t(`targets.goal.${name}`)
+    },
+  }
+}
+
 export const activityLevels: Record<ActivityLevel, { label: string; factor: number }> = {
-  sedentary: { label: 'Sedentar (birou, fără sport)', factor: 1.2 },
-  light: { label: 'Ușor activ (sport 1–3 ori pe săptămână)', factor: 1.375 },
-  moderate: { label: 'Moderat (sport 3–5 ori pe săptămână)', factor: 1.55 },
-  very_active: { label: 'Foarte activ (sport zilnic sau muncă fizică)', factor: 1.725 },
+  sedentary: activity('sedentary', 1.2),
+  light: activity('light', 1.375),
+  moderate: activity('moderate', 1.55),
+  very_active: activity('very_active', 1.725),
 }
 
 export const goals: Record<Goal, { label: string; rates: number[]; defaultRate: number }> = {
-  lose: { label: 'Slăbire', rates: [0.25, 0.5, 0.75, 1], defaultRate: 0.5 },
-  maintain: { label: 'Menținere', rates: [], defaultRate: 0 },
-  gain: { label: 'Masă musculară', rates: [0.25, 0.5], defaultRate: 0.25 },
+  lose: goal('lose', [0.25, 0.5, 0.75, 1], 0.5),
+  maintain: goal('maintain', [], 0),
+  gain: goal('gain', [0.25, 0.5], 0.25),
 }
 
 export const kcalPerKg = 7700
@@ -65,6 +85,16 @@ export function targetFromProfile(profile: UserProfile | undefined): Target | nu
     fiberG: profile.targetFiberG ?? undefined,
     sodiumMg: profile.targetSodiumMg ?? undefined,
   }
+}
+
+export function maintenanceKcal(profile: UserProfile, weightKg: number) {
+  const { sex, birthYear, heightCm, activityLevel } = profile
+  if (!sex || !birthYear || !heightCm || !activityLevel) return null
+  return energyPlan({ sex: sex as Sex, birthYear, heightCm, weightKg, activityLevel: activityLevel as ActivityLevel, goal: 'maintain' }).tdee
+}
+
+export function projectedWeight(weightKg: number, dayKcal: number, maintenance: number, days = 28) {
+  return weightKg + ((dayKcal - maintenance) * days) / kcalPerKg
 }
 
 export function targetsForWeight(profile: UserProfile, weightKg: number): Nutrients | null {

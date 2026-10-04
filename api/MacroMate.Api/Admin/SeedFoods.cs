@@ -11,6 +11,7 @@ public static class SeedFoods
 {
     sealed record SeedFood(
         string Name,
+        string? NameEn,
         string Category,
         double Kcal,
         double ProteinG,
@@ -41,6 +42,7 @@ public static class SeedFoods
                 {
                     Id = IdFor(s.Name),
                     Name = s.Name,
+                    NameEn = s.NameEn,
                     Category = s.Category,
                     Kcal = s.Kcal,
                     ProteinG = s.ProteinG,

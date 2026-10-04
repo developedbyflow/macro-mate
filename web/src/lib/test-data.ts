@@ -5,6 +5,7 @@ let counter = 0
 export function food(overrides: Partial<Food> & Pick<Food, 'name' | 'category' | 'kcal'>): Food {
   return {
     id: `food-${++counter}`,
+    nameEn: null,
     brand: null,
     barcode: null,
     proteinG: 0,
@@ -30,6 +31,7 @@ export function food(overrides: Partial<Food> & Pick<Food, 'name' | 'category' |
 export function variant(overrides: Partial<RecipeVariant> & Pick<RecipeVariant, 'recipeId' | 'ingredients'>): RecipeVariant {
   return {
     id: `variant-${++counter}`,
+    kitchenId: 'kitchen',
     name: 'Variantă',
     servings: 1,
     createdBy: 'user',
@@ -44,6 +46,7 @@ export function variant(overrides: Partial<RecipeVariant> & Pick<RecipeVariant, 
 export function plan(overrides: Partial<MealPlan> & Pick<MealPlan, 'meals'>): MealPlan {
   return {
     id: `plan-${++counter}`,
+    kitchenId: 'kitchen',
     name: 'Plan',
     createdBy: 'user',
     createdAt: '2026-10-04T00:00:00Z',

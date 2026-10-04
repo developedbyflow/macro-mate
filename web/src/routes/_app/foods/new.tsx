@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Camera, Keyboard, Loader2, ScanBarcode } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, ApiError, OfflineError } from '@/api/client'
 import { FoodForm } from '@/components/app/food-form'
@@ -13,7 +14,9 @@ import { Input } from '@/components/ui/input'
 import { db } from '@/db/database'
 import { newId, saveRow } from '@/db/mutations'
 import { useOwnerId } from '@/hooks/use-owner'
+import { addToPantry } from '@/lib/pantry'
 import { imageToDataUrl } from '@/lib/photos'
+import { foodName, primaryNameField } from '@/lib/food-name'
 
 type Mode = 'scan' | 'label' | 'manual'
 
@@ -28,44 +31,45 @@ export const Route = createFileRoute('/_app/foods/new')({
 type Step = { kind: 'choose' } | { kind: 'scanning' } | { kind: 'label' } | { kind: 'working'; message: string } | { kind: 'form'; draft: FoodDraft }
 
 function NewFoodPage() {
+  const { t } = useTranslation()
   const { mode, barcode } = Route.useSearch()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const ai = useAiStatus()
   const [step, setStep] = useState<Step>(
-    barcode ? { kind: 'working', message: 'Caut produsul…' } : mode === 'scan' ? { kind: 'scanning' } : mode === 'label' ? { kind: 'label' } : mode === 'manual' ? { kind: 'form', draft: emptyDraft() } : { kind: 'choose' },
+    barcode ? { kind: 'working', message: t('foods.new.lookingUp') } : mode === 'scan' ? { kind: 'scanning' } : mode === 'label' ? { kind: 'label' } : mode === 'manual' ? { kind: 'form', draft: emptyDraft() } : { kind: 'choose' },
   )
 
   const withAi = useCallback(
     async (draft: FoodDraft, image?: string) => {
       if (!ai.online || !ai.configured) return draft
-      setStep({ kind: 'working', message: image ? 'DeepSeek citește eticheta…' : 'DeepSeek completează valorile și notele…' })
+      setStep({ kind: 'working', message: image ? t('foods.new.aiReadingLabel') : t('foods.new.aiFilling') })
       try {
         return await enrichDraft(draft, image)
       } catch (error) {
-        toast.error(error instanceof ApiError ? error.message : 'DeepSeek nu a răspuns. Completează manual.')
+        toast.error(error instanceof ApiError ? error.message : t('foods.new.aiFailed'))
         return draft
       }
     },
-    [ai.online, ai.configured],
+    [ai.online, ai.configured, t],
   )
 
   const onDetected = useCallback(
     async (code: string) => {
       const existing = await db.foods.where('barcode').equals(code).first()
       if (existing && !existing.deletedAt) {
-        toast('Produsul e deja în bază.')
+        toast(t('foods.new.alreadyExists'))
         await navigate({ to: '/foods/$foodId', params: { foodId: existing.id } })
         return
       }
 
-      setStep({ kind: 'working', message: 'Caut produsul în Open Food Facts…' })
+      setStep({ kind: 'working', message: t('foods.new.lookingUpOpenFoodFacts') })
       let draft: FoodDraft = { ...emptyDraft(), barcode: code }
       try {
         const product = await api.barcode(code)
         draft = {
           ...draft,
-          name: product.name ?? '',
+          [primaryNameField()]: product.name ?? '',
           brand: product.brand ?? '',
           source: 'open_food_facts',
           values: {
@@ -78,9 +82,9 @@ function NewFoodPage() {
           },
         }
       } catch (error) {
-        if (error instanceof OfflineError) toast('Ești offline. Completează manual; notele le poți calcula mai târziu.')
-        else if (error instanceof ApiError && error.status === 404) toast('Produsul nu e în Open Food Facts. Fă o poză la etichetă sau completează manual.')
-        else toast.error('Căutarea a eșuat.')
+        if (error instanceof OfflineError) toast(t('foods.new.offline'))
+        else if (error instanceof ApiError && error.status === 404) toast(t('foods.new.notFound'))
+        else toast.error(t('foods.new.lookupFailed'))
       }
 
       if (draft.source !== 'open_food_facts') {
@@ -89,7 +93,7 @@ function NewFoodPage() {
       }
       setStep({ kind: 'form', draft: await withAi(draft) })
     },
-    [navigate, withAi],
+    [navigate, withAi, t],
   )
 
   const lookedUp = useRef(false)
@@ -102,23 +106,24 @@ function NewFoodPage() {
   async function save(draft: FoodDraft) {
     const id = newId()
     await saveRow('foods', { id, ...foodFromDraft(draft) }, ownerId)
-    toast.success(`${draft.name} a fost adăugat.`)
+    await addToPantry(id, ownerId)
+    toast.success(t('foods.new.added', { name: foodName(foodFromDraft(draft)) }))
     await navigate({ to: '/foods/$foodId', params: { foodId: id }, replace: true })
   }
 
   return (
     <>
-      <PageHeader title="Aliment nou" back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
+      <PageHeader title={t('foods.new.title')} back />
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-none lg:px-8">
         {step.kind === 'choose' && (
           <div className="space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0">
-            <BigChoice icon={ScanBarcode} title="Scanează codul de bare" text="Caut produsul în Open Food Facts, iar ce lipsește completează DeepSeek." onClick={() => setStep({ kind: 'scanning' })} />
-            <BigChoice icon={Camera} title="Poză la etichetă" text="DeepSeek citește valorile nutriționale din poză." onClick={() => setStep({ kind: 'label' })} />
-            <BigChoice icon={Keyboard} title="Scriu manual" text="Completezi tu, iar AI-ul poate umple golurile." onClick={() => setStep({ kind: 'form', draft: emptyDraft() })} />
+            <BigChoice icon={ScanBarcode} title={t('foods.scanBarcode')} text={t('foods.new.scanText')} onClick={() => setStep({ kind: 'scanning' })} />
+            <BigChoice icon={Camera} title={t('foods.new.labelTitle')} text={t('foods.new.labelText')} onClick={() => setStep({ kind: 'label' })} />
+            <BigChoice icon={Keyboard} title={t('foods.new.manualTitle')} text={t('foods.new.manualText')} onClick={() => setStep({ kind: 'form', draft: emptyDraft() })} />
           </div>
         )}
 
-        {step.kind === 'label' && <LabelStep disabledReason={!ai.online ? 'Ai nevoie de internet.' : !ai.configured ? 'Cheia DeepSeek nu e setată pe server.' : null} onRead={async (draft, image) => setStep({ kind: 'form', draft: await withAi(draft, image) })} />}
+        {step.kind === 'label' && <LabelStep disabledReason={!ai.online ? t('foods.new.needsInternet') : !ai.configured ? t('foods.aiKeyMissing') : null} onRead={async (draft, image) => setStep({ kind: 'form', draft: await withAi(draft, image) })} />}
 
         {step.kind === 'working' && (
           <div className="flex flex-col items-center gap-3 py-24 text-sm text-muted-foreground">
@@ -127,7 +132,7 @@ function NewFoodPage() {
           </div>
         )}
 
-        {step.kind === 'form' && <FoodForm initial={step.draft} submitLabel="Salvează alimentul" onSubmit={save} />}
+        {step.kind === 'form' && <FoodForm initial={step.draft} submitLabel={t('foods.new.saveFood')} onSubmit={save} />}
       </main>
 
       {step.kind === 'scanning' && <Scanner onDetected={(code) => void onDetected(code)} onClose={() => setStep({ kind: 'choose' })} />}
@@ -150,6 +155,7 @@ function BigChoice({ icon: Icon, title, text, onClick }: { icon: typeof Camera; 
 }
 
 function LabelStep({ onRead, disabledReason }: { onRead: (draft: FoodDraft, image: string) => Promise<void>; disabledReason: string | null }) {
+  const { t } = useTranslation()
   const input = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
   const [image, setImage] = useState<string | null>(null)
@@ -161,14 +167,14 @@ function LabelStep({ onRead, disabledReason }: { onRead: (draft: FoodDraft, imag
 
   return (
     <div className="space-y-4 lg:max-w-xl">
-      <p className="text-sm text-muted-foreground">Fă o poză clară la tabelul cu valori nutriționale. Numele e opțional: dacă îl lași gol, îl citește DeepSeek de pe ambalaj.</p>
-      <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nume (opțional)" className="h-10" />
+      <p className="text-sm text-muted-foreground">{t('foods.label.hint')}</p>
+      <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('foods.label.namePlaceholder')} className="h-10" />
       {image ? (
-        <img src={image} alt="Eticheta" className="max-h-80 w-full rounded-xl object-contain" />
+        <img src={image} alt={t('foods.label.imageAlt')} className="max-h-80 w-full rounded-xl object-contain" />
       ) : (
         <Button variant="outline" className="h-32 w-full flex-col gap-2" onClick={() => input.current?.click()}>
           <Camera className="size-6" />
-          Fă poza
+          {t('foods.label.takePhoto')}
         </Button>
       )}
       <input ref={input} type="file" accept="image/*" className="hidden" onChange={(e) => void pick(e.target.files?.[0])} />
@@ -176,11 +182,11 @@ function LabelStep({ onRead, disabledReason }: { onRead: (draft: FoodDraft, imag
       <div className="flex gap-2">
         {image && (
           <Button variant="outline" className="h-11 flex-1" onClick={() => setImage(null)}>
-            Altă poză
+            {t('foods.label.otherPhoto')}
           </Button>
         )}
-        <Button className="h-11 flex-[2]" disabled={!image || !!disabledReason} onClick={() => image && void onRead({ ...emptyDraft(), name }, image)}>
-          Citește eticheta
+        <Button className="h-11 flex-[2]" disabled={!image || !!disabledReason} onClick={() => image && void onRead({ ...emptyDraft(), [primaryNameField()]: name }, image)}>
+          {t('foods.label.read')}
         </Button>
       </div>
     </div>

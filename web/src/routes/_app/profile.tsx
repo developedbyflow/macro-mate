@@ -2,10 +2,13 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Calculator, Heart, LogOut, Plus, RefreshCw, Smartphone, X } from 'lucide-react'
 import { useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { UserProfile } from '@/api/types'
 import { useAiStatus } from '@/hooks/use-ai-status'
 import { ItemPicker } from '@/components/app/item-picker'
+import { KitchenSection } from '@/components/app/kitchen-section'
+import { LanguageSwitch } from '@/components/app/language-switch'
 import { NativeSelect } from '@/components/app/native-select'
 import { PageHeader } from '@/components/app/page-header'
 import { Button } from '@/components/ui/button'
@@ -15,26 +18,32 @@ import { saveRow } from '@/db/mutations'
 import { logout } from '@/db/session'
 import { syncNow, useSyncState } from '@/db/sync'
 import { useFoodsById, useMe, useOutboxCount, useProfile, useRecipesById } from '@/hooks/use-data'
-import { categories, categoryCodes } from '@/lib/categories'
+import { locale } from '@/i18n'
+import { categoryCodes, categoryLabel } from '@/lib/categories'
 import { today } from '@/lib/dates'
-import { decimal, kcal, perWeek } from '@/lib/format'
+import { decimal, kcal } from '@/lib/format'
 import { activityLevels, computeTargets, energyPlan, goals, type ActivityLevel, type Goal, type Sex } from '@/lib/targets'
 import { toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
+import { foodName } from '@/lib/food-name'
+import { AccountSection } from '@/components/app/account-section'
 
 export const Route = createFileRoute('/_app/profile')({
   component: ProfilePage,
 })
 
 function ProfilePage() {
+  const { t } = useTranslation()
   const me = useMe()
   const profile = useProfile()
   return (
     <>
-      <PageHeader title={me?.displayName ?? 'Profil'} subtitle={me?.email} back />
-      <main className="mx-auto max-w-2xl space-y-6 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
+      <PageHeader title={me?.displayName ?? t('common.profile')} subtitle={me?.email} back />
+      <main className="mx-auto max-w-2xl space-y-6 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
         {profile && <TargetsSection key={profile.id + profile.updatedAt} profile={profile} />}
         <div className="space-y-6">
+          <AccountSection />
+          <KitchenSection />
           {profile && <PreferencesSection profile={profile} />}
           <AppSection />
         </div>
@@ -44,17 +53,18 @@ function ProfilePage() {
 }
 
 const targetFields = [
-  { key: 'targetKcal', label: 'Calorii', unit: 'kcal' },
-  { key: 'targetProteinG', label: 'Proteine', unit: 'g' },
-  { key: 'targetCarbsG', label: 'Carbohidrați', unit: 'g' },
-  { key: 'targetFatG', label: 'Grăsimi', unit: 'g' },
-  { key: 'targetFiberG', label: 'Fibre', unit: 'g' },
-  { key: 'targetSodiumMg', label: 'Sodiu maxim', unit: 'mg' },
+  { key: 'targetKcal', label: 'nutrients.kcal', unit: 'kcal' },
+  { key: 'targetProteinG', label: 'nutrients.protein', unit: 'g' },
+  { key: 'targetCarbsG', label: 'nutrients.carbs', unit: 'g' },
+  { key: 'targetFatG', label: 'nutrients.fat', unit: 'g' },
+  { key: 'targetFiberG', label: 'nutrients.fiber', unit: 'g' },
+  { key: 'targetSodiumMg', label: 'profile.targets.maxSodium', unit: 'mg' },
 ] as const
 
 type TargetKey = (typeof targetFields)[number]['key']
 
 function TargetsSection({ profile }: { profile: UserProfile }) {
+  const { t } = useTranslation()
   const [inputs, setInputs] = useState({
     sex: (profile.sex ?? '') as Sex | '',
     birthYear: profile.birthYear?.toString() ?? '',
@@ -87,14 +97,14 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
     if (!ready) return
     const planInputs = { sex: inputs.sex as Sex, birthYear, heightCm, weightKg, activityLevel: inputs.activityLevel, goal: inputs.goal, weeklyRateKg: inputs.weeklyRateKg }
     setPlan(energyPlan(planInputs))
-    const t = computeTargets(planInputs)
+    const computed = computeTargets(planInputs)
     setTargets({
-      targetKcal: String(t.kcal),
-      targetProteinG: String(t.proteinG),
-      targetCarbsG: String(t.carbsG),
-      targetFatG: String(t.fatG),
-      targetFiberG: String(t.fiberG),
-      targetSodiumMg: String(t.sodiumMg),
+      targetKcal: String(computed.kcal),
+      targetProteinG: String(computed.proteinG),
+      targetCarbsG: String(computed.carbsG),
+      targetFatG: String(computed.fatG),
+      targetFiberG: String(computed.fiberG),
+      targetSodiumMg: String(computed.sodiumMg),
     })
   }
 
@@ -124,32 +134,32 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
       },
       profile.userId,
     )
-    toast.success('Țintele sunt salvate.')
+    toast.success(t('profile.targets.saved'))
   }
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold">Ținte zilnice</h2>
+      <h2 className="text-lg font-semibold">{t('profile.targets.title')}</h2>
       <div className="space-y-3 rounded-2xl border bg-card p-4">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Sex">
+          <Field label={t('profile.targets.sex')}>
             <NativeSelect value={inputs.sex} onChange={(e) => setInputs((s) => ({ ...s, sex: e.target.value as Sex }))}>
-              <option value="">Alege…</option>
-              <option value="male">Bărbat</option>
-              <option value="female">Femeie</option>
+              <option value="">{t('profile.targets.choose')}</option>
+              <option value="male">{t('profile.targets.male')}</option>
+              <option value="female">{t('profile.targets.female')}</option>
             </NativeSelect>
           </Field>
-          <Field label="Anul nașterii">
+          <Field label={t('profile.targets.birthYear')}>
             <Input inputMode="numeric" value={inputs.birthYear} onChange={(e) => setInputs((s) => ({ ...s, birthYear: e.target.value }))} className="h-10" />
           </Field>
-          <Field label="Înălțime (cm)">
+          <Field label={t('profile.targets.height')}>
             <Input inputMode="decimal" value={inputs.heightCm} onChange={(e) => setInputs((s) => ({ ...s, heightCm: e.target.value }))} className="h-10" />
           </Field>
-          <Field label="Greutate (kg)">
+          <Field label={t('profile.targets.weight')}>
             <Input inputMode="decimal" value={inputs.weightKg} onChange={(e) => setInputs((s) => ({ ...s, weightKg: e.target.value }))} className="h-10" />
           </Field>
         </div>
-        <Field label="Activitate">
+        <Field label={t('profile.targets.activity')}>
           <NativeSelect value={inputs.activityLevel} onChange={(e) => setInputs((s) => ({ ...s, activityLevel: e.target.value as ActivityLevel }))}>
             {Object.entries(activityLevels).map(([key, level]) => (
               <option key={key} value={key}>
@@ -158,7 +168,7 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
             ))}
           </NativeSelect>
         </Field>
-        <Field label="Obiectiv">
+        <Field label={t('profile.targets.goal')}>
           <div className="grid h-10 grid-cols-3 overflow-hidden rounded-lg border">
             {Object.entries(goals).map(([key, goal]) => (
               <button
@@ -174,17 +184,17 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
         </Field>
         {inputs.goal !== 'maintain' && (
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3">
-            <Field label="Greutate țintă (kg)">
+            <Field label={t('profile.targets.goalWeight')}>
               <Input
                 inputMode="decimal"
                 value={inputs.goalWeightKg}
                 onChange={(e) => setInputs((s) => ({ ...s, goalWeightKg: e.target.value }))}
-                placeholder="opțional"
+                placeholder={t('profile.targets.optional')}
                 className="h-10"
               />
             </Field>
             <div className="space-y-1.5">
-              <span className="block text-sm font-medium">Ritm (kg pe săptămână)</span>
+              <span className="block text-sm font-medium">{t('profile.targets.weeklyRate')}</span>
               <div className="grid h-10 overflow-hidden rounded-lg border" style={{ gridTemplateColumns: `repeat(${goals[inputs.goal].rates.length}, minmax(0, 1fr))` }}>
                 {goals[inputs.goal].rates.map((rate) => (
                   <button
@@ -205,36 +215,39 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
         )}
         {wrongDirection && (
           <p className="text-xs text-destructive">
-            {inputs.goal === 'lose' ? 'Pentru slăbire, greutatea țintă trebuie să fie sub cea de acum.' : 'Pentru masă musculară, greutatea țintă trebuie să fie peste cea de acum.'}
+            {inputs.goal === 'lose' ? t('profile.targets.loseWrongDirection') : t('profile.targets.gainWrongDirection')}
           </p>
         )}
         <Button variant="secondary" className="h-10 w-full" disabled={!ready} onClick={calculate}>
-          <Calculator className="size-4" /> Calculează
+          <Calculator className="size-4" /> {t('profile.targets.calculate')}
         </Button>
         {plan ? (
           <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs leading-relaxed">
-            Metabolism bazal {kcal(plan.bmr)} kcal × activitate = {kcal(plan.tdee)} kcal pe zi.{' '}
-            {plan.rate > 0
-              ? `${plan.dailyChange < 0 ? '−' : '+'}${kcal(Math.abs(plan.dailyChange))} kcal pentru ${perWeek(plan.rate)}`
-              : 'La menținere nu se scade nimic'}{' '}
-            → <strong>{kcal(plan.kcal)} kcal</strong>.
-            {plan.limitedByBmr && ' Ritmul ales ar coborî sub metabolismul bazal, așa că ținta rămâne la el; vei slăbi mai încet decât ritmul ales.'}
+            {t('profile.targets.planEnergy', { bmr: kcal(plan.bmr), tdee: kcal(plan.tdee) })}{' '}
+            {plan.rate > 0 ? (
+              <Trans
+                i18nKey="profile.targets.planChange"
+                values={{ change: `${plan.dailyChange < 0 ? '−' : '+'}${kcal(Math.abs(plan.dailyChange))}`, rate: decimal(plan.rate), target: kcal(plan.kcal) }}
+                components={{ strong: <strong /> }}
+              />
+            ) : (
+              <Trans i18nKey="profile.targets.planMaintain" values={{ target: kcal(plan.kcal) }} components={{ strong: <strong /> }} />
+            )}
+            {plan.limitedByBmr && ` ${t('profile.targets.planLimitedByBmr')}`}
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            Formula Mifflin-St Jeor × activitate. 1 kg de grăsime are cam 7.700 kcal, deci 0,5 kg pe săptămână înseamnă 550 kcal mai puțin pe zi. Ținta nu coboară sub metabolismul bazal. Proteine 2 g/kg la slăbire (altfel 1,6), grăsimi 0,8 g/kg, restul carbohidrați.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('profile.targets.formula')}</p>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 rounded-2xl border bg-card p-4">
         {targetFields.map((field) => (
-          <Field key={field.key} label={field.label}>
+          <Field key={field.key} label={t(field.label)}>
             <div className="relative">
               <Input
                 inputMode="decimal"
                 value={targets[field.key]}
-                onChange={(e) => setTargets((t) => ({ ...t, [field.key]: e.target.value }))}
+                onChange={(e) => setTargets((s) => ({ ...s, [field.key]: e.target.value }))}
                 className="h-10 pr-12 tabular-nums"
                 placeholder="—"
               />
@@ -243,7 +256,7 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
           </Field>
         ))}
         <Button className="col-span-2 h-11" onClick={() => void save()}>
-          Salvează țintele
+          {t('profile.targets.save')}
         </Button>
       </div>
     </section>
@@ -251,17 +264,18 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
 }
 
 function PreferencesSection({ profile }: { profile: UserProfile }) {
+  const { t } = useTranslation()
   const foods = useFoodsById()
   const recipes = useRecipesById()
   const [picking, setPicking] = useState<'exclude' | 'like' | null>(null)
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold">Preferințe și excluderi</h2>
-      <p className="-mt-2 text-sm text-muted-foreground">Ce excluzi nu-ți mai apare în liste, alternative sau rețete generate. Se aplică doar contului tău.</p>
+      <h2 className="text-lg font-semibold">{t('profile.preferences.title')}</h2>
+      <p className="-mt-2 text-sm text-muted-foreground">{t('profile.preferences.intro')}</p>
 
       <div className="space-y-2 rounded-2xl border bg-card p-4">
-        <h3 className="text-sm font-semibold">Categorii excluse</h3>
+        <h3 className="text-sm font-semibold">{t('profile.preferences.excludedCategories')}</h3>
         <div className="flex flex-wrap gap-1.5">
           {categoryCodes.map((code) => {
             const active = profile.excludedCategories.includes(code)
@@ -275,7 +289,7 @@ function PreferencesSection({ profile }: { profile: UserProfile }) {
                   active ? 'border-destructive bg-destructive/10 text-destructive line-through' : 'bg-card text-muted-foreground',
                 )}
               >
-                {categories[code]}
+                {categoryLabel(code)}
               </button>
             )
           })}
@@ -283,30 +297,30 @@ function PreferencesSection({ profile }: { profile: UserProfile }) {
       </div>
 
       <ChipList
-        title="Alimente excluse"
-        items={profile.excludedFoodIds.map((id) => ({ id, label: foods.get(id)?.name ?? 'Aliment șters' }))}
+        title={t('profile.preferences.excludedFoods')}
+        items={profile.excludedFoodIds.map((id) => ({ id, label: foodName(foods.get(id)) ?? t('fallback.deletedFood') }))}
         onRemove={(id) => void toggleInProfile(profile, 'excludedFoodIds', id)}
         onAdd={() => setPicking('exclude')}
       />
       <ChipList
-        title="Rețete excluse"
-        items={profile.excludedRecipeIds.map((id) => ({ id, label: recipes.get(id)?.name ?? 'Rețetă ștearsă' }))}
+        title={t('profile.preferences.excludedRecipes')}
+        items={profile.excludedRecipeIds.map((id) => ({ id, label: recipes.get(id)?.name ?? t('fallback.deletedRecipe') }))}
         onRemove={(id) => void toggleInProfile(profile, 'excludedRecipeIds', id)}
-        hint="Le excluzi din pagina rețetei."
+        hint={t('profile.preferences.excludedRecipesHint')}
       />
       <ChipList
-        title="Îmi place"
+        title={t('profile.preferences.liked')}
         icon={<Heart className="size-4 fill-fat text-fat" />}
-        items={profile.likedFoodIds.map((id) => ({ id, label: foods.get(id)?.name ?? 'Aliment șters' }))}
+        items={profile.likedFoodIds.map((id) => ({ id, label: foodName(foods.get(id)) ?? t('fallback.deletedFood') }))}
         onRemove={(id) => void toggleInProfile(profile, 'likedFoodIds', id)}
         onAdd={() => setPicking('like')}
-        hint="Generatorul de rețete le folosește cu prioritate."
+        hint={t('profile.preferences.likedHint')}
       />
 
       <ItemPicker
         open={picking !== null}
         onOpenChange={(open) => !open && setPicking(null)}
-        title={picking === 'exclude' ? 'Exclude un aliment' : 'Îmi place'}
+        title={picking === 'exclude' ? t('profile.preferences.excludeFood') : t('profile.preferences.liked')}
         allowRecipes={false}
         askQuantity={false}
         onPick={(picked) => {
@@ -334,6 +348,7 @@ function ChipList({
   hint?: string
   icon?: React.ReactNode
 }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-2 rounded-2xl border bg-card p-4">
       <div className="flex items-center gap-2">
@@ -341,7 +356,7 @@ function ChipList({
         <h3 className="flex-1 text-sm font-semibold">{title}</h3>
         {onAdd && (
           <Button variant="ghost" size="sm" onClick={onAdd}>
-            <Plus className="size-4" /> Adaugă
+            <Plus className="size-4" /> {t('common.add')}
           </Button>
         )}
       </div>
@@ -350,20 +365,21 @@ function ChipList({
           {items.map((item) => (
             <span key={item.id} className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-3 text-xs">
               {item.label}
-              <button type="button" aria-label={`Scoate ${item.label}`} className="rounded-full p-0.5 hover:bg-background" onClick={() => onRemove(item.id)}>
+              <button type="button" aria-label={t('profile.preferences.remove', { name: item.label })} className="rounded-full p-0.5 hover:bg-background" onClick={() => onRemove(item.id)}>
                 <X className="size-3.5" />
               </button>
             </span>
           ))}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">{hint ?? 'Nimic încă.'}</p>
+        <p className="text-xs text-muted-foreground">{hint ?? t('profile.preferences.empty')}</p>
       )}
     </div>
   )
 }
 
 function AppSection() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const pending = useOutboxCount()
   const { running, lastError, rejected } = useSyncState()
@@ -373,7 +389,7 @@ function AppSection() {
 
   async function signOut() {
     if (pending > 0 && !navigator.onLine) {
-      toast.error(`Ai ${pending} modificări netrimise. Conectează-te la internet înainte să ieși, altfel se pierd.`)
+      toast.error(t('profile.app.unsentChanges', { count: pending }))
       return
     }
     await logout()
@@ -382,39 +398,40 @@ function AppSection() {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Aplicația</h2>
+      <h2 className="text-lg font-semibold">{t('profile.app.title')}</h2>
       <div className="divide-y rounded-2xl border bg-card text-sm">
-        <Row label="Sincronizare">
+        <Row label={t('common.language')}>
+          <LanguageSwitch className="h-8 w-44" />
+        </Row>
+        <Row label={t('profile.app.sync')}>
           <span className="text-right text-muted-foreground">
-            {running ? 'în curs…' : lastSync ? new Intl.DateTimeFormat('ro-RO', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(lastSync)) : 'niciodată'}
-            {pending > 0 && <span className="block text-kcal">{pending} de trimis</span>}
+            {running ? t('profile.app.syncing') : lastSync ? new Intl.DateTimeFormat(locale(), { dateStyle: 'short', timeStyle: 'short' }).format(new Date(lastSync)) : t('profile.app.neverSynced')}
+            {pending > 0 && <span className="block text-kcal">{t('sync.pending', { pending })}</span>}
             {lastError && <span className="block text-destructive">{lastError}</span>}
-            {rejected > 0 && <span className="block text-destructive">{rejected} respinse de server</span>}
+            {rejected > 0 && <span className="block text-destructive">{t('profile.app.rejected', { rejected })}</span>}
           </span>
-          <Button variant="ghost" size="icon-sm" aria-label="Sincronizează acum" onClick={() => void syncNow()}>
+          <Button variant="ghost" size="icon-sm" aria-label={t('profile.app.syncNow')} onClick={() => void syncNow()}>
             <RefreshCw className={cn('size-4', running && 'animate-spin')} />
           </Button>
         </Row>
-        <Row label="AI (DeepSeek)">
-          <span className="text-muted-foreground">{!ai.online ? 'offline' : ai.configured ? 'pregătit' : 'cheie nesetată pe server'}</span>
+        <Row label={t('profile.app.ai')}>
+          <span className="text-muted-foreground">{!ai.online ? t('profile.app.aiOffline') : ai.configured ? t('profile.app.aiReady') : t('profile.app.aiKeyMissing')}</span>
         </Row>
         {!standalone && (
           <div className="flex gap-3 p-4">
             <Smartphone className="size-5 shrink-0 text-primary" />
-            <p className="text-muted-foreground">
-              Pune aplicația pe ecranul telefonului. Pe iPhone: Safari → Share → „Add to Home Screen”. Pe Android: meniul Chrome → „Instalează aplicația”.
-            </p>
+            <p className="text-muted-foreground">{t('profile.app.install')}</p>
           </div>
         )}
       </div>
       <Button variant="outline" className="h-11 w-full" onClick={() => void signOut()}>
-        <LogOut className="size-4" /> Ieși din cont
+        <LogOut className="size-4" /> {t('profile.app.signOut')}
       </Button>
       <p className="text-center text-xs text-muted-foreground">
         <Link to="/" className="underline-offset-4 hover:underline">
           MacroMate
         </Link>{' '}
-        · datele stau în telefon și se sincronizează când ai internet
+        · {t('profile.app.dataNote')}
       </p>
     </section>
   )

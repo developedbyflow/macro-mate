@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react'
 import { api, ApiError, OfflineError, type SyncChange } from '@/api/client'
 import type { SyncPullResponse } from '@/api/types'
-import { db, getMeta, setMeta, syncedTables } from './database'
+import { db, getMeta, resetKitchenData, setMeta, syncedTables } from './database'
+import i18n from '@/i18n'
 
 type SyncState = {
   running: boolean
@@ -59,7 +60,7 @@ export async function syncNow() {
     if (error instanceof ApiError && error.status === 401) {
       onUnauthorized()
     } else if (!(error instanceof OfflineError)) {
-      setState({ lastError: error instanceof Error ? error.message : 'Sincronizarea a eșuat.' })
+      setState({ lastError: error instanceof Error ? error.message : i18n.t('sync.failedGeneric') })
     }
   } finally {
     setState({ running: false })
@@ -68,6 +69,11 @@ export async function syncNow() {
       requestSync(100)
     }
   }
+}
+
+export async function syncFully() {
+  while (state.running) await new Promise((resolve) => setTimeout(resolve, 100))
+  await syncNow()
 }
 
 async function uploadPhotos() {
@@ -101,6 +107,12 @@ async function pushOutbox() {
 async function pull() {
   const since = (await getMeta('cursor')) ?? 0
   const response = await api.pull(since)
+  const knownKitchen = await getMeta('kitchenId')
+  if (knownKitchen && knownKitchen !== response.kitchenId && since > 0) {
+    await resetKitchenData(response.kitchenId)
+    await applyPull(await api.pull(0))
+    return
+  }
   await applyPull(response)
 }
 
@@ -115,6 +127,7 @@ export async function applyPull(response: SyncPullResponse) {
     }
     await db.users.bulkPut(response.users)
     await setMeta({ key: 'cursor', value: response.cursor })
+    await setMeta({ key: 'kitchenId', value: response.kitchenId })
   })
 }
 

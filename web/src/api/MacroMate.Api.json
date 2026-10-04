@@ -106,6 +106,365 @@
         }
       }
     },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/confirm-email": {
+      "post": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me/name": {
+      "put": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeNameRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me/password": {
+      "post": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/me/email": {
+      "post": {
+        "tags": [
+          "AccountEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/kitchen": {
+      "get": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kitchen/invites": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteCreated"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kitchen/leave": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kitchen/archive/restore": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kitchen/members/{memberId}/remove": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invites/{token}": {
+      "get": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invites/{token}/accept": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInviteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invites/{token}/register": {
+      "post": {
+        "tags": [
+          "KitchenEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sync": {
       "get": {
         "tags": [
@@ -287,6 +646,17 @@
   },
   "components": {
     "schemas": {
+      "AcceptInviteRequest": {
+        "required": [
+          "bringMine"
+        ],
+        "type": "object",
+        "properties": {
+          "bringMine": {
+            "type": "boolean"
+          }
+        }
+      },
       "AiStatus": {
         "required": [
           "configured"
@@ -295,6 +665,33 @@
         "properties": {
           "configured": {
             "type": "boolean"
+          }
+        }
+      },
+      "ArchiveSummary": {
+        "required": [
+          "recipes",
+          "mealPlans",
+          "shoppingLists",
+          "pantryItems"
+        ],
+        "type": "object",
+        "properties": {
+          "recipes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mealPlans": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shoppingLists": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pantryItems": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -327,10 +724,72 @@
           }
         }
       },
+      "ChangeEmailRequest": {
+        "required": [
+          "newEmail",
+          "currentPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "newEmail": {
+            "type": "string"
+          },
+          "currentPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeNameRequest": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmEmailRequest": {
+        "required": [
+          "userId",
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
       "DayPlan": {
         "required": [
           "date",
           "mealPlanId",
+          "completedAt",
           "userId",
           "id",
           "createdAt",
@@ -350,6 +809,13 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "completedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "userId": {
             "type": "string",
@@ -400,6 +866,7 @@
       "Food": {
         "required": [
           "name",
+          "nameEn",
           "brand",
           "barcode",
           "category",
@@ -426,6 +893,12 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "nameEn": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "brand": {
             "type": [
@@ -533,6 +1006,7 @@
       "FoodEnrichRequest": {
         "required": [
           "name",
+          "nameEn",
           "brand",
           "values",
           "labelImageDataUrl"
@@ -540,6 +1014,12 @@
         "type": "object",
         "properties": {
           "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nameEn": {
             "type": [
               "null",
               "string"
@@ -565,6 +1045,7 @@
       "FoodEnrichResponse": {
         "required": [
           "name",
+          "nameEn",
           "kcal",
           "proteinG",
           "carbsG",
@@ -579,6 +1060,9 @@
         "type": "object",
         "properties": {
           "name": {
+            "type": "string"
+          },
+          "nameEn": {
             "type": "string"
           },
           "kcal": {
@@ -619,6 +1103,52 @@
           },
           "reason": {
             "type": "string"
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "InviteCreated": {
+        "required": [
+          "token",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InviteInfo": {
+        "required": [
+          "members",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -750,6 +1280,71 @@
         }
       },
       "JsonElement": { },
+      "KitchenInfo": {
+        "required": [
+          "id",
+          "ownerId",
+          "members",
+          "archive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KitchenMember"
+            }
+          },
+          "archive": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArchiveSummary"
+              }
+            ]
+          }
+        }
+      },
+      "KitchenMember": {
+        "required": [
+          "id",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "LeaveResult": {
+        "required": [
+          "hasArchive"
+        ],
+        "type": "object",
+        "properties": {
+          "hasArchive": {
+            "type": "boolean"
+          }
+        }
+      },
       "LoginRequest": {
         "required": [
           "email",
@@ -867,6 +1462,7 @@
         "required": [
           "name",
           "meals",
+          "kitchenId",
           "createdBy",
           "id",
           "createdAt",
@@ -884,6 +1480,10 @@
             "items": {
               "$ref": "#/components/schemas/Meal"
             }
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
           },
           "createdBy": {
             "type": "string",
@@ -1005,6 +1605,56 @@
           }
         }
       },
+      "PantryItem": {
+        "required": [
+          "foodId",
+          "kitchenId",
+          "createdBy",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Recipe": {
         "required": [
           "name",
@@ -1013,6 +1663,7 @@
           "difficulty",
           "photoId",
           "ingredientFoodIds",
+          "kitchenId",
           "createdBy",
           "id",
           "createdAt",
@@ -1051,6 +1702,10 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
           },
           "createdBy": {
             "type": "string",
@@ -1160,6 +1815,7 @@
           "name",
           "servings",
           "ingredients",
+          "kitchenId",
           "createdBy",
           "id",
           "createdAt",
@@ -1185,6 +1841,10 @@
             "items": {
               "$ref": "#/components/schemas/VariantIngredient"
             }
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
           },
           "createdBy": {
             "type": "string",
@@ -1215,11 +1875,54 @@
           }
         }
       },
+      "RegisterRequest": {
+        "required": [
+          "token",
+          "email",
+          "displayName",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "required": [
+          "email",
+          "token",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
       "ShoppingList": {
         "required": [
           "name",
           "plans",
           "checkedKeys",
+          "kitchenId",
           "createdBy",
           "id",
           "createdAt",
@@ -1243,6 +1946,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
           },
           "createdBy": {
             "type": "string",
@@ -1324,12 +2031,14 @@
       "SyncPullResponse": {
         "required": [
           "cursor",
+          "kitchenId",
           "users",
           "foods",
           "recipes",
           "recipeVariants",
           "mealPlans",
           "shoppingLists",
+          "pantryItems",
           "dayPlans",
           "journalEntries",
           "userProfiles",
@@ -1340,6 +2049,10 @@
           "cursor": {
             "type": "integer",
             "format": "int64"
+          },
+          "kitchenId": {
+            "type": "string",
+            "format": "uuid"
           },
           "users": {
             "type": "array",
@@ -1375,6 +2088,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ShoppingList"
+            }
+          },
+          "pantryItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PantryItem"
             }
           },
           "dayPlans": {
@@ -1490,7 +2209,6 @@
           "targetFatG",
           "targetFiberG",
           "targetSodiumMg",
-          "favoriteFoodIds",
           "favoriteRecipeIds",
           "excludedFoodIds",
           "excludedCategories",
@@ -1613,13 +2331,6 @@
               "number"
             ],
             "format": "double"
-          },
-          "favoriteFoodIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
           },
           "favoriteRecipeIds": {
             "type": "array",
@@ -1762,6 +2473,12 @@
     },
     {
       "name": "AuthEndpoints"
+    },
+    {
+      "name": "AccountEndpoints"
+    },
+    {
+      "name": "KitchenEndpoints"
     },
     {
       "name": "SyncEndpoints"

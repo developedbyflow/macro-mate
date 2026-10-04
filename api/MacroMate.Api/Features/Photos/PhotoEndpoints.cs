@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
@@ -22,12 +23,12 @@ public static class PhotoEndpoints
         group.MapGet("/{id:guid}", Download);
     }
 
-    static async Task<IResult> Upload(Guid id, HttpRequest request, IOptions<StorageOptions> storage, CancellationToken ct)
+    static async Task<IResult> Upload(Guid id, HttpRequest request, IOptions<StorageOptions> storage, IStringLocalizer<Messages> messages, CancellationToken ct)
     {
         if (!AllowedTypes.Contains(request.ContentType))
-            return Results.Problem("Poza trebuie să fie JPEG.", statusCode: StatusCodes.Status415UnsupportedMediaType);
+            return Results.Problem(messages["PhotoMustBeJpeg"], statusCode: StatusCodes.Status415UnsupportedMediaType);
         if (request.ContentLength is null or > MaxBytes)
-            return Results.Problem("Poza trebuie să aibă sub 8 MB.", statusCode: StatusCodes.Status413PayloadTooLarge);
+            return Results.Problem(messages["PhotoTooLarge"], statusCode: StatusCodes.Status413PayloadTooLarge);
 
         Directory.CreateDirectory(storage.Value.PhotosPath);
         var path = PhotoPath(storage.Value, id);

@@ -18,7 +18,6 @@ public class UserProfile : PersonalEntity
     public double? TargetFatG { get; set; }
     public double? TargetFiberG { get; set; }
     public double? TargetSodiumMg { get; set; }
-    public List<Guid> FavoriteFoodIds { get; set; } = [];
     public List<Guid> FavoriteRecipeIds { get; set; } = [];
     public List<Guid> ExcludedFoodIds { get; set; } = [];
     public List<string> ExcludedCategories { get; set; } = [];

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChevronRight, Droplet, Flame, Plus, RefreshCw, Target, Trash2, Weight } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { UserProfile, WeightEntry } from '@/api/types'
 import { NumberStepper } from '@/components/app/number-stepper'
@@ -13,6 +14,7 @@ import { deleteRow, newId, saveRow } from '@/db/mutations'
 import { useFoodsById, useJournalBetween, useProfile, useVariantsById, useWeightEntries } from '@/hooks/use-data'
 import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
+import i18n from '@/i18n'
 import { addDays, longDate, shortDate, today } from '@/lib/dates'
 import { kcal, kg, num, perWeek } from '@/lib/format'
 import { goalProgress } from '@/lib/goals'
@@ -29,6 +31,7 @@ const periods = [7, 30, 90] as const
 type Period = (typeof periods)[number]
 
 function ProgressPage() {
+  const { t } = useTranslation()
   const [period, setPeriod] = useState<Period>(30)
   const end = today()
   const dates = useMemo(() => dateRange(end, period), [end, period])
@@ -48,8 +51,8 @@ function ProgressPage() {
 
   return (
     <>
-      <PageHeader title="Progres" subtitle={stats ? `${stats.logged} din ${period} zile notate` : undefined} />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
+      <PageHeader title={t('nav.progress')} subtitle={stats ? t('progress.loggedOfPeriod', { logged: stats.logged, count: period }) : undefined} />
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:max-w-none lg:px-8">
         <GoalCard profile={profile} weights={weights} />
 
         <div className="flex gap-1.5">
@@ -63,7 +66,7 @@ function ProgressPage() {
                 period === p ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground',
               )}
             >
-              {p === 7 ? '7 zile' : `${p} de zile`}
+              {t('progress.period', { count: p })}
             </button>
           ))}
         </div>
@@ -71,28 +74,28 @@ function ProgressPage() {
         {stats ? (
           <>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <Metric label="Media pe zi" value={`${kcal(stats.avg.kcal)} kcal`} hint={target ? differenceText(stats.avg.kcal - target.kcal) : `din ${stats.logged} zile notate`} />
-              <Metric label="Cea mai mare zi" value={`${kcal(stats.highest.n.kcal)} kcal`} hint={shortDate(stats.highest.date)} />
-              <Metric label="Cea mai mică zi" value={`${kcal(stats.lowest.n.kcal)} kcal`} hint={shortDate(stats.lowest.date)} />
+              <Metric label={t('progress.metrics.averagePerDay')} value={`${kcal(stats.avg.kcal)} kcal`} hint={target ? differenceText(stats.avg.kcal - target.kcal) : t('progress.metrics.fromLoggedDays', { count: stats.logged })} />
+              <Metric label={t('progress.metrics.highestDay')} value={`${kcal(stats.highest.n.kcal)} kcal`} hint={shortDate(stats.highest.date)} />
+              <Metric label={t('progress.metrics.lowestDay')} value={`${kcal(stats.lowest.n.kcal)} kcal`} hint={shortDate(stats.lowest.date)} />
               <Metric
-                label="Zile în țintă (±10%)"
-                value={stats.inTarget != null ? `${stats.inTarget} din ${stats.logged}` : '—'}
-                hint={stats.inTarget != null ? `${Math.round((stats.inTarget / stats.logged) * 100)}% din zilele notate` : 'setează-ți țintele în Profil'}
+                label={t('progress.metrics.daysInTarget')}
+                value={stats.inTarget != null ? t('progress.metrics.inTargetOfLogged', { inTarget: stats.inTarget, logged: stats.logged }) : '—'}
+                hint={stats.inTarget != null ? t('progress.metrics.percentOfLogged', { percent: Math.round((stats.inTarget / stats.logged) * 100) }) : t('progress.metrics.setTargets')}
               />
             </div>
 
             <section className="rounded-2xl border bg-card p-4">
               <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <h2 className="mr-auto font-semibold">Calorii pe zi</h2>
-                <Legend className="bg-primary" label="în țintă sau sub" />
-                <Legend className="bg-kcal" label="peste țintă" />
+                <h2 className="mr-auto font-semibold">{t('progress.kcalChart.title')}</h2>
+                <Legend className="bg-primary" label={t('progress.kcalChart.onOrUnder')} />
+                <Legend className="bg-kcal" label={t('progress.kcalChart.over')} />
               </div>
               <KcalBars days={days} target={target?.kcal ?? null} />
             </section>
           </>
         ) : (
           <p className="rounded-2xl border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
-            Nu ai notat nimic în {period === 7 ? 'ultimele 7 zile' : `ultimele ${period} de zile`}. Când notezi mese în Azi, aici apar media, zilele cele mai mari și cele mai mici.
+            {t('progress.empty', { count: period })}
           </p>
         )}
 
@@ -108,6 +111,7 @@ function ProgressPage() {
 }
 
 function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weights: WeightEntry[] }) {
+  const { t } = useTranslation()
   if (!profile) return null
   const progress = goalProgress(profile, weights, today())
 
@@ -116,9 +120,7 @@ function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weig
       <Link to="/profile" className="flex items-center gap-3 rounded-2xl border border-dashed bg-card p-4 text-sm transition-colors hover:bg-muted">
         <Target className="size-5 shrink-0 text-primary" />
         <span className="flex-1">
-          {profile.goal === 'maintain'
-            ? 'Obiectivul tău e menținerea. Dacă vrei să slăbești sau să pui masă, alege în Profil greutatea țintă și ritmul.'
-            : 'Alege în Profil o greutate țintă și un ritm, ca să vezi aici cât mai ai și când ajungi.'}
+          {profile.goal === 'maintain' ? t('progress.goal.maintainHint') : t('progress.goal.setGoalHint')}
         </span>
         <ChevronRight className="size-4 text-muted-foreground" />
       </Link>
@@ -130,18 +132,21 @@ function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weig
     <section className="rounded-2xl border bg-card p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="flex items-center gap-2 font-semibold">
-          <Target className="size-4 text-muted-foreground" /> Obiectiv: {kg(progress.goal)}
+          <Target className="size-4 text-muted-foreground" /> {t('progress.goal.title', { weight: kg(progress.goal) })}
         </h2>
         <Link to="/profile" className="text-sm font-medium text-primary hover:underline">
-          Schimbă
+          {t('progress.goal.change')}
         </Link>
       </div>
 
       <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
         <span className="text-muted-foreground">{kg(progress.start)}</span>
         <span className="font-semibold tabular-nums">
-          {Math.abs(change) < 0.05 ? '' : change < 0 ? '−' : '+'}
-          {kg(Math.abs(change))} din {kg(progress.total)} · {Math.round(progress.fraction * 100)}%
+          {t('progress.goal.progress', {
+            change: `${Math.abs(change) < 0.05 ? '' : change < 0 ? '−' : '+'}${kg(Math.abs(change))}`,
+            total: kg(progress.total),
+            percent: Math.round(progress.fraction * 100),
+          })}
         </span>
         <span className="text-muted-foreground">{kg(progress.goal)}</span>
       </div>
@@ -151,25 +156,23 @@ function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weig
 
       {progress.reached ? (
         <p className="mt-3 text-sm">
-          Ai ajuns la {kg(progress.goal)}. Treci pe <strong>Menținere</strong> în Profil, ca ținta de calorii să nu mai scadă.
+          <Trans i18nKey="progress.goal.reached" values={{ weight: kg(progress.goal) }} components={{ strong: <strong /> }} />
         </p>
       ) : (
         <>
           <p className="mt-3 text-sm">
-            Acum: <strong>{kg(progress.current)}</strong>. Mai ai {kg(progress.remaining)}.
+            <Trans i18nKey="progress.goal.current" values={{ current: kg(progress.current), remaining: kg(progress.remaining) }} components={{ strong: <strong /> }} />
           </p>
           <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
             {progress.plannedEnd && (
-              <li>
-                Cu ritmul ales, {perWeek(progress.plannedRate)}, ajungi pe {longDate(progress.plannedEnd)}.
-              </li>
+              <li>{t('progress.goal.plannedEnd', { rate: perWeek(progress.plannedRate), date: longDate(progress.plannedEnd) })}</li>
             )}
             <li>
               {progress.actualRate == null
-                ? 'Ritmul tău real apare după două săptămâni de cântăriri.'
+                ? t('progress.goal.actualPending')
                 : progress.actualEnd
-                  ? `Ritmul tău real, după media pe 7 zile, e ${perWeek(progress.actualRate)}: ajungi pe ${longDate(progress.actualEnd)}.`
-                  : `În ultimele săptămâni, media s-a mișcat în direcția opusă, cu ${perWeek(Math.abs(progress.actualRate))}.`}
+                  ? t('progress.goal.actualEnd', { rate: perWeek(progress.actualRate), date: longDate(progress.actualEnd) })
+                  : t('progress.goal.wrongDirection', { rate: perWeek(Math.abs(progress.actualRate)) })}
             </li>
           </ul>
         </>
@@ -179,8 +182,8 @@ function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weig
 }
 
 function differenceText(difference: number) {
-  if (Math.abs(difference) < 1) return 'exact pe țintă'
-  return difference < 0 ? `${kcal(-difference)} sub țintă` : `${kcal(difference)} peste țintă`
+  if (Math.abs(difference) < 1) return i18n.t('progress.metrics.onTarget')
+  return difference < 0 ? i18n.t('progress.metrics.underTarget', { kcal: kcal(-difference) }) : i18n.t('progress.metrics.overTarget', { kcal: kcal(difference) })
 }
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
@@ -203,23 +206,24 @@ function Legend({ className, label }: { className: string; label: string }) {
 }
 
 const macroRows = [
-  { key: 'proteinG', label: 'Proteine', unit: 'g', color: 'bg-protein' },
-  { key: 'carbsG', label: 'Carbohidrați', unit: 'g', color: 'bg-carbs' },
-  { key: 'fatG', label: 'Grăsimi', unit: 'g', color: 'bg-fat' },
-  { key: 'fiberG', label: 'Fibre', unit: 'g', color: 'bg-fiber' },
-  { key: 'sodiumMg', label: 'Sodiu', unit: 'mg', color: 'bg-sodium' },
+  { key: 'proteinG', label: 'nutrients.protein', unit: 'g', color: 'bg-protein' },
+  { key: 'carbsG', label: 'nutrients.carbs', unit: 'g', color: 'bg-carbs' },
+  { key: 'fatG', label: 'nutrients.fat', unit: 'g', color: 'bg-fat' },
+  { key: 'fiberG', label: 'nutrients.fiber', unit: 'g', color: 'bg-fiber' },
+  { key: 'sodiumMg', label: 'nutrients.sodium', unit: 'mg', color: 'bg-sodium' },
 ] as const
 
 function MacroAverages({ avg, target, proteinDays, logged }: { avg: Nutrients; target: Partial<Nutrients> | null; proteinDays: number | null; logged: number }) {
+  const { t } = useTranslation()
   return (
     <section className="rounded-2xl border bg-card p-4">
-      <h2 className="mb-3 font-semibold">Macro, media pe zi</h2>
+      <h2 className="mb-3 font-semibold">{t('progress.macros.title')}</h2>
       <div className="space-y-3">
         {macroRows.map((row) => {
           const goal = target?.[row.key]
           return (
             <div key={row.key} className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-center gap-3 text-sm">
-              <span className="text-muted-foreground">{row.label}</span>
+              <span className="text-muted-foreground">{t(row.label)}</span>
               <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div className={cn('h-full rounded-full', row.color)} style={{ width: `${goal ? Math.min(100, (avg[row.key] / goal) * 100) : 0}%` }} />
               </div>
@@ -232,30 +236,29 @@ function MacroAverages({ avg, target, proteinDays, logged }: { avg: Nutrients; t
         })}
       </div>
       {proteinDays != null && (
-        <p className="mt-3 text-xs text-muted-foreground">
-          Proteina atinsă în {proteinDays} din {logged} zile.
-        </p>
+        <p className="mt-3 text-xs text-muted-foreground">{t('progress.macros.proteinDays', { days: proteinDays, count: logged })}</p>
       )}
     </section>
   )
 }
 
 function GlycemicCard({ share }: { share: ReturnType<typeof carbsByGlycemicGrade> }) {
+  const { t } = useTranslation()
   const total = share.A + share.B + share.C + share.unknown
   const parts = [
-    { key: 'A', value: share.A, color: 'bg-grade-a', label: 'Glicemic A' },
-    { key: 'B', value: share.B, color: 'bg-grade-b', label: 'Glicemic B' },
-    { key: 'C', value: share.C, color: 'bg-grade-c', label: 'Glicemic C' },
-    { key: 'unknown', value: share.unknown, color: 'bg-muted-foreground/40', label: 'fără notă' },
+    { key: 'A', value: share.A, color: 'bg-grade-a', label: t('progress.glycemic.grade', { grade: 'A' }) },
+    { key: 'B', value: share.B, color: 'bg-grade-b', label: t('progress.glycemic.grade', { grade: 'B' }) },
+    { key: 'C', value: share.C, color: 'bg-grade-c', label: t('progress.glycemic.grade', { grade: 'C' }) },
+    { key: 'unknown', value: share.unknown, color: 'bg-muted-foreground/40', label: t('progress.glycemic.ungraded') },
   ].filter((p) => p.value > 0)
 
   return (
     <section className="rounded-2xl border bg-card p-4">
       <h2 className="flex items-center gap-2 font-semibold">
-        <Droplet className="size-4 text-muted-foreground" /> De unde vin carbohidrații
+        <Droplet className="size-4 text-muted-foreground" /> {t('progress.glycemic.title')}
       </h2>
       {total === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">Niciun carbohidrat notat în perioada asta.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('progress.glycemic.empty')}</p>
       ) : (
         <>
           <div className="mt-3 flex h-3 overflow-hidden rounded-full">
@@ -272,9 +275,7 @@ function GlycemicCard({ share }: { share: ReturnType<typeof carbsByGlycemicGrade
             ))}
           </div>
           {share.topC.length > 0 && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Cei mai mulți carbohidrați C au venit din: {share.topC.map((c) => `${c.name} (${num(c.carbsG)} g)`).join(', ')}.
-            </p>
+            <p className="mt-3 text-xs text-muted-foreground">{t('progress.glycemic.topC', { foods: share.topC.map((c) => `${c.name} (${num(c.carbsG)} g)`).join(', ') })}</p>
           )}
         </>
       )}
@@ -283,27 +284,29 @@ function GlycemicCard({ share }: { share: ReturnType<typeof carbsByGlycemicGrade
 }
 
 function StreakCard({ loggedDates, end }: { loggedDates: Set<string>; end: string }) {
+  const { t } = useTranslation()
   const count = streak(loggedDates, end)
   const lastDays = dateRange(end, 30)
   return (
     <section className="rounded-2xl border bg-card p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="flex items-center gap-2 font-semibold">
-          <Flame className="size-4 text-muted-foreground" /> Zile notate
+          <Flame className="size-4 text-muted-foreground" /> {t('progress.streak.title')}
         </h2>
-        <span className="text-sm font-medium text-primary">{count === 1 ? '1 zi la rând' : `${count} zile la rând`}</span>
+        <span className="text-sm font-medium text-primary">{t('progress.streak.inARow', { count })}</span>
       </div>
       <div className="mt-3 grid grid-cols-[repeat(15,minmax(0,1fr))] gap-1">
         {lastDays.map((date) => (
           <span key={date} title={shortDate(date)} className={cn('aspect-square rounded-[3px] border', loggedDates.has(date) ? 'border-primary bg-primary' : 'bg-muted/50')} />
         ))}
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">Ultimele 30 de zile; verde = ai notat ceva în ziua aceea.</p>
+      <p className="mt-2 text-xs text-muted-foreground">{t('progress.streak.legend')}</p>
     </section>
   )
 }
 
 function WeightCard({ dates, weights, profile, period }: { dates: string[]; weights: WeightEntry[]; profile: UserProfile | undefined; period: Period }) {
+  const { t } = useTranslation()
   const ownerId = useOwnerId()
   const [adding, setAdding] = useState(false)
   const series = useMemo(() => weightSeries(weights, dates), [weights, dates])
@@ -331,29 +334,29 @@ function WeightCard({ dates, weights, profile, period }: { dates: string[]; weig
       },
       profile.userId,
     )
-    toast.success(`Țintele sunt recalculate pentru ${kg(roundedCurrent)}: ${kcal(newTargets.kcal)} kcal pe zi.`)
+    toast.success(t('progress.weight.recalculated', { weight: kg(roundedCurrent), kcal: kcal(newTargets.kcal) }))
   }
 
   return (
     <section className="rounded-2xl border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 font-semibold">
-          <Weight className="size-4 text-muted-foreground" /> Greutate
+          <Weight className="size-4 text-muted-foreground" /> {t('progress.weight.title')}
         </h2>
         <Button size="sm" variant="secondary" onClick={() => setAdding(true)}>
-          <Plus className="size-4" /> Notează
+          <Plus className="size-4" /> {t('progress.weight.log')}
         </Button>
       </div>
 
       {current == null ? (
-        <p className="mt-2 text-sm text-muted-foreground">Notează prima cântărire. Cântărește-te dimineața, înainte să mănânci, ca valorile să se poată compara.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('progress.weight.empty')}</p>
       ) : (
         <>
           <div className="mt-1 text-2xl font-semibold tabular-nums">{kg(current)}</div>
           <p className="text-xs text-muted-foreground">
             {change != null
-              ? `${change <= 0 ? '−' : '+'}${kg(Math.abs(change))} în ${period === 7 ? '7 zile' : `${period} de zile`}, după media pe 7 zile`
-              : 'media pe 7 zile; apare și schimbarea după a doua cântărire'}
+              ? t('progress.weight.change', { change: `${change <= 0 ? '−' : '+'}${kg(Math.abs(change))}`, count: period })
+              : t('progress.weight.noChangeYet')}
           </p>
           {averages.length > 0 && (
             <div className="mt-3">
@@ -366,10 +369,10 @@ function WeightCard({ dates, weights, profile, period }: { dates: string[]; weig
       {newTargets && profile?.weightKg != null && roundedCurrent != null && (
         <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-accent/60 p-3 text-sm">
           <p className="min-w-0 flex-1">
-            Țintele sunt calculate pentru {kg(profile.weightKg)}. Media ta e acum {kg(roundedCurrent)}: {kcal(newTargets.kcal)} kcal în loc de {kcal(profile.targetKcal ?? 0)}.
+            {t('progress.weight.targetsOutdated', { weight: kg(profile.weightKg), current: kg(roundedCurrent), newKcal: kcal(newTargets.kcal), oldKcal: kcal(profile.targetKcal ?? 0) })}
           </p>
           <Button size="sm" onClick={() => void updateTargets()}>
-            <RefreshCw className="size-4" /> Recalculează
+            <RefreshCw className="size-4" /> {t('progress.weight.recalculate')}
           </Button>
         </div>
       )}
@@ -380,7 +383,7 @@ function WeightCard({ dates, weights, profile, period }: { dates: string[]; weig
             <li key={entry.id} className="flex items-center gap-2 py-1.5">
               <span className="flex-1 text-muted-foreground">{shortDate(entry.date)}</span>
               <span className="font-medium tabular-nums">{kg(entry.weightKg)}</span>
-              <Button variant="ghost" size="icon-sm" aria-label={`Șterge cântărirea din ${shortDate(entry.date)}`} onClick={() => void deleteRow('weightEntries', entry.id)}>
+              <Button variant="ghost" size="icon-sm" aria-label={t('progress.weight.deleteEntry', { date: shortDate(entry.date) })} onClick={() => void deleteRow('weightEntries', entry.id)}>
                 <Trash2 className="size-4" />
               </Button>
             </li>
@@ -395,7 +398,7 @@ function WeightCard({ dates, weights, profile, period }: { dates: string[]; weig
         onSave={async (date, weightKg) => {
           const existing = weights.find((w) => w.date === date)
           await saveRow('weightEntries', { id: existing?.id ?? newId(), date, weightKg }, ownerId)
-          toast.success(`${kg(weightKg)} notat pentru ${shortDate(date)}.`)
+          toast.success(t('progress.weight.logged', { weight: kg(weightKg), date: shortDate(date) }))
         }}
       />
     </section>
@@ -403,6 +406,7 @@ function WeightCard({ dates, weights, profile, period }: { dates: string[]; weig
 }
 
 function WeightDrawer({ open, onClose, initial, onSave }: { open: boolean; onClose: () => void; initial: number; onSave: (date: string, weightKg: number) => Promise<void> }) {
+  const { t } = useTranslation()
   const desktop = useDesktop()
   const [weight, setWeight] = useState(initial)
   const [date, setDate] = useState(today())
@@ -419,16 +423,16 @@ function WeightDrawer({ open, onClose, initial, onSave }: { open: boolean; onClo
     <Drawer swipeDirection={desktop ? 'right' : 'down'} open={open} onOpenChange={(next) => !next && onClose()}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Notează greutatea</DrawerTitle>
+          <DrawerTitle>{t('progress.weight.drawerTitle')}</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 p-4">
           <label className="block space-y-1.5">
-            <span className="text-sm font-medium">Ziua</span>
+            <span className="text-sm font-medium">{t('progress.weight.day')}</span>
             <Input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value || today())} className="h-10" />
           </label>
           <div className="space-y-1.5">
-            <span className="block text-sm font-medium">Greutatea</span>
-            <NumberStepper value={weight} onChange={setWeight} step={0.1} min={20} max={400} unit="kg" className="w-full" label="kilograme" />
+            <span className="block text-sm font-medium">{t('progress.weight.weight')}</span>
+            <NumberStepper value={weight} onChange={setWeight} step={0.1} min={20} max={400} unit="kg" className="w-full" label={t('progress.weight.kilograms')} />
           </div>
           <Button
             size="lg"
@@ -438,7 +442,7 @@ function WeightDrawer({ open, onClose, initial, onSave }: { open: boolean; onClo
               onClose()
             }}
           >
-            Salvează
+            {t('common.save')}
           </Button>
         </div>
       </DrawerContent>

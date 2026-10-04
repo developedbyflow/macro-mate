@@ -4,6 +4,7 @@ public class DayPlan : PersonalEntity
 {
     public DateOnly Date { get; set; }
     public Guid? MealPlanId { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
 }
 
 public class JournalEntry : PersonalEntity

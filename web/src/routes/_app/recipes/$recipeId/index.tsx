@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, ChefHat, ChevronRight, Clock, Pencil, Plus, Star, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { GradeBadges } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
@@ -10,15 +11,18 @@ import { difficultyLabel } from '@/lib/recipes'
 import { Button } from '@/components/ui/button'
 import { deleteRow } from '@/db/mutations'
 import { useFoodsById, useProfile, useRecipe, useRecipeVariants, useUsersById } from '@/hooks/use-data'
+import { servings } from '@/lib/format'
 import { variantGrades, variantTotals } from '@/lib/nutrition'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
+import { foodName } from '@/lib/food-name'
 
 export const Route = createFileRoute('/_app/recipes/$recipeId/')({
   component: RecipePage,
 })
 
 function RecipePage() {
+  const { t } = useTranslation()
   const { recipeId } = Route.useParams()
   const navigate = useNavigate()
   const recipe = useRecipe(recipeId)
@@ -27,12 +31,12 @@ function RecipePage() {
   const profile = useProfile()
   const users = useUsersById()
 
-  if (!recipe) return <PageHeader title="Rețetă" back />
+  if (!recipe) return <PageHeader title={t('fallback.recipe')} back />
   if (recipe.deletedAt) {
     return (
       <>
         <PageHeader title={recipe.name} back />
-        <p className="p-8 text-center text-sm text-muted-foreground">Rețeta a fost ștearsă.</p>
+        <p className="p-8 text-center text-sm text-muted-foreground">{t('recipes.detail.deleted')}</p>
       </>
     )
   }
@@ -48,41 +52,41 @@ function RecipePage() {
         back
         actions={
           <>
-            <Button variant="ghost" size="icon" aria-label={favorite ? 'Scoate de la favorite' : 'Adaugă la favorite'} onClick={() => void toggleInProfile(profile, 'favoriteRecipeIds', recipe.id)}>
+            <Button variant="ghost" size="icon" aria-label={favorite ? t('recipes.detail.removeFavorite') : t('recipes.detail.addFavorite')} onClick={() => void toggleInProfile(profile, 'favoriteRecipeIds', recipe.id)}>
               <Star className={cn('size-5', favorite && 'fill-carbs text-carbs')} />
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Editează" render={<Link to="/recipes/$recipeId/edit" params={{ recipeId }} />}>
+            <Button variant="ghost" size="icon" aria-label={t('recipes.detail.edit')} render={<Link to="/recipes/$recipeId/edit" params={{ recipeId }} />}>
               <Pencil className="size-5" />
             </Button>
           </>
         }
       />
-      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
+      <main className="mx-auto max-w-2xl space-y-5 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
         <div className="space-y-5">
           {recipe.photoId ? <Photo id={recipe.photoId} className="aspect-[16/9] w-full rounded-2xl" /> : null}
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
             {recipe.prepTimeMin != null && (
               <span className="flex items-center gap-1">
-                <Clock className="size-4" /> {recipe.prepTimeMin} min
+                <Clock className="size-4" /> {t('recipes.prepTime', { value: recipe.prepTimeMin })}
               </span>
             )}
             <span className="flex items-center gap-1">
               <ChefHat className="size-4" /> {difficultyLabel(recipe.difficulty)}
             </span>
-            <span>de {users.get(recipe.createdBy) ?? '—'}</span>
+            <span>{t('recipes.detail.by', { name: users.get(recipe.createdBy) ?? '—' })}</span>
           </div>
 
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Variante</h2>
+              <h2 className="font-semibold">{t('recipes.detail.variants')}</h2>
               <Button size="sm" variant="secondary" render={<Link to="/recipes/$recipeId/variants/$variantId" params={{ recipeId, variantId: 'new' }} />}>
-                <Plus className="size-4" /> Variantă
+                <Plus className="size-4" /> {t('recipes.detail.addVariant')}
               </Button>
             </div>
             {variants.length === 0 && (
               <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                Rețeta main n-are cantități. Fă o variantă cu gramaje (ex. „600 kcal”) ca să o poți pune în planuri.
+                {t('recipes.detail.noVariants')}
               </p>
             )}
             <ul className="space-y-2">
@@ -100,7 +104,7 @@ function RecipePage() {
                         <div className="font-medium">{variant.name}</div>
                         <MacroLine n={totals.perServing} />
                         <div className="text-xs text-muted-foreground">
-                          pe porție · {variant.servings} {variant.servings === 1 ? 'porție' : 'porții'} · {Math.round(totals.gramsPerServing)} g / porție
+                          {t('recipes.detail.perServing')} · {servings(variant.servings)} · {t('recipes.detail.gramsPerServing', { grams: Math.round(totals.gramsPerServing) })}
                         </div>
                       </div>
                       <GradeBadges grades={scores} />
@@ -115,19 +119,19 @@ function RecipePage() {
 
         <div className="space-y-5">
           <section className="space-y-2">
-            <h2 className="font-semibold">Ingrediente</h2>
+            <h2 className="font-semibold">{t('recipes.ingredients')}</h2>
             <ul className="flex flex-wrap gap-1.5">
               {recipe.ingredientFoodIds.map((id) => (
                 <li key={id} className="rounded-full bg-muted px-3 py-1 text-sm">
-                  {foods.get(id)?.name ?? 'Aliment șters'}
+                  {foodName(foods.get(id)) ?? t('fallback.deletedFood')}
                 </li>
               ))}
-              {recipe.ingredientFoodIds.length === 0 && <li className="text-sm text-muted-foreground">Niciun ingredient în lista main.</li>}
+              {recipe.ingredientFoodIds.length === 0 && <li className="text-sm text-muted-foreground">{t('recipes.detail.noIngredients')}</li>}
             </ul>
           </section>
 
           <section className="space-y-2">
-            <h2 className="font-semibold">Mod de preparare</h2>
+            <h2 className="font-semibold">{t('recipes.instructions')}</h2>
             {steps.length > 0 ? (
               <ol className="space-y-2">
                 {steps.map((step, index) => (
@@ -138,7 +142,7 @@ function RecipePage() {
                 ))}
               </ol>
             ) : (
-              <p className="text-sm text-muted-foreground">Nescris încă.</p>
+              <p className="text-sm text-muted-foreground">{t('recipes.detail.notWritten')}</p>
             )}
           </section>
 
@@ -148,14 +152,14 @@ function RecipePage() {
               className={cn(excluded && 'text-destructive')}
               onClick={() => {
                 void toggleInProfile(profile, 'excludedRecipeIds', recipe.id)
-                toast(excluded ? 'Rețeta nu mai e exclusă.' : 'Exclusă: n-o mai vezi în liste.')
+                toast(excluded ? t('recipes.detail.unexcludedToast') : t('recipes.detail.excludedToast'))
               }}
             >
-              <Ban className="size-4" /> {excluded ? 'Exclusă pentru mine (anulează)' : 'Exclude pentru mine'}
+              <Ban className="size-4" /> {excluded ? t('recipes.detail.excludedUndo') : t('recipes.detail.exclude')}
             </Button>
             <ConfirmDelete
-              title={`Ștergi ${recipe.name}?`}
-              description="Se șterg rețeta și toate variantele ei, pentru toți."
+              title={t('recipes.detail.deleteTitle', { name: recipe.name })}
+              description={t('recipes.detail.deleteDescription')}
               onConfirm={async () => {
                 for (const v of variants) await deleteRow('recipeVariants', v.id)
                 await deleteRow('recipes', recipe.id)
@@ -163,7 +167,7 @@ function RecipePage() {
               }}
               trigger={
                 <Button variant="ghost" className="text-destructive">
-                  <Trash2 className="size-4" /> Șterge rețeta
+                  <Trash2 className="size-4" /> {t('recipes.detail.delete')}
                 </Button>
               }
             />

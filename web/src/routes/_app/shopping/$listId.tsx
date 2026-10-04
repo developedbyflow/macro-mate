@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ShoppingList } from '@/api/types'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { NativeSelect } from '@/components/app/native-select'
@@ -20,14 +21,15 @@ export const Route = createFileRoute('/_app/shopping/$listId')({
 })
 
 function ShoppingListPage() {
+  const { t } = useTranslation()
   const { listId } = Route.useParams()
   const list = useShoppingList(listId)
-  if (!list) return <PageHeader title="Listă" back />
+  if (!list) return <PageHeader title={t('shopping.editor.title')} back />
   if (list.deletedAt) {
     return (
       <>
         <PageHeader title={list.name} back />
-        <p className="p-8 text-center text-sm text-muted-foreground">Lista a fost ștearsă.</p>
+        <p className="p-8 text-center text-sm text-muted-foreground">{t('shopping.editor.deleted')}</p>
       </>
     )
   }
@@ -35,6 +37,7 @@ function ShoppingListPage() {
 }
 
 function ListEditor({ list }: { list: ShoppingList }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const allPlans = useMealPlans()
@@ -60,20 +63,20 @@ function ListEditor({ list }: { list: ShoppingList }) {
 
   return (
     <>
-      <PageHeader title={list.name} subtitle={totalItems > 0 ? `${doneItems} din ${totalItems} luate` : undefined} back />
-      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-5xl lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
+      <PageHeader title={list.name} subtitle={totalItems > 0 ? t('shopping.editor.progress', { done: doneItems, total: totalItems }) : undefined} back />
+      <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
         <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
           <section className="space-y-3 rounded-2xl border bg-card p-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Planuri</h2>
+              <h2 className="font-semibold">{t('nav.plans')}</h2>
               <Button variant="ghost" size="sm" onClick={() => setEditingPlans((v) => !v)}>
-                {editingPlans ? 'Gata' : 'Schimbă'}
+                {editingPlans ? t('shopping.editor.done') : t('shopping.editor.change')}
               </Button>
             </div>
             {editingPlans ? (
               <>
                 <Input
-                  aria-label="Numele listei"
+                  aria-label={t('shopping.editor.nameLabel')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => name.trim() && name !== list.name && void save({ name: name.trim() })}
@@ -97,20 +100,20 @@ function ListEditor({ list }: { list: ShoppingList }) {
                       onChange={(days) => void save({ plans: list.plans.map((p, i) => (i === index ? { ...p, days: Math.round(days) } : p)) })}
                       min={1}
                       max={60}
-                      unit="zile"
+                      unit={t('shopping.editor.days')}
                       className="w-36"
-                      label="zile"
+                      label={t('shopping.editor.days')}
                     />
-                    <Button variant="ghost" size="icon-sm" aria-label="Scoate planul" onClick={() => void save({ plans: list.plans.filter((_, i) => i !== index) })}>
+                    <Button variant="ghost" size="icon-sm" aria-label={t('shopping.editor.removePlan')} onClick={() => void save({ plans: list.plans.filter((_, i) => i !== index) })}>
                       <X className="size-4" />
                     </Button>
                   </div>
                 ))}
                 {allPlans.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Fă întâi un meal plan.</p>
+                  <p className="text-sm text-muted-foreground">{t('shopping.editor.needPlan')}</p>
                 ) : (
                   <Button variant="outline" className="w-full border-dashed" onClick={() => void save({ plans: [...list.plans, { mealPlanId: allPlans[0].id, days: 5 }] })}>
-                    <Plus className="size-4" /> Adaugă plan
+                    <Plus className="size-4" /> {t('shopping.editor.addPlan')}
                   </Button>
                 )}
               </>
@@ -118,10 +121,8 @@ function ListEditor({ list }: { list: ShoppingList }) {
               <ul className="space-y-1 text-sm">
                 {list.plans.map((entry, index) => (
                   <li key={index} className="flex justify-between">
-                    <span>{plans.get(entry.mealPlanId)?.name ?? 'Plan șters'}</span>
-                    <span className="text-muted-foreground">
-                      × {entry.days} {entry.days === 1 ? 'zi' : 'zile'}
-                    </span>
+                    <span>{plans.get(entry.mealPlanId)?.name ?? t('shopping.editor.deletedPlan')}</span>
+                    <span className="text-muted-foreground">{t('shopping.editor.dayCount', { count: entry.days })}</span>
                   </li>
                 ))}
               </ul>
@@ -165,24 +166,24 @@ function ListEditor({ list }: { list: ShoppingList }) {
             </section>
           ))}
 
-          {groups.length === 0 && list.plans.length > 0 && <p className="py-8 text-center text-sm text-muted-foreground">Planurile alese n-au încă mese.</p>}
+          {groups.length === 0 && list.plans.length > 0 && <p className="py-8 text-center text-sm text-muted-foreground">{t('shopping.editor.noMeals')}</p>}
 
           <div className="flex flex-col gap-1 border-t pt-4">
             {doneItems > 0 && (
               <Button variant="ghost" onClick={() => void save({ checkedKeys: [] })}>
-                <RotateCcw className="size-4" /> Debifează tot
+                <RotateCcw className="size-4" /> {t('shopping.editor.uncheckAll')}
               </Button>
             )}
             <ConfirmDelete
-              title={`Ștergi ${list.name}?`}
-              description="Lista dispare pentru toți."
+              title={t('shopping.editor.deleteTitle', { name: list.name })}
+              description={t('shopping.editor.deleteDescription')}
               onConfirm={async () => {
                 await deleteRow('shoppingLists', list.id)
                 await navigate({ to: '/shopping' })
               }}
               trigger={
                 <Button variant="ghost" className="text-destructive">
-                  <Trash2 className="size-4" /> Șterge lista
+                  <Trash2 className="size-4" /> {t('shopping.editor.deleteList')}
                 </Button>
               }
             />

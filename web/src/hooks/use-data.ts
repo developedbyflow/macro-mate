@@ -3,6 +3,8 @@ import { useMemo } from 'react'
 import type { DayPlan, Food, JournalEntry, MealPlan, Recipe, RecipeVariant, ShoppingList, UserProfile, WeightEntry } from '@/api/types'
 import { db } from '@/db/database'
 import type { Exclusions } from '@/lib/nutrition'
+import { foodName } from '@/lib/food-name'
+import { locale } from '@/i18n'
 
 function alive<T extends { deletedAt: string | null }>(rows: T[]) {
   return rows.filter((row) => row.deletedAt == null)
@@ -15,7 +17,7 @@ export function useMe() {
 }
 
 export function useFoods(): Food[] {
-  return useLiveQuery(async () => alive(await db.foods.toArray()).sort((a, b) => a.name.localeCompare(b.name, 'ro'))) ?? empty
+  return useLiveQuery(async () => alive(await db.foods.toArray()).sort((a, b) => foodName(a).localeCompare(foodName(b), locale()))) ?? empty
 }
 
 export function useFood(id: string) {
@@ -120,6 +122,11 @@ export function useJournal(date: string): JournalEntry[] {
 
 export function useJournalBetween(from: string, to: string): JournalEntry[] {
   return useLiveQuery(async () => alive(await db.journalEntries.where('date').between(from, to, true, true).toArray()), [from, to]) ?? empty
+}
+
+export function usePantryFoodIds(): Set<string> {
+  const items = useLiveQuery(async () => alive(await db.pantryItems.toArray())) ?? empty
+  return useMemo(() => new Set(items.map((item) => item.foodId)), [items])
 }
 
 export function useWeightEntries(): WeightEntry[] {

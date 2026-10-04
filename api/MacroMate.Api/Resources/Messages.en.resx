@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Wrong email or password.</value>
+  </data>
+  <data name="TooManyAttempts" xml:space="preserve">
+    <value>Too many attempts. Try again in 5 minutes.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>The password must have at least {0} characters.</value>
+  </data>
+  <data name="PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>The password must have at least {0} different characters.</value>
+  </data>
+  <data name="InvalidEmail" xml:space="preserve">
+    <value>The email address isn’t valid.</value>
+  </data>
+  <data name="DuplicateEmail" xml:space="preserve">
+    <value>There’s already an account with this email.</value>
+  </data>
+  <data name="InviteExpired" xml:space="preserve">
+    <value>This invite is no longer valid. Ask for a new link.</value>
+  </data>
+  <data name="DisplayNameInvalid" xml:space="preserve">
+    <value>Enter a name of up to 60 characters.</value>
+  </data>
+  <data name="EmailAlreadyRegistered" xml:space="preserve">
+    <value>There’s already an account with this email. Log in and open the link again.</value>
+  </data>
+  <data name="AlreadyInKitchen" xml:space="preserve">
+    <value>You’re already in this kitchen.</value>
+  </data>
+  <data name="LeaveSharedKitchenFirst" xml:space="preserve">
+    <value>You’re in a kitchen with other members. Leave it first, from Profile.</value>
+  </data>
+  <data name="AloneInKitchen" xml:space="preserve">
+    <value>You’re alone in your kitchen, so there’s nothing to leave.</value>
+  </data>
+  <data name="CannotRemoveYourself" xml:space="preserve">
+    <value>To leave yourself, use “Leave the kitchen”.</value>
+  </data>
+  <data name="MemberNotInKitchen" xml:space="preserve">
+    <value>This person isn’t in your kitchen.</value>
+  </data>
+  <data name="OnlyOwnerCanRemove" xml:space="preserve">
+    <value>Only the kitchen’s owner can remove members.</value>
+  </data>
+  <data name="FoodNameOrPhotoRequired" xml:space="preserve">
+    <value>Give a name or a photo of the label.</value>
+  </data>
+  <data name="LabelPhotoInvalid" xml:space="preserve">
+    <value>The photo must be an image under 6 MB.</value>
+  </data>
+  <data name="RecipePromptInvalid" xml:space="preserve">
+    <value>Write what you’re craving, in 500 characters or less.</value>
+  </data>
+  <data name="NoFoodsForRecipe" xml:space="preserve">
+    <value>There are no foods in the database to make a recipe from.</value>
+  </data>
+  <data name="DefaultRecipeName" xml:space="preserve">
+    <value>New recipe</value>
+  </data>
+  <data name="AiNotConfigured" xml:space="preserve">
+    <value>AI isn’t set up: the DeepSeek key is missing on the server.</value>
+  </data>
+  <data name="AiUnreachable" xml:space="preserve">
+    <value>Couldn’t reach DeepSeek.</value>
+  </data>
+  <data name="AiFailedStatus" xml:space="preserve">
+    <value>DeepSeek answered {0}.</value>
+  </data>
+  <data name="AiEmptyAnswer" xml:space="preserve">
+    <value>DeepSeek sent an empty answer.</value>
+  </data>
+  <data name="AiEmptyJson" xml:space="preserve">
+    <value>DeepSeek sent empty JSON.</value>
+  </data>
+  <data name="AiInvalidJson" xml:space="preserve">
+    <value>DeepSeek sent JSON that doesn’t match.</value>
+  </data>
+  <data name="AiUsedNoFoods" xml:space="preserve">
+    <value>DeepSeek didn’t use any food from the database.</value>
+  </data>
+  <data name="InvalidBarcode" xml:space="preserve">
+    <value>A barcode has only digits, between 6 and 32.</value>
+  </data>
+  <data name="ProductNotFound" xml:space="preserve">
+    <value>The product isn’t in Open Food Facts.</value>
+  </data>
+  <data name="PhotoMustBeJpeg" xml:space="preserve">
+    <value>The photo must be a JPEG.</value>
+  </data>
+  <data name="PhotoTooLarge" xml:space="preserve">
+    <value>The photo must be under 8 MB.</value>
+  </data>
+  <data name="TooManyChanges" xml:space="preserve">
+    <value>Too many changes in one request.</value>
+  </data>
+  <data name="InvalidLink" xml:space="preserve">
+    <value>This link is no longer valid. Ask for a new one.</value>
+  </data>
+  <data name="WrongCurrentPassword" xml:space="preserve">
+    <value>Your current password isn’t correct.</value>
+  </data>
+  <data name="SameEmail" xml:space="preserve">
+    <value>That’s already your account’s address.</value>
+  </data>
+  <data name="EmailUnavailable" xml:space="preserve">
+    <value>Sending email isn’t set up on the server.</value>
+  </data>
+  <data name="ResetPasswordSubject" xml:space="preserve">
+    <value>Reset your MacroMate password</value>
+  </data>
+  <data name="ResetPasswordText" xml:space="preserve">
+    <value>Hi {0},
+
+Someone asked to reset the password for your MacroMate account. If it was you, open the link below within 2 hours:
+
+{1}
+
+If it wasn’t you, ignore this email. Your password stays the same.</value>
+  </data>
+  <data name="ChangeEmailSubject" xml:space="preserve">
+    <value>Confirm your new email address</value>
+  </data>
+  <data name="ChangeEmailText" xml:space="preserve">
+    <value>Hi {0},
+
+You asked to use this address for your MacroMate account. Open the link below within 2 hours to confirm:
+
+{1}
+
+If it wasn’t you, ignore this email.</value>
+  </data>
+</root>

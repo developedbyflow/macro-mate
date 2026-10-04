@@ -18,6 +18,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<WeightEntry> WeightEntries => Set<WeightEntry>();
+    public DbSet<Kitchen> Kitchens => Set<Kitchen>();
+    public DbSet<KitchenInvite> KitchenInvites => Set<KitchenInvite>();
+    public DbSet<PantryItem> PantryItems => Set<PantryItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +33,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             b.HasIndex(f => f.Version);
             b.HasIndex(f => f.Barcode);
             b.Property(f => f.Name).HasMaxLength(200);
+            b.Property(f => f.NameEn).HasMaxLength(200);
             b.Property(f => f.Brand).HasMaxLength(200);
             b.Property(f => f.Barcode).HasMaxLength(32);
             b.Property(f => f.Category).HasMaxLength(40);
@@ -40,6 +44,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<Recipe>(b =>
         {
             b.HasIndex(r => r.Version);
+            b.HasIndex(r => r.KitchenId);
             b.Property(r => r.Name).HasMaxLength(200);
             b.Property(r => r.Difficulty).HasMaxLength(10);
         });
@@ -47,6 +52,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<RecipeVariant>(b =>
         {
             b.HasIndex(v => v.Version);
+            b.HasIndex(v => v.KitchenId);
             b.HasIndex(v => v.RecipeId);
             b.Property(v => v.Name).HasMaxLength(100);
             b.ComplexCollection(v => v.Ingredients, c => c.ToJson());
@@ -55,6 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<MealPlan>(b =>
         {
             b.HasIndex(p => p.Version);
+            b.HasIndex(p => p.KitchenId);
             b.Property(p => p.Name).HasMaxLength(200);
             b.ComplexCollection(p => p.Meals, meals =>
             {
@@ -66,8 +73,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<ShoppingList>(b =>
         {
             b.HasIndex(s => s.Version);
+            b.HasIndex(s => s.KitchenId);
             b.Property(s => s.Name).HasMaxLength(200);
             b.ComplexCollection(s => s.Plans, c => c.ToJson());
+        });
+
+        builder.Entity<PantryItem>(b =>
+        {
+            b.HasIndex(p => p.Version);
+            b.HasIndex(p => new { p.KitchenId, p.FoodId }).IsUnique();
+        });
+
+        builder.Entity<Kitchen>();
+
+        builder.Entity<KitchenInvite>(b =>
+        {
+            b.HasKey(i => i.Token);
+            b.Property(i => i.Token).HasMaxLength(64);
+            b.HasIndex(i => i.KitchenId);
         });
 
         builder.Entity<DayPlan>(b =>
@@ -100,6 +123,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             b.ToTable("users");
             b.Property(u => u.DisplayName).HasMaxLength(60);
+            b.HasIndex(u => u.KitchenId);
         });
         builder.Entity<IdentityRole<Guid>>().ToTable("roles");
         builder.Entity<IdentityUserRole<Guid>>().ToTable("user_roles");

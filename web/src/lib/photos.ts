@@ -1,5 +1,6 @@
 import { db } from '@/db/database'
 import { requestSync } from '@/db/sync'
+import i18n from '@/i18n'
 
 async function draw(file: Blob, maxSize: number) {
   const bitmap = await createImageBitmap(file)
@@ -17,7 +18,7 @@ async function draw(file: Blob, maxSize: number) {
 export async function compressImage(file: Blob, maxSize = 1280, quality = 0.8): Promise<Blob> {
   const canvas = await draw(file, maxSize)
   return new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Nu am putut citi poza.'))), 'image/jpeg', quality),
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error(i18n.t('common.photoReadFailed')))), 'image/jpeg', quality),
   )
 }
 

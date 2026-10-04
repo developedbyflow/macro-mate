@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { shortDate } from '@/lib/dates'
 import { kcal, kg } from '@/lib/format'
 import type { DayTotal } from '@/lib/progress'
@@ -9,20 +10,21 @@ function axisDates(dates: string[]) {
 }
 
 export function KcalBars({ days, target }: { days: DayTotal[]; target: number | null }) {
+  const { t } = useTranslation()
   const top = Math.max(target ?? 0, ...days.map((d) => d.n?.kcal ?? 0)) * 1.1 || 1
   return (
     <div>
       <div className="relative h-44">
         {target != null && (
           <div className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-muted-foreground/70" style={{ bottom: `${(target / top) * 100}%` }}>
-            <span className="absolute right-0 bottom-0.5 rounded bg-card/90 px-1 text-[11px] text-muted-foreground tabular-nums">țintă {kcal(target)}</span>
+            <span className="absolute right-0 bottom-0.5 rounded bg-card/90 px-1 text-[11px] text-muted-foreground tabular-nums">{t('progress.kcalChart.target', { kcal: kcal(target) })}</span>
           </div>
         )}
         <div className={cn('flex h-full items-end', days.length > 40 ? 'gap-px' : 'gap-1')}>
           {days.map((day) => {
             const over = target != null && day.n != null && day.n.kcal > target * 1.1
             return (
-              <div key={day.date} className="flex h-full min-w-0 flex-1 items-end justify-center" title={`${shortDate(day.date)}: ${day.n ? `${kcal(day.n.kcal)} kcal` : 'nenotat'}`}>
+              <div key={day.date} className="flex h-full min-w-0 flex-1 items-end justify-center" title={day.n ? `${shortDate(day.date)}: ${kcal(day.n.kcal)} kcal` : t('progress.kcalChart.notLogged', { date: shortDate(day.date) })}>
                 {day.n ? (
                   <div className={cn('w-full max-w-8 rounded-t-[3px]', over ? 'bg-kcal' : 'bg-primary')} style={{ height: `${(day.n.kcal / top) * 100}%` }} />
                 ) : (

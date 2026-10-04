@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { basalMetabolicRate, computeTargets, energyPlan } from './targets'
+import { basalMetabolicRate, computeTargets, energyPlan, projectedWeight } from './targets'
 
 describe('computeTargets', () => {
   const inputs = { sex: 'male', birthYear: 1996, heightCm: 180, weightKg: 85, activityLevel: 'moderate', goal: 'lose' } as const
@@ -36,5 +36,13 @@ describe('computeTargets', () => {
   it('uses -161 for women', () => {
     const female = { ...inputs, sex: 'female' } as const
     expect(basalMetabolicRate(female, 2026)).toBe(basalMetabolicRate(inputs, 2026) - 166)
+  })
+})
+
+describe('projectedWeight', () => {
+  it('moves the weight by the daily difference over 4 weeks', () => {
+    expect(projectedWeight(80, 1800, 2570)).toBeCloseTo(77.2)
+    expect(projectedWeight(80, 2570, 2570)).toBe(80)
+    expect(projectedWeight(80, 2845, 2570)).toBeCloseTo(81)
   })
 })

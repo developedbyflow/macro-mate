@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ApiError } from '@/api/client'
 import { Button } from '@/components/ui/button'
@@ -8,12 +9,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAiStatus } from '@/hooks/use-ai-status'
 import { draftValues, enrichDraft, nutrientFields, type FoodDraft, type NutrientKey } from '@/lib/food-draft'
-import { categories, categoryCodes } from '@/lib/categories'
+import { categoryCodes, categoryLabel } from '@/lib/categories'
 import { proteinGrade, volumeGrade } from '@/lib/nutrition'
 import { cn } from '@/lib/utils'
 import { EstimatedBadge, GlycemicBadge, ProteinBadge, VolumeBadge } from './badges'
 import { NativeSelect } from './native-select'
 import { PhotoInput } from './photo'
+import { primaryNameField } from '@/lib/food-name'
 
 type Props = {
   initial: FoodDraft
@@ -22,6 +24,9 @@ type Props = {
 }
 
 export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
+  const { t } = useTranslation()
+  const primary = primaryNameField()
+  const secondary = primary === 'name' ? 'nameEn' : 'name'
   const [draft, setDraft] = useState(initial)
   const [errors, setErrors] = useState<string[]>([])
   const ai = useAiStatus()
@@ -30,9 +35,9 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
     mutationFn: () => enrichDraft(draft),
     onSuccess: (next) => {
       setDraft(next)
-      toast.success('DeepSeek a completat valorile și notele.')
+      toast.success(t('foods.form.aiFilled'))
     },
-    onError: (error) => toast.error(error instanceof ApiError ? error.message : 'Nu am putut ajunge la DeepSeek.'),
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : t('foods.form.aiUnreachable')),
   })
 
   const save = useMutation({ mutationFn: () => onSubmit(draft) })
@@ -48,10 +53,10 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
   function submit(e: FormEvent) {
     e.preventDefault()
     const problems: string[] = []
-    if (!draft.name.trim()) problems.push('Pune un nume.')
-    if (!draft.category) problems.push('Alege o categorie.')
+    if (!draft.name.trim() && !draft.nameEn.trim()) problems.push(t('foods.form.nameRequired'))
+    if (!draft.category) problems.push(t('foods.form.categoryRequired'))
     const values = draftValues(draft)
-    if (nutrientFields.some((f) => values[f.key] == null)) problems.push('Completează toate valorile (sau apasă „Completează cu AI”).')
+    if (nutrientFields.some((f) => values[f.key] == null)) problems.push(t('foods.form.valuesRequired'))
     setErrors(problems)
     if (problems.length === 0) save.mutate()
   }
@@ -65,30 +70,36 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
           return { protein: proteinGrade(n), volume: volumeGrade(n) }
         })()
       : null
-  const aiHint = !ai.online ? 'Ai nevoie de internet pentru AI.' : !ai.configured ? 'Cheia DeepSeek nu e setată pe server.' : null
+  const aiHint = !ai.online ? t('foods.form.aiNeedsInternet') : !ai.configured ? t('foods.aiKeyMissing') : null
 
   return (
     <form onSubmit={submit} className="space-y-5 lg:grid lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-8 lg:gap-y-5 lg:space-y-0">
       <div className="space-y-5 lg:col-start-1 lg:row-start-1">
-        <PhotoInput value={draft.photoId} onChange={(id) => set('photoId', id)} label="Poză la produs (opțional)" />
+        <PhotoInput value={draft.photoId} onChange={(id) => set('photoId', id)} label={t('foods.form.photo')} />
 
         <div className="grid gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Nume</Label>
-            <Input id="name" value={draft.name} onChange={(e) => set('name', e.target.value)} placeholder="ex. Iaurt grecesc 2%" className="h-10" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">{t('foods.form.name')}</Label>
+              <Input id="name" value={draft[primary]} onChange={(e) => set(primary, e.target.value)} placeholder={t('foods.form.namePlaceholder')} className="h-10" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="name-other">{t('foods.form.nameOther')}</Label>
+              <Input id="name-other" value={draft[secondary]} onChange={(e) => set(secondary, e.target.value)} placeholder={t('foods.form.nameOtherPlaceholder')} className="h-10" />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="brand">Marcă</Label>
-              <Input id="brand" value={draft.brand} onChange={(e) => set('brand', e.target.value)} placeholder="opțional" className="h-10" />
+              <Label htmlFor="brand">{t('foods.form.brand')}</Label>
+              <Input id="brand" value={draft.brand} onChange={(e) => set('brand', e.target.value)} placeholder={t('foods.form.optional')} className="h-10" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="category">Categorie</Label>
+              <Label htmlFor="category">{t('foods.form.category')}</Label>
               <NativeSelect id="category" value={draft.category} onChange={(e) => set('category', e.target.value)}>
-                <option value="">Alege…</option>
+                <option value="">{t('foods.form.choose')}</option>
                 {categoryCodes.map((code) => (
                   <option key={code} value={code}>
-                    {categories[code]}
+                    {categoryLabel(code)}
                   </option>
                 ))}
               </NativeSelect>
@@ -101,12 +112,12 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-2">
             <div>
-              <h2 className="font-semibold">Valori la 100 g</h2>
-              {draft.barcode && <p className="text-xs text-muted-foreground">Cod de bare {draft.barcode}</p>}
+              <h2 className="font-semibold">{t('foods.form.valuesPer100')}</h2>
+              {draft.barcode && <p className="text-xs text-muted-foreground">{t('foods.form.barcode', { code: draft.barcode })}</p>}
             </div>
             <Button type="button" variant="secondary" size="sm" disabled={!!aiHint || enrich.isPending} onClick={() => enrich.mutate()}>
               <Sparkles className="size-4" />
-              {enrich.isPending ? 'Se gândește…' : missingCount > 0 ? 'Completează cu AI' : 'Recalculează notele'}
+              {enrich.isPending ? t('foods.form.thinking') : missingCount > 0 ? t('foods.form.aiFill') : t('foods.form.recalculateGrades')}
             </Button>
           </div>
           {aiHint && <p className="text-xs text-muted-foreground">{aiHint}</p>}
@@ -131,9 +142,9 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
             ))}
           </div>
           <label className="block space-y-1.5">
-            <span className="text-sm font-medium">Greutatea unei bucăți</span>
+            <span className="text-sm font-medium">{t('foods.form.unitWeight')}</span>
             <div className="relative">
-              <Input inputMode="decimal" value={draft.unitWeightG} onChange={(e) => set('unitWeightG', e.target.value)} placeholder="opțional, ex. 120 pentru o banană" className="h-10 pr-10" />
+              <Input inputMode="decimal" value={draft.unitWeightG} onChange={(e) => set('unitWeightG', e.target.value)} placeholder={t('foods.form.unitWeightPlaceholder')} className="h-10 pr-10" />
               <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground">g</span>
             </div>
           </label>
@@ -142,37 +153,37 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
 
       <div className="space-y-5 lg:col-start-1 lg:row-start-2">
         <section className="space-y-3 rounded-xl border bg-card p-4">
-          <h2 className="font-semibold">Note</h2>
+          <h2 className="font-semibold">{t('foods.form.grades')}</h2>
           {computed && (
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <span className="flex items-center gap-1.5">
-                  Proteină <ProteinBadge grade={computed.protein} />
+                  {t('grades.protein.label')} <ProteinBadge grade={computed.protein} />
                 </span>
                 <span className="flex items-center gap-1.5">
-                  Volum <VolumeBadge grade={computed.volume} />
+                  {t('grades.volume.label')} <VolumeBadge grade={computed.volume} />
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Se calculează din valorile la 100 g.</p>
+              <p className="text-xs text-muted-foreground">{t('foods.form.computedFromValues')}</p>
             </div>
           )}
           {draft.glycemicGrade ? (
             <>
               <div className="flex items-center gap-1.5 text-sm">
-                Glicemic <GlycemicBadge grade={draft.glycemicGrade} />
+                {t('foods.glycemic')} <GlycemicBadge grade={draft.glycemicGrade} />
               </div>
               {draft.gradesReason && <p className="text-sm text-muted-foreground">{draft.gradesReason}</p>}
-              <NativeSelect aria-label="Nota glicemică" value={draft.glycemicGrade} onChange={(e) => set('glycemicGrade', e.target.value || null)}>
+              <NativeSelect aria-label={t('foods.form.glycemicGrade')} value={draft.glycemicGrade} onChange={(e) => set('glycemicGrade', e.target.value || null)}>
                 {['A', 'B', 'C'].map((g) => (
                   <option key={g} value={g}>
-                    Glicemic {g}
+                    {t('foods.glycemic')} {g}
                   </option>
                 ))}
               </NativeSelect>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Nota glicemică o dă DeepSeek. Apasă „Completează cu AI”. Dacă salvezi fără ea, o poți calcula mai târziu din fișa alimentului.
+              {t('foods.form.glycemicHint')}
             </p>
           )}
         </section>

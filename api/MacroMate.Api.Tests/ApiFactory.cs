@@ -1,4 +1,13 @@
+using System.Collections.Concurrent;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
+using MacroMate.Api.Data;
+using MacroMate.Api.Features.Email;
+using MacroMate.Api.Features.Kitchens;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Npgsql;
 
@@ -26,6 +35,26 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("Storage__Path", Path.Combine(Path.GetTempPath(), "macromate-tests"));
     }
 
+    public TestOutbox Outbox { get; } = new();
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
+        builder.ConfigureTestServices(services => services.AddSingleton<IEmailSender>(Outbox));
+
+    public async Task<HttpClient> NewUserAsync(string name)
+    {
+        var email = $"{name.ToLowerInvariant()}-{Guid.NewGuid():N}@macromate.local";
+        await using (var scope = Services.CreateAsyncScope())
+        {
+            var (user, errors) = await KitchenService.CreateUserAsync(
+                scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>(),
+                scope.ServiceProvider.GetRequiredService<AppDbContext>(),
+                email, name, Password, null, CancellationToken.None);
+            if (user is null)
+                throw new InvalidOperationException(string.Join(" ", errors));
+        }
+        return await LoginAsync(email);
+    }
+
     public async Task<HttpClient> LoginAsync(string email)
     {
         var client = CreateClient();
@@ -34,3 +63,24 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         return client;
     }
 }
+
+public sealed partial class TestOutbox : IEmailSender
+{
+    readonly ConcurrentQueue<EmailMessage> sent = new();
+
+    public Task SendAsync(EmailMessage message, CancellationToken ct)
+    {
+        sent.Enqueue(message);
+        return Task.CompletedTask;
+    }
+
+    public bool HasMailFor(string email) => sent.Any(m => m.To == email);
+
+    public Uri LinkFor(string email) => new(LinkPattern().Match(sent.Last(m => m.To == email).Text).Value);
+
+    [GeneratedRegex(@"https?://\S+")]
+    private static partial Regex LinkPattern();
+}
+
+[CollectionDefinition("api")]
+public sealed class ApiCollection : ICollectionFixture<ApiFactory>;

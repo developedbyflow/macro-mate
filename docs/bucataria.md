@@ -58,7 +58,9 @@ flowchart TD
   - Nu: arhiva rămâne și o poate aduce mai târziu.
 - **Modalul apare doar dacă arhiva nu e goală.** Cine a făcut invitația nu are arhivă (ce avea el e chiar bucătăria comună), deci la plecare primește doar copia.
 - Bucătăria comună rămâne la cei care nu pleacă, neschimbată. După plecare, nimic nu se mai sincronizează între cele două bucătării.
-- Dacă un membru e scos de altul, pentru el e la fel ca o plecare.
+- **Proprietarul** bucătăriei e cine a creat-o. Doar el poate scoate un membru; ceilalți pot doar să plece. Cine a fost invitat nu-l poate scoate pe cel care l-a invitat.
+- Dacă proprietarul pleacă, rolul trece la unul dintre membrii rămași.
+- Dacă un membru e scos de proprietar, pentru el e la fel ca o plecare.
 
 ## Partajarea în afara bucătăriei
 
@@ -69,5 +71,4 @@ flowchart TD
 ## Întrebări deschise
 
 - **Cine modifică un aliment din baza generală?** Propunere: doar cine l-a adăugat. Ceilalți îl pot scoate din cămară, nu îl pot șterge pentru toți.
-- **Cine poate scoate un membru?** Propunere: oricare membru, cu confirmare.
 - **Înregistrarea din aplicație**: acum conturile se fac doar cu `create-user` pe server. Odată cu bucătăria, contul se face din link-ul de invitație sau din pagina de login.

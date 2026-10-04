@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Camera, ImageOff, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { db } from '@/db/database'
 import { storePhoto } from '@/lib/photos'
@@ -34,7 +35,8 @@ export function Photo({ id, className, fallback }: { id: string | null | undefin
   return <img src={url} alt="" className={cn('object-cover', className)} onError={() => setFailedUrl(url)} loading="lazy" />
 }
 
-export function PhotoInput({ value, onChange, label = 'Adaugă poză' }: { value: string | null; onChange: (id: string | null) => void; label?: string }) {
+export function PhotoInput({ value, onChange, label }: { value: string | null; onChange: (id: string | null) => void; label?: string }) {
+  const { t } = useTranslation()
   const input = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
 
@@ -44,7 +46,7 @@ export function PhotoInput({ value, onChange, label = 'Adaugă poză' }: { value
     try {
       onChange(await storePhoto(file))
     } catch {
-      toast.error('Nu am putut citi poza.')
+      toast.error(t('common.photoReadFailed'))
     } finally {
       setBusy(false)
     }
@@ -58,7 +60,7 @@ export function PhotoInput({ value, onChange, label = 'Adaugă poză' }: { value
           <button
             type="button"
             className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/60 text-white"
-            aria-label="Scoate poza"
+            aria-label={t('common.removePhoto')}
             onClick={() => onChange(null)}
           >
             <X className="size-4" />
@@ -72,7 +74,7 @@ export function PhotoInput({ value, onChange, label = 'Adaugă poză' }: { value
           className="flex h-24 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/40 text-sm text-muted-foreground transition-colors active:bg-muted"
         >
           <Camera className="size-6" />
-          {busy ? 'Se procesează…' : label}
+          {busy ? t('common.processing') : (label ?? t('common.addPhoto'))}
         </button>
       )}
       <input ref={input} type="file" accept="image/*" className="hidden" onChange={(e) => void pick(e.target.files?.[0])} />

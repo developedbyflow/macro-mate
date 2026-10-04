@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/app/page-header'
 import { RecipeForm } from '@/components/app/recipe-form'
 import type { RecipeDraft } from '@/lib/recipes'
@@ -11,6 +12,7 @@ export const Route = createFileRoute('/_app/recipes/$recipeId/edit')({
 })
 
 function EditRecipePage() {
+  const { t } = useTranslation()
   const { recipeId } = Route.useParams()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
@@ -23,8 +25,8 @@ function EditRecipePage() {
 
   return (
     <>
-      <PageHeader title="Editează rețeta" back />
-      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">{recipe && <RecipeForm initial={recipe} submitLabel="Salvează" onSubmit={save} />}</main>
+      <PageHeader title={t('recipes.edit.title')} back />
+      <main className="mx-auto max-w-2xl px-4 pt-4 pb-8 lg:mx-0 lg:max-w-none lg:px-8">{recipe && <RecipeForm initial={recipe} submitLabel={t('common.save')} onSubmit={save} />}</main>
     </>
   )
 }

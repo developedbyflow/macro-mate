@@ -5,11 +5,14 @@ using MacroMate.Api.Data;
 using MacroMate.Api.Features.Ai;
 using MacroMate.Api.Features.Auth;
 using MacroMate.Api.Features.Foods;
+using MacroMate.Api.Features.Kitchens;
 using MacroMate.Api.Features.Photos;
 using MacroMate.Api.Features.Sync;
+using MacroMate.Api.Features.Email;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,8 @@ builder.Services.AddDataProtection()
     .SetApplicationName("MacroMate")
     .PersistKeysToFileSystem(new DirectoryInfo(storage.KeysPath));
 
+builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
+
 builder.Services
     .AddIdentityCore<AppUser>(o =>
     {
@@ -40,7 +45,16 @@ builder.Services
         o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     })
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager();
+    .AddSignInManager()
+    .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
+    .AddDefaultTokenProviders();
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o => o.TokenLifespan = TimeSpan.FromHours(2));
+
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+if (string.IsNullOrWhiteSpace(builder.Configuration["Email:ResendApiKey"]))
+    builder.Services.AddSingleton<IEmailSender, LogEmailSender>();
+else
+    builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>(c => c.BaseAddress = new Uri("https://api.resend.com/"));
 
 builder.Services
     .AddAuthentication(IdentityConstants.ApplicationScheme)
@@ -113,6 +127,12 @@ if (AdminCommands.IsCommand(args))
 app.UseForwardedHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseRequestLocalization(o =>
+{
+    string[] cultures = ["ro", "en"];
+    o.SetDefaultCulture("ro").AddSupportedCultures(cultures).AddSupportedUICultures(cultures);
+    o.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
+});
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -121,6 +141,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuthEndpoints();
+app.MapAccountEndpoints();
+app.MapKitchenEndpoints();
 app.MapSyncEndpoints();
 app.MapBarcodeEndpoints();
 app.MapAiEndpoints();

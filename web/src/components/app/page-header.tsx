@@ -1,6 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { ChevronLeft, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { SyncIndicator } from './sync-indicator'
 
@@ -13,11 +14,12 @@ type Props = {
 
 export function PageHeader({ title, subtitle, back, actions }: Props) {
   const router = useRouter()
+  const { t } = useTranslation()
   return (
     <header className="pt-safe sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3 lg:mx-0 lg:max-w-6xl lg:px-7">
+      <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3 lg:mx-0 lg:max-w-none lg:px-7">
         {back && (
-          <Button variant="ghost" size="icon" aria-label="Înapoi" onClick={() => router.history.back()}>
+          <Button variant="ghost" size="icon" aria-label={t('common.back')} onClick={() => router.history.back()}>
             <ChevronLeft className="size-5" />
           </Button>
         )}
@@ -29,7 +31,7 @@ export function PageHeader({ title, subtitle, back, actions }: Props) {
         {!back && (
           <div className="flex items-center gap-2 lg:hidden">
             <SyncIndicator />
-            <Button variant="ghost" size="icon" aria-label="Profil" render={<Link to="/profile" />}>
+            <Button variant="ghost" size="icon" aria-label={t('common.profile')} render={<Link to="/profile" />}>
               <UserRound className="size-5" />
             </Button>
           </div>

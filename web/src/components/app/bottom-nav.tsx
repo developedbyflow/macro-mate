@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { navTabs } from './nav-tabs'
 
 export function BottomNav() {
+  useTranslation()
   return (
     <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 backdrop-blur-md lg:hidden">
       <ul className="mx-auto grid h-16 max-w-2xl grid-cols-5">
