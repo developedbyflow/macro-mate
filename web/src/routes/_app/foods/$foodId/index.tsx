@@ -110,7 +110,7 @@ function FoodPage() {
 
         <ConfirmDelete
           title={`Ștergi ${food.name}?`}
-          description="Dispare din listă pentru amândoi. Rețetele și jurnalul care îl folosesc își păstrează valorile."
+          description="Dispare din listă pentru toți. Rețetele și jurnalul care îl folosesc își păstrează valorile."
           onConfirm={async () => {
             await deleteRow('foods', food.id)
             await navigate({ to: '/foods' })

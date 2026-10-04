@@ -153,7 +153,7 @@ function RecipePage() {
           </Button>
           <ConfirmDelete
             title={`Ștergi ${recipe.name}?`}
-            description="Se șterg rețeta și toate variantele ei, pentru amândoi."
+            description="Se șterg rețeta și toate variantele ei, pentru toți."
             onConfirm={async () => {
               for (const v of variants) await deleteRow('recipeVariants', v.id)
               await deleteRow('recipes', recipe.id)

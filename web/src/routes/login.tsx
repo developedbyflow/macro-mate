@@ -43,7 +43,7 @@ function LoginPage() {
           <img src="/pwa-192x192.png" alt="" className="size-16 rounded-2xl shadow-sm" />
           <div>
             <h1 className="text-2xl font-bold tracking-tight">MacroMate</h1>
-            <p className="text-sm text-muted-foreground">Alimente, rețete și meal plan-uri, pentru voi doi.</p>
+            <p className="text-sm text-muted-foreground">Alimente, rețete și meal plan-uri.</p>
           </div>
         </div>
         <form onSubmit={submit} className="space-y-4 rounded-2xl border bg-card p-5 shadow-xs">

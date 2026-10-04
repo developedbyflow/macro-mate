@@ -189,7 +189,7 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
 
         <ConfirmDelete
           title={`Ștergi ${plan.name}?`}
-          description="Dispare pentru amândoi. Jurnalul păstrează ce ai notat deja."
+          description="Dispare pentru toți. Jurnalul păstrează ce ai notat deja."
           onConfirm={async () => {
             await deleteRow('mealPlans', plan.id)
             await navigate({ to: '/plans' })

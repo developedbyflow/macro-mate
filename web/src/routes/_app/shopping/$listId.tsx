@@ -172,7 +172,7 @@ function ListEditor({ list }: { list: ShoppingList }) {
           )}
           <ConfirmDelete
             title={`Ștergi ${list.name}?`}
-            description="Lista dispare pentru amândoi."
+            description="Lista dispare pentru toți."
             onConfirm={async () => {
               await deleteRow('shoppingLists', list.id)
               await navigate({ to: '/shopping' })
