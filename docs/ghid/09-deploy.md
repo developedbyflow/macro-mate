@@ -265,25 +265,30 @@ environment:
 **Resend** e un serviciu care trimite emailuri la o cerere HTTP. API-ul îl cheamă la „Am uitat parola”, la schimbarea emailului și la confirmarea unui cont nou. Planul gratuit trimite un număr limitat de emailuri pe zi și pe lună; limitele exacte le vezi în panoul Resend.
 
 Resend trimite doar de pe un domeniu pe care dovedești că îl ai. Dovada sunt câteva înregistrări DNS pe care ți le dă el:
-- **SPF** (TXT): lista serverelor care au voie să trimită emailuri în numele domeniului;
-- **DKIM** (TXT): o cheie publică cu care serverele care primesc emailul verifică semnătura lui;
-- **MX**: unde se întorc răspunsurile automate (emailuri care n-au ajuns).
+- **DKIM** (TXT, pe `resend._domainkey.macromate`): o cheie publică. Resend semnează fiecare email cu partea privată, iar serverul care îl primește verifică semnătura cu cheia publică;
+- **două CNAME**, pe `send.macromate` și pe `rsend.macromate`: trimit spre serverele Resend. Prin ele, serverele de email află că Resend are voie să trimită în numele domeniului (SPF), iar emailurile care n-au ajuns se întorc la Resend;
+- **DMARC** (TXT, pe `_dmarc`, opțional): `v=DMARC1; p=none;`, adică „nu bloca nimic, doar raportează”. Gmail tratează mai bine domeniile care îl au.
+
+Nu e nicio înregistrare **MX**, deci redirecționarea de email a domeniului principal, dacă o ai la Namecheap, rămâne neatinsă.
 
 Pașii:
 1. Pe resend.com îți faci cont.
-2. **Domains** → **Add Domain** → scrii `macromate.exemplu.com`. Dacă te întreabă regiunea, o alegi pe cea din Europa.
-3. Resend arată o listă de înregistrări: un MX și un TXT pe `send.macromate…` și un TXT pe `resend._domainkey.macromate…`. Le lași deschise.
-4. În Namecheap, **Advanced DNS**:
-   - TXT-urile le adaugi la **Host Records** → **Add New Record** → **TXT Record**;
-   - MX-ul îl adaugi jos, la **Mail Settings**: alegi **Custom MX**, apoi adaugi rândul.
-   - La Host scrii doar partea dinaintea domeniului tău: dacă Resend arată `resend._domainkey.macromate.exemplu.com`, scrii `resend._domainkey.macromate`.
-   - Valorile le copiezi exact cum le arată Resend.
-5. Înapoi în Resend, apeși **Verify DNS Records**.
-6. **API Keys** → **Create API Key**, cu permisiunea **Sending access**. Cheia începe cu `re_` și apare o singură dată. O pui în `.env`, la `RESEND_API_KEY`.
+2. **Domains** → **Add Domain** → scrii `macromate.exemplu.com`. Regiunea: cea din Europa (Ireland). La **Tracking subdomain** nu pui nimic: aplicația trimite doar linkuri de parolă și de confirmare, iar un link rescris de Resend arată mai suspect pentru filtrele de spam. **Enable Sending** rămâne pornit, **Enable Receiving** oprit.
+3. Resend arată tabelul cu înregistrări. Valorile le arată scurtate, cu `[…]` la mijloc: le copiezi cu iconița de copiere de lângă fiecare, nu le tastezi.
+4. În Namecheap, **Advanced DNS** → **Host Records** → **Add New Record**, pentru fiecare rând: tipul (TXT Record sau CNAME Record), Host exact cum îl arată Resend (de exemplu `send.macromate`; Namecheap adaugă singur restul domeniului) și valoarea copiată. Salvezi fiecare rând cu bifa verde.
+5. Verifici de pe laptop, direct la Namecheap, că valoarea DKIM a ajuns întreagă:
 
-Caută în Resend, la domeniu: starea **Verified**. Poate dura de la câteva minute la câteva ore, ca orice schimbare DNS.
+   ```bash
+   dig +short @dns1.registrar-servers.com TXT resend._domainkey.macromate.exemplu.com
+   ```
 
-Dacă folosești redirecționarea de email de la Namecheap pe domeniul principal, trecerea pe **Custom MX** o oprește. Atunci te uiți întâi ce înregistrări de email ai și le treci și pe ele la Custom MX.
+   Caută: un text care începe cu `"p=MIGfMA`, are peste 200 de caractere și nu conține `…`.
+6. Înapoi în Resend, apeși **I've already added the records** (sau **Verify DNS Records**).
+7. **API Keys** → **Create API Key**: numele `macromate-prod`, permisiunea **Sending access**, domeniul tău. Cheia începe cu `re_` și apare o singură dată. O pui în `.env`, la `RESEND_API_KEY`, apoi `docker compose -f compose.prod.yaml up -d`.
+
+Caută în Resend, la domeniu: starea **Verified**, cu bifă verde lângă fiecare rând. Poate dura de la câteva minute la câteva ore, ca orice schimbare DNS.
+
+Încerci: pe pagina de login, **„Ai uitat parola?”** cu emailul tău. Caută în inbox un email de la `MacroMate <noreply@macromate.exemplu.com>`, iar în Resend, la **Emails**, starea **Delivered**.
 
 **Fără cheie Resend** aplicația merge, dar emailurile nu pleacă. API-ul folosește atunci `LogEmailSender`, care scrie emailul în logurile lui. Linkul îl vezi cu `docker compose -f compose.prod.yaml logs api | grep -A6 "Email to"`.
 

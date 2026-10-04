@@ -116,26 +116,28 @@
 
 <div class="eyebrow">MacroMate · ghidul aplicației</div>
 <h1>Cum funcționează MacroMate</h1>
-<p class="lede"><strong>Construită pe 2026-10-04, actualizată în aceeași seară.</strong> Pagina te trece prin aplicație: ce piese are, cum circulă o bifă de pe telefonul tău până pe telefonul ei, cum funcționează bucătăria comună, de unde vin notele, cum merge în două limbi, cum merge offline și cum ajunge pe serverul OVH. Fiecare capitol are desenul mecanismului, codul real din proiect și, sub fiecare desen, codul lui Mermaid. Același conținut e și în <code>docs/ghid/</code>, ca fișiere Markdown.</p>
-<ul class="stack"><li>React + TypeScript</li><li>Dexie</li><li>TanStack Router</li><li>react-i18next</li><li>shadcn/ui</li><li>ASP.NET Core 10</li><li>EF Core</li><li>PostgreSQL</li><li>Caddy</li><li>DeepSeek</li><li>Resend</li></ul>
+<p class="lede"><strong>Construită pe 2026-10-04, actualizată în aceeași zi, noaptea, cu CI/CD și conturile.</strong> Pagina te trece prin aplicație: ce piese are, cum circulă o bifă de pe telefonul tău până pe telefonul ei, cum funcționează bucătăria comună, de unde vin notele, cum merge în două limbi, cum merge offline, cum ajunge pe serverul OVH, cum pleacă singur codul nou pe server la fiecare push și cum merg contul nou, rolul de admin și contul de probă. Fiecare capitol are desenul mecanismului, codul real din proiect și, sub fiecare desen, codul lui Mermaid. Același conținut e și în <code>docs/ghid/</code>, ca fișiere Markdown.</p>
+<ul class="stack"><li>React + TypeScript</li><li>Dexie</li><li>TanStack Router</li><li>react-i18next</li><li>shadcn/ui</li><li>ASP.NET Core 10</li><li>EF Core</li><li>PostgreSQL</li><li>Caddy</li><li>DeepSeek</li><li>Resend</li><li>GitHub Actions</li></ul>
 <nav class="rail" aria-label="Capitole">
   <a class="row" href="#harta"><span class="k">1</span><b>Harta aplicației</b><span class="d">piesele, al cui e fiecare lucru, unde schimbi ce</span><span class="pill">întâi</span></a>
   <a class="row" href="#pornire"><span class="k">2</span><b>Pornirea pe laptop</b><span class="d">dev.sh, cheia DeepSeek, emailurile în consolă, două conturi</span></a>
   <a class="row" href="#sync"><span class="k">3</span><b>Drumul unei modificări</b><span class="d">o bifă din telefon până în Postgres și până la telefonul ei</span><span class="pill">apoi</span></a>
   <a class="row" href="#baza"><span class="k">4</span><b>Baza de date</b><span class="d">tabelele, cum ies din clasele C#, migrări care scriu date</span></a>
-  <a class="row" href="#login"><span class="k">5</span><b>Login și securitate</b><span class="d">cookie-ul, cine vede ce, limitarea cererilor</span></a>
-  <a class="row" href="#ai"><span class="k">6</span><b>Alimente, scanare și AI</b><span class="d">codul de bare, Open Food Facts, DeepSeek, scanarea farfuriei</span></a>
+  <a class="row" href="#login"><span class="k">5</span><b>Login și securitate</b><span class="d">cookie-ul, cele patru feluri de cont, rolul de admin, cine vede ce, limitele de cereri</span></a>
+  <a class="row" href="#ai"><span class="k">6</span><b>Alimente, scanare și AI</b><span class="d">codul de bare, Open Food Facts, DeepSeek, scanarea farfuriei, limita zilnică la AI</span></a>
   <a class="row" href="#calcule"><span class="k">7</span><b>Calculele</b><span class="d">valori, note, alternative, ținte, ziua completă, cu numere reale</span></a>
   <a class="row" href="#pwa"><span class="k">8</span><b>PWA și offline</b><span class="d">cum se instalează, cum merge fără internet, ce cere internet</span></a>
-  <a class="row" href="#deploy"><span class="k">9</span><b>Deploy pe VPS (OVH)</b><span class="d">de la serverul gol la aplicația de pe telefon, cu emailuri și copii</span></a>
-  <a class="row" href="#bucataria"><span class="k">10</span><b>Bucătăria comună</b><span class="d">cămara, invitația, Da/Nu, plecarea cu copie, proprietarul, arhiva</span><span class="pill">apoi</span></a>
+  <a class="row" href="#deploy"><span class="k">9</span><b>Deploy pe VPS (OVH)</b><span class="d">de la serverul gol la aplicația de pe telefon, cu emailuri, copii și rolul de admin</span></a>
+  <a class="row" href="#bucataria"><span class="k">10</span><b>Bucătăria comună</b><span class="d">cămara, alimentele bucătăriei, invitația, Da/Nu, plecarea cu copie, proprietarul, arhiva</span><span class="pill">apoi</span></a>
   <a class="row" href="#azi"><span class="k">11</span><b>Ecranul Azi</b><span class="d">banda de sus, mesele cu și fără plan, copierea, ziua completă</span></a>
-  <a class="row" href="#cont"><span class="k">12</span><b>Contul și emailurile</b><span class="d">numele, emailul, parola, „Am uitat parola”, Resend</span></a>
+  <a class="row" href="#cont"><span class="k">12</span><b>Contul și emailurile</b><span class="d">numele, emailul, parola, „Am uitat parola”, contul nou, ștergerea contului, Resend</span></a>
   <a class="row" href="#limbi"><span class="k">13</span><b>Română și engleză</b><span class="d">textele pe chei, pluralele, limba la API, numele alimentelor</span></a>
+  <a class="row" href="#cicd"><span class="k">14</span><b>CI/CD</b><span class="d">testele la fiecare push, deploy-ul automat pe main, cheia care poate rula doar deploy.sh</span></a>
+  <a class="row" href="#conturi"><span class="k">15</span><b>Conturi, roluri și contul de probă</b><span class="d">contul nou cu email, rolul de admin, alimentele bucătăriei, Administrare, limita zilnică la AI, ștergerea contului</span></a>
 </nav>
 
 <h2 id="harta"><span class="no">Capitolul 1</span>Harta aplicației</h2>
-<p>MacroMate are trei piese care rulează în locuri diferite:</p><ul><li><strong>aplicația din telefon</strong>: React, plus o bază de date a browserului;</li><li><strong>API-ul</strong>: un program .NET pe server;</li><li><strong>Postgres</strong>: baza de date comună, tot pe server.</li></ul><p>Pe lângă ele, API-ul vorbește cu trei servicii din afară: Open Food Facts (produse după cod de bare), DeepSeek (AI-ul) și Resend (emailurile pentru parolă și schimbarea adresei).</p>
+<p>MacroMate are trei piese care rulează în locuri diferite:</p><ul><li><strong>aplicația din telefon</strong>: React, plus o bază de date a browserului;</li><li><strong>API-ul</strong>: un program .NET pe server;</li><li><strong>Postgres</strong>: baza de date comună, tot pe server.</li></ul><p>Pe lângă ele, API-ul vorbește cu trei servicii din afară: Open Food Facts (produse după cod de bare), DeepSeek (AI-ul) și Resend (emailurile pentru parolă, schimbarea adresei și confirmarea unui cont nou).</p>
 <pre class="mermaid">flowchart LR
   subgraph Telefon
     UI[Ecranele React]
@@ -179,11 +181,12 @@
   API --&gt; DS[DeepSeek]
   API --&gt; RS[Resend]</code></pre></details>
 
-<div class="tablewrap"><table class=""><tr><th>Piesa</th><th>Ce e</th><th>Unde e codul</th></tr><tr><td>Ecranele React</td><td>Paginile pe care le vezi: Azi, Planuri, Rețete, Alimente, Cumpărături, Progres, Profil.</td><td><code>web/src/routes/</code></td></tr><tr><td>Dexie</td><td>O bibliotecă peste IndexedDB, adică peste baza de date pe care o are fiecare browser. Ține în telefon o copie a datelor tale și coada de modificări netrimise.</td><td><code>web/src/db/</code></td></tr><tr><td>Service worker</td><td>Un script pe care browserul îl ține instalat după prima vizită. Dă fișierele aplicației din cache, deci aplicația se deschide și fără internet.</td><td><code>web/vite.config.ts</code></td></tr><tr><td>Caddy</td><td>Serverul web din fața API-ului. Pune singur certificatul HTTPS, dă fișierele aplicației și trimite tot ce începe cu <code>/api</code> la API.</td><td><code>deploy/Caddyfile</code></td></tr><tr><td>API .NET</td><td>Primește modificările, le verifică și le scrie în Postgres. Tot el vorbește cu DeepSeek, cu Open Food Facts și cu Resend.</td><td><code>api/MacroMate.Api/</code></td></tr><tr><td>Postgres</td><td>Baza de date comună a tuturor conturilor.</td><td><code>api/MacroMate.Api/Data/</code></td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Piesa</th><th>Ce e</th><th>Unde e codul</th></tr><tr><td>Ecranele React</td><td>Paginile pe care le vezi: Azi, Planuri, Rețete, Alimente, Cumpărături, Progres, Profil, plus Administrare pentru admini.</td><td><code>web/src/routes/</code></td></tr><tr><td>Dexie</td><td>O bibliotecă peste IndexedDB, adică peste baza de date pe care o are fiecare browser. Ține în telefon o copie a datelor tale și coada de modificări netrimise.</td><td><code>web/src/db/</code></td></tr><tr><td>Service worker</td><td>Un script pe care browserul îl ține instalat după prima vizită. Dă fișierele aplicației din cache, deci aplicația se deschide și fără internet.</td><td><code>web/vite.config.ts</code></td></tr><tr><td>Caddy</td><td>Serverul web din fața API-ului. Pune singur certificatul HTTPS, dă fișierele aplicației și trimite tot ce începe cu <code>/api</code> la API.</td><td><code>deploy/Caddyfile</code></td></tr><tr><td>API .NET</td><td>Primește modificările, le verifică și le scrie în Postgres. Tot el vorbește cu DeepSeek, cu Open Food Facts și cu Resend.</td><td><code>api/MacroMate.Api/</code></td></tr><tr><td>Postgres</td><td>Baza de date comună a tuturor conturilor.</td><td><code>api/MacroMate.Api/Data/</code></td></tr></table></div>
 
 <h3>Al cui e fiecare lucru</h3>
-<div class="tablewrap"><table class=""><tr><th>Nivel</th><th>Ce e în el</th><th>Cine îl vede</th></tr><tr><td>baza generală</td><td>alimentele</td><td>toate conturile</td></tr><tr><td><strong>bucătăria</strong></td><td>cămara, rețetele, planurile, listele de cumpărături</td><td>membrii bucătăriei</td></tr><tr><td>personal</td><td>jurnalul, planul zilei, greutatea, profilul</td><td>doar tu</td></tr></table></div>
-<p><strong>Bucătăria</strong> e grupul de conturi care împart cămara, rețetele, planurile și listele. Tu și prietena ta sunteți în aceeași bucătărie: ea intră cu un link de invitație din Profil.</p>
+<div class="tablewrap"><table class=""><tr><th>Nivel</th><th>Ce e în el</th><th>Cine îl vede</th></tr><tr><td>baza generală</td><td>alimentele de start și cele puse de admini</td><td>toate conturile; le modifică doar adminii</td></tr><tr><td><strong>bucătăria</strong></td><td>alimentele adăugate de membri, cămara, rețetele, planurile, listele de cumpărături</td><td>membrii bucătăriei</td></tr><tr><td>personal</td><td>jurnalul, planul zilei, greutatea, profilul</td><td>doar tu</td></tr></table></div>
+<p><strong>Bucătăria</strong> e grupul de conturi care împart alimentele adăugate de ei, cămara, rețetele, planurile și listele. Tu și prietena ta sunteți în aceeași bucătărie: ea intră cu un link de invitație din Profil.</p>
+<p>Un cont poate avea rolul de <strong>admin</strong>: modifică baza generală și vede pagina Administrare. Rolurile, contul nou și contul de probă sunt în <a href="#conturi">capitolul 15</a>.</p>
 <p><strong>Două limbi.</strong> Aplicația merge în română și în engleză. Textele stau în <code>web/src/i18n/ro/</code> și <code>web/src/i18n/en/</code>. Telefonul trimite limba la API în headerul <code>Accept-Language</code>, iar API-ul răspunde în ea.</p>
 
 <h3>Regula de bază: ecranele citesc doar din telefon</h3><p>Niciun ecran nu cere date de la API când îl deschizi. Fiecare ecran citește din Dexie, care e în telefon. Asta e o alegere făcută ca aplicația să meargă offline: dacă ecranele ar cere datele de la server, fără internet ar fi goale.</p>
@@ -200,40 +203,42 @@
   S --&gt;|trimite și primește| API[API]
   S --&gt;|pune ce a primit| DX</code></pre></details>
 
-<ul><li><strong>Citirea</strong>: ecranul folosește <code>useLiveQuery</code> din Dexie. Când un tabel din telefon se schimbă, Dexie redesenează singur ecranul.</li><li><strong>Scrierea</strong>: ecranul cheamă <code>saveRow</code>. Funcția scrie rândul în telefon și pune o copie în coadă (<code>outbox</code>).</li><li><strong>Sincronizarea</strong>: <code>web/src/db/sync.ts</code> trimite coada la API și aduce ce s-a schimbat pe server, în fundal.</li></ul><p>Câteva lucruri merg direct la API și au nevoie de internet: login-ul și „Contul tău”, secțiunea Bucătăria și pagina de invitație, căutarea după codul de bare și DeepSeek.</p>
+<ul><li><strong>Citirea</strong>: ecranul folosește <code>useLiveQuery</code> din Dexie. Când un tabel din telefon se schimbă, Dexie redesenează singur ecranul.</li><li><strong>Scrierea</strong>: ecranul cheamă <code>saveRow</code>. Funcția scrie rândul în telefon și pune o copie în coadă (<code>outbox</code>).</li><li><strong>Sincronizarea</strong>: <code>web/src/db/sync.ts</code> trimite coada la API și aduce ce s-a schimbat pe server, în fundal.</li></ul><p>Câteva lucruri merg direct la API și au nevoie de internet: login-ul, contul nou, contul de probă și „Contul tău” (cu ștergerea contului), pagina Administrare și „Raportează o greșeală”, secțiunea Bucătăria și pagina de invitație, căutarea după codul de bare și DeepSeek.</p>
 <h3>Folderele</h3>
 <pre><code>MacroMate/
 ├── api/
 │   ├── MacroMate.Api/
 │   │   ├── Program.cs              pornirea: servicii, login, limbi, limite, endpoint-uri
-│   │   ├── Data/                   tabelele (clase C#) și migrările
+│   │   ├── Data/                   tabelele (clase C#), rolul admin (AppRoles.cs) și migrările
 │   │   ├── Features/
-│   │   │   ├── Auth/               login, logout, „cine sunt”, contul
+│   │   │   ├── Auth/               login, contul nou, contul, ștergerea lui, contul de probă
+│   │   │   ├── Admin/              pagina Administrare: cererea de alimente, rapoartele, rolurile
 │   │   │   ├── Email/              trimiterea emailurilor (Resend sau consola)
 │   │   │   ├── Kitchens/           bucătăria: invitații, intrare, plecare, arhivă
 │   │   │   ├── Sync/               sincronizarea: citire, scriere, validare
-│   │   │   ├── Foods/              căutarea după cod de bare (Open Food Facts)
-│   │   │   ├── Ai/                 DeepSeek: alimente, rețete, scanarea farfuriei
+│   │   │   ├── Foods/              codul de bare (Open Food Facts), „Raportează o greșeală”
+│   │   │   ├── Ai/                 DeepSeek: alimente, rețete, scanarea farfuriei, limita zilnică
 │   │   │   ├── Photos/             urcarea și descărcarea pozelor
 │   │   │   └── Security/           limitarea numărului de cereri
 │   │   ├── Resources/              mesajele API-ului în română și engleză
-│   │   ├── Admin/                  comenzile create-user și seed-foods
+│   │   ├── Admin/                  comenzile create-user, seed-foods și set-role
 │   │   └── Seed/foods.json         cele 75 de alimente de start
 │   └── MacroMate.Api.Tests/        testele API-ului, pe un Postgres real
 ├── web/src/
-│   ├── routes/                     un fișier pe ecran, plus invite și paginile din emailuri
+│   ├── routes/                     un fișier pe ecran, plus invite, register, paginile din emailuri și _app/admin
 │   ├── components/app/             alegerea alimentelor, scannerul, bucătăria, contul, scanarea farfuriei
 │   ├── db/                         Dexie, coada, sincronizarea, sesiunea, bucătăria
 │   ├── i18n/                       textele în română și engleză
 │   ├── lib/                        calculele: valori, note, ținte, cumpărături, căutare, formatare
 │   ├── hooks/                      citiri din Dexie gata de folosit în ecrane
 │   └── api/                        clientul HTTP și tipurile generate din API
-├── deploy/                         Docker Compose, Caddy, backup
+├── deploy/                         Docker Compose, Caddy, backup, deploy.sh
+├── .github/workflows/ci-cd.yml     testele la fiecare push și deploy-ul pe main
 ├── dev.sh                          Postgres, API-ul și aplicația dintr-o comandă
 └── docs/                           specificația și ghidul</code></pre>
 
 <h3>Unde schimbi ce</h3>
-<div class="tablewrap"><table class=""><tr><th>Vrei să…</th><th>Atingi</th></tr><tr><td>adaugi un câmp la aliment</td><td><code>Data/Food.cs</code>, o migrare nouă, <code>Features/Sync/SyncRules.cs</code>, <code>pnpm --dir web gen:api</code>, apoi <code>web/src/lib/food-draft.ts</code> și <code>components/app/food-form.tsx</code></td></tr><tr><td>schimbi criteriile notelor sau ce cere AI-ul</td><td><code>Features/Ai/AiPrompts.cs</code></td></tr><tr><td>schimbi un text din aplicație</td><td>aceeași cheie în <code>web/src/i18n/ro/</code> și în <code>web/src/i18n/en/</code></td></tr><tr><td>schimbi un mesaj al API-ului sau un email</td><td><code>Resources/Messages.resx</code> și <code>Messages.en.resx</code></td></tr><tr><td>schimbi limitele de cereri</td><td><code>Features/Security/RateLimiting.cs</code> sau <code>RateLimits__AuthPerMinute</code>, <code>RateLimits__AiPerTenMinutes</code></td></tr><tr><td>schimbi regulile bucătăriei</td><td><code>Features/Kitchens/KitchenService.cs</code></td></tr><tr><td>adaugi o categorie</td><td><code>Data/FoodCategories.cs</code> și <code>web/src/lib/categories.ts</code></td></tr><tr><td>schimbi formula țintelor</td><td><code>web/src/lib/targets.ts</code> și testul de lângă</td></tr><tr><td>schimbi cum se aleg alternativele</td><td><code>alternativesFor</code> din <code>web/src/lib/nutrition.ts</code></td></tr><tr><td>schimbi culorile</td><td>variabilele din <code>web/src/index.css</code></td></tr><tr><td>adaugi un ecran</td><td>un fișier nou în <code>web/src/routes/</code>; router-ul îl găsește singur</td></tr><tr><td>adaugi alimente de start</td><td><code>api/MacroMate.Api/Seed/foods.json</code></td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Vrei să…</th><th>Atingi</th></tr><tr><td>adaugi un câmp la aliment</td><td><code>Data/Food.cs</code>, o migrare nouă, <code>Features/Sync/SyncRules.cs</code>, <code>pnpm --dir web gen:api</code>, apoi <code>web/src/lib/food-draft.ts</code> și <code>components/app/food-form.tsx</code></td></tr><tr><td>schimbi criteriile notelor sau ce cere AI-ul</td><td><code>Features/Ai/AiPrompts.cs</code></td></tr><tr><td>schimbi un text din aplicație</td><td>aceeași cheie în <code>web/src/i18n/ro/</code> și în <code>web/src/i18n/en/</code></td></tr><tr><td>schimbi un mesaj al API-ului sau un email</td><td><code>Resources/Messages.resx</code> și <code>Messages.en.resx</code></td></tr><tr><td>schimbi limitele de cereri</td><td><code>Features/Security/RateLimiting.cs</code> sau setările <code>RateLimits__…</code> (tabelul din <a href="#conturi">capitolul 15</a>)</td></tr><tr><td>schimbi cine poate modifica un aliment</td><td><code>FoodTable</code> din <code>Features/Sync/SyncTables.cs</code> și <code>canEditFood</code> din <code>web/src/hooks/use-data.ts</code></td></tr><tr><td>schimbi pagina Administrare</td><td><code>Features/Admin/AdminEndpoints.cs</code> și <code>web/src/routes/_app/admin.tsx</code></td></tr><tr><td>schimbi datele contului de probă</td><td><code>Features/Auth/DemoData.cs</code></td></tr><tr><td>schimbi regulile bucătăriei</td><td><code>Features/Kitchens/KitchenService.cs</code></td></tr><tr><td>adaugi o categorie</td><td><code>Data/FoodCategories.cs</code> și <code>web/src/lib/categories.ts</code></td></tr><tr><td>schimbi formula țintelor</td><td><code>web/src/lib/targets.ts</code> și testul de lângă</td></tr><tr><td>schimbi cum se aleg alternativele</td><td><code>alternativesFor</code> din <code>web/src/lib/nutrition.ts</code></td></tr><tr><td>schimbi culorile</td><td>variabilele din <code>web/src/index.css</code></td></tr><tr><td>adaugi un ecran</td><td>un fișier nou în <code>web/src/routes/</code>; router-ul îl găsește singur</td></tr><tr><td>adaugi alimente de start</td><td><code>api/MacroMate.Api/Seed/foods.json</code></td></tr></table></div>
 
 <h2 id="pornire"><span class="no">Capitolul 2</span>Pornirea pe laptop</h2>
 <p>Pe laptop rulează aceleași trei piese ca pe server, fiecare pornită cu o comandă. <strong>Vite</strong> e serverul de dezvoltare al frontend-ului: dă fișierele și trimite tot ce începe cu <code>/api</code> la API, ca în producție, unde face asta Caddy.</p>
@@ -259,7 +264,7 @@
 <div class="step"><div class="n">3</div><div class="b"><h3>API-ul</h3>
 <pre><code>dotnet run --project api/MacroMate.Api</code></pre>
 <p class="look"><span>Caută</span> <code>Now listening on: http://localhost:5180</code>.</p>
-<p>La prima pornire creează tabelele, două conturi de test (din <code>appsettings.Development.json</code>, la <code>DevSeed</code>), fiecare cu bucătăria lui, și cele 75 de alimente.</p></div></div>
+<p>La prima pornire creează tabelele, două conturi de test (din <code>appsettings.Development.json</code>, la <code>DevSeed</code>), fiecare cu bucătăria lui, și cele 75 de alimente. Primul cont (Florin) primește rolul de admin; al doilea e utilizator obișnuit.</p></div></div>
 
 <div class="step"><div class="n">4</div><div class="b"><h3>Frontend-ul</h3>
 <pre><code>pnpm --dir web install
@@ -279,10 +284,10 @@ pnpm --dir web dev</code></pre>
 <p class="look"><span>Caută</span> <code>Tests  … passed</code>, fără <code>failed</code>. Verifică calculele și textele în cele două limbi.</p>
 </div></div>
 
-<h3>Emailurile pe laptop</h3><p>Fără cheie Resend, API-ul nu trimite emailuri: le scrie în terminalul lui, cu <code>LogEmailSender</code>. Linkul de resetare îl găsești acolo.</p>
+<h3>Emailurile pe laptop</h3><p>Fără cheie Resend, API-ul nu trimite emailuri: le scrie în terminalul lui, cu <code>LogEmailSender</code>. Linkul de la „Am uitat parola”, de la schimbarea emailului sau de la un cont nou din <code>/register</code> îl găsești acolo.</p>
 <pre><code>warn: MacroMate.Api.Features.Email.LogEmailSender[0]
       Email to cont2@macromate.local: Resetează parola MacroMate</code></pre>
-<p class="look"><span>Caută</span> rândul <code>Email to</code>, apoi linkul <code>http://localhost:5173/reset-password?…</code> câteva rânduri mai jos.</p>
+<p class="look"><span>Caută</span> rândul <code>Email to</code>, apoi linkul <code>http://localhost:5173/reset-password?…</code> (la un cont nou, <code>…/confirm-account?…</code>) câteva rânduri mai jos.</p>
 
 <h3>Două conturi pe același laptop</h3><p>Cookie-ul de login e legat de adresa din bară. <code>http://localhost:5173</code> și <code>http://[::1]:5173</code> sunt pentru browser două adrese diferite, deci pot avea două cookie-uri. Te loghezi cu primul cont pe una și cu <code>cont2@macromate.local</code> pe cealaltă, apoi încerci invitația în bucătărie. Login-ul primește cel mult 10 cereri pe minut de la aceeași adresă; la „Prea multe cereri”, aștepți un minut.</p>
 
@@ -370,7 +375,7 @@ if (existing is null)
 {
     incoming.Id = change.Id;
     incoming.CreatedAt = now;
-    SetOwner(incoming, userId);
+    SetOwner(incoming, actor);
     db.Add(incoming);
     return null;
 }
@@ -400,13 +405,13 @@ db.Update(incoming);</code></pre></div>
   N --&gt;|nu| I[inserează, cu autorul tău]
   N --&gt;|da| U[actualizează, păstrează câmpurile serverului]</code></pre></details>
 <p><strong>„Al altcuiva”</strong> depinde de felul tabelului. Fiecare fel are clasa lui în <code>SyncTables.cs</code>:</p>
-<div class="tablewrap"><table class=""><tr><th>Tabelul</th><th>Clasa</th><th>Rândul e al tău dacă…</th></tr><tr><td>jurnal, planul zilei, greutate, profil</td><td><code>PersonalTable</code></td><td><code>user_id</code> e al tău</td></tr><tr><td>rețete, variante, planuri, liste, cămară</td><td><code>KitchenTable</code></td><td><code>kitchen_id</code> e bucătăria ta</td></tr><tr><td>alimente</td><td><code>FoodTable</code></td><td>l-ai adăugat tu sau cineva din bucătăria ta</td></tr></table></div>
-<ul><li><strong>Regulile</strong> sunt în <code>SyncRules.cs</code>. Un rând care nu trece e respins cu motivul; celelalte merg mai departe.</li><li><strong>Câmpurile serverului</strong> (<code>createdBy</code>, <code>userId</code>, <code>kitchenId</code>, <code>createdAt</code>, <code>version</code>, <code>deletedAt</code>) se ignoră când vin de la telefon. Un telefon nu poate muta o rețetă în altă bucătărie. Testul <code>Server_fields_sent_by_the_client_are_ignored</code> verifică asta.</li></ul></div></div>
+<div class="tablewrap"><table class=""><tr><th>Tabelul</th><th>Clasa</th><th>Rândul e al tău dacă…</th></tr><tr><td>jurnal, planul zilei, greutate, profil</td><td><code>PersonalTable</code></td><td><code>user_id</code> e al tău</td></tr><tr><td>rețete, variante, planuri, liste, cămară</td><td><code>KitchenTable</code></td><td><code>kitchen_id</code> e bucătăria ta</td></tr><tr><td>alimente</td><td><code>FoodTable</code></td><td>e în bucătăria ta; unul din baza generală e „al tău” doar dacă ești admin</td></tr></table></div>
+<ul><li><strong>Regulile</strong> sunt în <code>SyncRules.cs</code>. Un rând care nu trece e respins cu motivul; celelalte merg mai departe.</li><li><strong>Câmpurile serverului</strong> (<code>createdBy</code>, <code>userId</code>, <code>kitchenId</code>, <code>createdAt</code>, <code>version</code>, <code>deletedAt</code>) se ignoră când vin de la telefon. Singura excepție: un admin poate lăsa gol <code>kitchenId</code> la un aliment nou, ca să intre în baza generală. Un telefon nu poate muta o rețetă în altă bucătărie. Testul <code>Server_fields_sent_by_the_client_are_ignored</code> verifică asta.</li></ul></div></div>
 
 <div class="step"><div class="n">5</div><div class="b"><h3>Telefonul ei află de bifă</h3>
 <p>Telefonul ei ține minte <strong>cursorul</strong>: cel mai mare <code>version</code> primit până acum. La fiecare sincronizare cere doar ce e mai nou.</p><div class="tablewrap"><table class=""><tr><th>id</th><th>name</th><th>version</th></tr><tr><td>a1</td><td>Cumpărături 1 oct.</td><td>12</td></tr><tr><td>f9</td><td>Cumpărături 4 oct.</td><td><strong>42</strong></td></tr></table></div>
 <p>Cu <code>since=41</code> vine doar rândul <code>f9</code>, iar cursorul ei devine 42. Cu 2.000 de alimente contează: fiecare telefon primește doar ce s-a schimbat. <code>applyPull</code> nu suprascrie rândurile care au încă modificări în coada telefonului.</p>
-<p><code>Pull</code> filtrează după cine cere: alimentele vin toate; rețetele, variantele, planurile, listele și cămara doar din bucătăria ei; jurnalul, planul zilei, greutatea și profilul doar ale ei. Răspunsul conține și <code>kitchenId</code>. Dacă diferă de cel ținut în Dexie, telefonul golește tabelele de bucătărie și cere tot de la <code>since=0</code>.</p></div></div>
+<p><code>Pull</code> filtrează după cine cere:</p><ul><li>alimentele vin din baza generală și din bucătăria ei;</li><li>rețetele, variantele, planurile, listele și cămara doar din bucătăria ei;</li><li>jurnalul, planul zilei, greutatea și profilul doar ale ei;</li><li>lista de conturi, din care aplicația scrie „adăugat de …”, are doar membrii bucătăriei ei.</li></ul><p>Răspunsul conține și <code>kitchenId</code>. Dacă diferă de cel ținut în Dexie, telefonul golește tabelele de bucătărie și alimentele, apoi cere tot de la <code>since=0</code>.</p></div></div>
 
 <h3>De ce e nevoie de lacăt</h3><p>Fără lacăt, două cereri care ajung în același timp pot pierde un rând:</p><ol><li>Telefonul tău ia <code>version 41</code>, iar telefonul ei ia <code>version 42</code>.</li><li>Cererea ei se termină prima: în bază există 42, dar încă nu există 41.</li><li>Un telefon cere <code>since=40</code>, primește 42, iar cursorul lui devine 42.</li><li>Cererea ta se termină: acum apare și 41.</li><li>Telefonul cere de acum <code>since=42</code>. Rândul 41 nu-l mai primește niciodată.</li></ol><p><code>pg_advisory_xact_lock</code> lasă o singură scriere la un moment dat, iar numărul se ia după lacăt. Așa 41 se salvează înainte ca altcineva să poată lua 42. Pentru doi oameni lacătul nu se simte: o scriere durează câteva milisecunde.</p>
 <h3>Când amândoi modificați același lucru</h3><p><strong>Câștigă ultima salvare care ajunge la server</strong>, pe tot rândul. <strong>Ștergerea e definitivă</strong>: rândul primește <code>deleted_at</code> și rămâne în bază ca semn pentru celălalt telefon. Dacă ar dispărea pur și simplu, telefonul ei n-ar avea de unde afla.</p>
@@ -422,6 +427,7 @@ db.Update(incoming);</code></pre></div>
   category: string
   kcal: number
   glycemicGrade: null | string
+  kitchenId: null | string
 }</code></pre></div>
 <div><p class="cap">C# · Data/Food.cs</p><pre><code>public class Food : SharedEntity
 {
@@ -430,6 +436,7 @@ db.Update(incoming);</code></pre></div>
     public string Category { get; set; } = "";
     public double Kcal { get; set; }
     public string? GlycemicGrade { get; set; }
+    public Guid? KitchenId { get; set; }
 }</code></pre></div>
 </div>
 
@@ -498,9 +505,10 @@ db.Update(incoming);</code></pre></div>
     UserId
   }</code></pre></details>
 
-<ul><li><strong><code>SharedEntity</code></strong> are <code>CreatedBy</code>, „adăugat de”. <code>Food</code> o moștenește direct: alimentele sunt ale tuturor conturilor.</li><li><strong><code>KitchenEntity</code></strong> adaugă <code>KitchenId</code>: a cărei bucătării e rândul. Le văd doar membrii ei.</li><li><strong><code>PersonalEntity</code></strong> are <code>UserId</code>: al cui e rândul. Serverul nu dă rândul altcuiva.</li></ul>
+<ul><li><strong><code>SharedEntity</code></strong> are <code>CreatedBy</code>, „adăugat de”. <code>Food</code> o moștenește direct și are în plus <code>KitchenId</code>, care poate fi gol: gol înseamnă baza generală, pe care o văd toate conturile; altfel, alimentul e al unei bucătării.</li><li><strong><code>KitchenEntity</code></strong> adaugă <code>KitchenId</code>: a cărei bucătării e rândul. Le văd doar membrii ei.</li><li><strong><code>PersonalEntity</code></strong> are <code>UserId</code>: al cui e rândul. Serverul nu dă rândul altcuiva.</li></ul>
 
-<div class="tablewrap"><table class=""><tr><th>Tabel</th><th>Al cui e</th><th>Ce ține</th></tr><tr><td><code>foods</code></td><td>toate conturile</td><td>nume în română și engleză (<code>name_en</code>), valori la 100 g, note, motivul notei glicemice în ambele limbi (<code>grades_reason_en</code>), categorie, cod de bare, greutatea unei bucăți</td></tr><tr><td><code>recipes</code></td><td>bucătăria</td><td>rețeta principală: nume, preparare, timp, dificultate, ingrediente fără cantități (<code>uuid[]</code>)</td></tr><tr><td><code>recipe_variants</code></td><td>bucătăria</td><td>porții și ingrediente cu grame (<code>jsonb</code>)</td></tr><tr><td><code>meal_plans</code></td><td>bucătăria</td><td>o zi: mesele și ce e în fiecare (<code>jsonb</code>)</td></tr><tr><td><code>shopping_lists</code></td><td>bucătăria</td><td>planurile cu zile (<code>jsonb</code>), ce s-a bifat (<code>text[]</code>)</td></tr><tr><td><code>pantry_items</code></td><td>bucătăria</td><td>cămara: câte un rând pentru fiecare aliment din ea</td></tr><tr><td><code>kitchens</code></td><td>—</td><td>bucătăriile: id și proprietarul (<code>owner_id</code>)</td></tr><tr><td><code>kitchen_invites</code></td><td>—</td><td>invitațiile: token, bucătăria, expirarea, când a fost folosită</td></tr><tr><td><code>day_plans</code></td><td>al fiecăruia</td><td>ce plan ai ales pentru o zi și dacă e completă (<code>completed_at</code>)</td></tr><tr><td><code>journal_entries</code></td><td>al fiecăruia</td><td>ce ai mâncat, cu valorile copiate în momentul notării</td></tr><tr><td><code>weight_entries</code></td><td>al fiecăruia</td><td>cântăririle, una pe zi</td></tr><tr><td><code>user_profiles</code></td><td>al fiecăruia</td><td>ținte, obiectiv, rețete favorite, excluderi, „îmi place”</td></tr><tr><td><code>users</code></td><td>—</td><td>conturile (Identity), plus <code>kitchen_id</code> și <code>archive_kitchen_id</code></td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Tabel</th><th>Al cui e</th><th>Ce ține</th></tr><tr><td><code>foods</code></td><td>baza generală sau o bucătărie</td><td>nume în română și engleză (<code>name_en</code>), valori la 100 g, note, motivul notei glicemice în ambele limbi (<code>grades_reason_en</code>), categorie, cod de bare, greutatea unei bucăți, bucătăria (<code>kitchen_id</code>: gol pentru baza generală)</td></tr><tr><td><code>recipes</code></td><td>bucătăria</td><td>rețeta principală: nume, preparare, timp, dificultate, ingrediente fără cantități (<code>uuid[]</code>)</td></tr><tr><td><code>recipe_variants</code></td><td>bucătăria</td><td>porții și ingrediente cu grame (<code>jsonb</code>)</td></tr><tr><td><code>meal_plans</code></td><td>bucătăria</td><td>o zi: mesele și ce e în fiecare (<code>jsonb</code>)</td></tr><tr><td><code>shopping_lists</code></td><td>bucătăria</td><td>planurile cu zile (<code>jsonb</code>), ce s-a bifat (<code>text[]</code>)</td></tr><tr><td><code>pantry_items</code></td><td>bucătăria</td><td>cămara: câte un rând pentru fiecare aliment din ea</td></tr><tr><td><code>kitchens</code></td><td>—</td><td>bucătăriile: id și proprietarul (<code>owner_id</code>)</td></tr><tr><td><code>kitchen_invites</code></td><td>—</td><td>invitațiile: token, bucătăria, expirarea, când a fost folosită</td></tr><tr><td><code>day_plans</code></td><td>al fiecăruia</td><td>ce plan ai ales pentru o zi și dacă e completă (<code>completed_at</code>)</td></tr><tr><td><code>journal_entries</code></td><td>al fiecăruia</td><td>ce ai mâncat, cu valorile copiate în momentul notării</td></tr><tr><td><code>weight_entries</code></td><td>al fiecăruia</td><td>cântăririle, una pe zi</td></tr><tr><td><code>user_profiles</code></td><td>al fiecăruia</td><td>ținte, obiectiv, rețete favorite, excluderi, „îmi place”</td></tr><tr><td><code>users</code></td><td>—</td><td>conturile (Identity), plus <code>kitchen_id</code>, <code>archive_kitchen_id</code>, <code>is_demo</code> (cont de probă) și <code>demo_expires_at</code> (când se șterge)</td></tr><tr><td><code>roles</code>, <code>user_roles</code></td><td>—</td><td>rolurile (Identity): un rând <code>admin</code> în <code>roles</code>; în <code>user_roles</code>, cine îl are</td></tr><tr><td><code>food_reports</code></td><td>—</td><td>greșelile raportate la alimentele din baza generală: alimentul, cine, mesajul (cel mult 500 de caractere), <code>resolved_at</code></td></tr><tr><td><code>ai_usage</code></td><td>—</td><td>câte cereri AI a făcut un cont într-o zi UTC: cheia (<code>user_id</code>, <code>day</code>), plus <code>count</code></td></tr></table></div>
+<p><code>kitchens</code>, <code>kitchen_invites</code>, <code>roles</code>, <code>user_roles</code>, <code>food_reports</code> și <code>ai_usage</code> nu se sincronizează cu telefoanele: le citește și le scrie doar API-ul.</p>
 
 <h3>De ce unele liste nu au tabel separat</h3><p>Ingredientele unei variante stau în coloana <code>ingredients</code>, de tip <code>jsonb</code>: JSON salvat de Postgres într-un format pe care îl citește repede.</p><pre><code>select name, ingredients from recipe_variants;
 
@@ -518,6 +526,9 @@ FROM (VALUES
     ('Castravete', 'Cucumber'),
     ...</code></pre>
 <p>Rândurile primesc și un <code>version</code> nou. Telefoanele cer doar <code>where version &gt; cursor</code>; fără <code>version</code> nou, schimbarea n-ar ajunge niciodată la ele. La fel fac <code>AddFoodReasonEn</code> (motivul în engleză) și <code>AddKitchens</code> (o bucătărie pentru fiecare cont, favoritele mutate în cămară). <code>AddKitchenOwner</code> completează proprietarul; tabelul <code>kitchens</code> nu se sincronizează, deci acolo nu e nevoie de <code>version</code>.</p>
+<p><code>AddAccountsAndRoles</code> adaugă <code>foods.kitchen_id</code>, <code>users.is_demo</code>, <code>users.demo_expires_at</code> și tabelele <code>food_reports</code> și <code>ai_usage</code>, apoi marchează confirmate toate conturile existente:</p>
+<pre><code>UPDATE users SET email_confirmed = true;</code></pre>
+<p>Alimentele existente rămân cu <code>kitchen_id</code> gol, deci în baza generală. Rândul <code>admin</code> din <code>roles</code> nu e în migrare: îl face API-ul la pornire, cu <code>AppRoles.EnsureAsync</code>.</p>
 
 <h3>Adaugi un câmp, pas cu pas</h3><ol><li>Adaugi proprietatea în <code>Data/Food.cs</code>, de exemplu <code>public double? SugarG { get; set; }</code>.</li><li>Din <code>api/MacroMate.Api</code>: <code>dotnet ef migrations add AddFoodSugar -o Data/Migrations</code>. În fișierul nou cauți <code>AddColumn&lt;double&gt;(name: "sugar_g", table: "foods", …)</code>.</li><li>Dacă are limite, adaugi regula în <code>SyncRules.cs</code>.</li><li><code>pnpm --dir web gen:api</code> regenerează tipurile TypeScript.</li><li>Pui câmpul în <code>food-draft.ts</code> și <code>food-form.tsx</code>.</li></ol>
 <h2 id="login"><span class="no">Capitolul 5</span>Login și securitate</h2>
@@ -547,16 +558,23 @@ FROM (VALUES
   T-&gt;&gt;A: GET /api/sync?since=0 (cu cookie)
   A--&gt;&gt;T: toate datele</code></pre></details>
 
+<p>Un cont făcut din pagina de login, care nu și-a deschis încă linkul de confirmare, primește 403 cu parola bună și 401 cu parola greșită. Răspunsul de la login spune și dacă ești admin sau cont de probă (<code>isAdmin</code>, <code>isDemo</code>).</p>
 <p class="cap">răspunsul la login, măsurat pe stack-ul de producție</p><pre><code>set-cookie: mm_auth=…; expires=…; path=/; secure; samesite=lax; httponly</code></pre>
 
 <div class="tablewrap"><table class=""><tr><th>Setare</th><th>Ce face</th><th>De ce</th></tr><tr><td><code>httponly</code></td><td>JavaScript-ul din pagină nu poate citi cookie-ul</td><td>un script străin ajuns în pagină nu poate fura sesiunea</td></tr><tr><td><code>secure</code></td><td>cookie-ul pleacă doar pe HTTPS</td><td>nu poate fi citit de pe o rețea Wi-Fi publică</td></tr><tr><td><code>samesite=lax</code></td><td>nu pleacă la cererile POST venite de pe alt site</td><td>un site străin nu poate face modificări în numele tău</td></tr><tr><td>90 de zile, prelungite la folosire</td><td><code>ExpireTimeSpan</code> + <code>SlidingExpiration</code></td><td>nu te loghezi des de pe telefon</td></tr></table></div>
 
-<ul><li><strong>De ce nu e nevoie de token anti-CSRF.</strong> Cu <code>samesite=lax</code>, cookie-ul nu pleacă la un POST venit de pe alt site. În plus, toate scrierile sunt JSON, iar un formular de pe alt site nu poate trimite JSON fără cererea „preflight” de CORS, la care API-ul nu răspunde.</li><li><strong>Cheile cookie-ului</strong> stau în <code>/data/keys</code>, pe volumul serverului. Fără ele, fiecare deploy ar deloga pe toată lumea. Cu aceleași chei se semnează și linkurile de resetare a parolei.</li><li><strong>Caddy primește HTTPS și trimite HTTP</strong> la API, cu <code>X-Forwarded-Proto: https</code>. <code>UseForwardedHeaders()</code> îl citește, iar API-ul pune <code>secure</code> pe cookie.</li><li><strong>Parola</strong> are minim 10 caractere. După 5 încercări greșite, contul se blochează 5 minute (429). Blocarea e pe cont, de oriunde ar veni încercările.</li><li><strong>Conturile</strong> nu au înregistrare publică. Primul se face pe server, cu <code>create-user</code>; restul, dintr-un link de invitație în bucătărie (o dată, 7 zile), care face contul direct în bucătăria celui care a invitat.</li><li><strong>Contul tău</strong>: schimbarea parolei și a emailului cer parola actuală; emailul nou se schimbă doar după linkul trimis pe el; „Am uitat parola” răspunde la fel și pentru un email fără cont; adresa din link vine din <code>Email:PublicUrl</code>, nu din headerul <code>Host</code>.</li></ul>
-<div class="tablewrap"><table class=""><tr><th>Date</th><th>Cine le vede</th><th>Unde e regula</th></tr><tr><td>alimente</td><td>toate conturile; le modifică autorul și bucătăria lui</td><td><code>FoodTable</code> din <code>SyncTables.cs</code></td></tr><tr><td>rețete, variante, planuri, liste, cămară</td><td>membrii bucătăriei</td><td><code>KitchenTable</code>: <code>kitchen_id</code> la scriere, <code>where KitchenId == …</code> la citire</td></tr><tr><td>jurnal, planul zilei, greutate, profil</td><td>doar proprietarul</td><td><code>PersonalTable</code>: <code>IsOwnedBy</code> la scriere, <code>where UserId == …</code> la citire</td></tr><tr><td>pozele</td><td>doar cine e logat</td><td><code>PhotoEndpoints.cs</code>: <code>RequireAuthorization()</code></td></tr></table></div>
+<ul><li><strong>De ce nu e nevoie de token anti-CSRF.</strong> Cu <code>samesite=lax</code>, cookie-ul nu pleacă la un POST venit de pe alt site. În plus, toate scrierile sunt JSON, iar un formular de pe alt site nu poate trimite JSON fără cererea „preflight” de CORS, la care API-ul nu răspunde.</li><li><strong>Cheile cookie-ului</strong> stau în <code>/data/keys</code>, pe volumul serverului. Fără ele, fiecare deploy ar deloga pe toată lumea. Cu aceleași chei se semnează și linkurile de resetare a parolei.</li><li><strong>Caddy primește HTTPS și trimite HTTP</strong> la API, cu <code>X-Forwarded-Proto: https</code>. <code>UseForwardedHeaders()</code> îl citește, iar API-ul pune <code>secure</code> pe cookie.</li><li><strong>Parola</strong> are minim 10 caractere. După 5 încercări greșite, contul se blochează 5 minute (429). Blocarea e pe cont, de oriunde ar veni încercările.</li><li><strong>Contul tău</strong>: schimbarea parolei și a emailului cer parola actuală; emailul nou se schimbă doar după linkul trimis pe el; „Am uitat parola” răspunde la fel și pentru un email fără cont; adresa din link vine din <code>Email:PublicUrl</code>, nu din headerul <code>Host</code>. Ștergerea contului cere parola actuală și șterge de tot datele tale de pe server; ultimul admin nu își poate șterge contul.</li></ul>
+<h3>Cum se face un cont</h3>
+<div class="tablewrap"><table class=""><tr><th>Felul</th><th>Endpoint sau comandă</th><th>Confirmat</th></tr><tr><td>din pagina de login, „Creează unul”</td><td><code>POST /api/auth/register</code></td><td>după linkul din email, în cel mult 2 ore</td></tr><tr><td>din invitația în bucătărie (o dată, 7 zile)</td><td><code>POST /api/invites/&lt;token&gt;/register</code></td><td>direct; contul intră în bucătăria celui care a invitat</td></tr><tr><td>pe server</td><td><code>create-user</code>; parola se tastează ascuns</td><td>direct</td></tr><tr><td>contul de probă, „Încearcă fără cont”</td><td><code>POST /api/auth/demo</code></td><td>direct; se șterge singur după 24 de ore</td></tr></table></div>
+<h3>Rolurile</h3>
+<p>ASP.NET Core Identity are și <strong>roluri</strong>: nume puse pe un cont, după care serverul decide ce are voie contul. MacroMate are un singur rol, <code>admin</code>, ținut în tabelele <code>roles</code> și <code>user_roles</code>. Un admin modifică baza generală de alimente, vede pagina Administrare și dă roluri. Primul admin se face pe server, cu <code>set-role</code>.</p>
+<p>Endpoint-urile <code>/api/admin/*</code> verifică rolul în bază la fiecare cerere, cu filtrul <code>AdminOnly</code>. Fără rol, răspund 403. Tot mecanismul e în <a href="#conturi">capitolul 15</a>.</p>
+<h3>Cine vede ce</h3>
+<div class="tablewrap"><table class=""><tr><th>Date</th><th>Cine le vede</th><th>Unde e regula</th></tr><tr><td>alimentele din baza generală</td><td>toate conturile; le modifică doar adminii</td><td><code>FoodTable</code> din <code>SyncTables.cs</code>; <code>KitchenId == null</code> la citire</td></tr><tr><td>alimentele unei bucătării</td><td>membrii bucătăriei; tot ei le modifică</td><td><code>FoodTable</code>; <code>KitchenId == …</code> la citire</td></tr><tr><td>lista de conturi (numele, pentru „adăugat de”)</td><td>membrii bucătăriei tale</td><td><code>SyncEndpoints.cs</code>: <code>where KitchenId == …</code></td></tr><tr><td>rețete, variante, planuri, liste, cămară</td><td>membrii bucătăriei</td><td><code>KitchenTable</code>: <code>kitchen_id</code> la scriere, <code>where KitchenId == …</code> la citire</td></tr><tr><td>jurnal, planul zilei, greutate, profil</td><td>doar proprietarul</td><td><code>PersonalTable</code>: <code>IsOwnedBy</code> la scriere, <code>where UserId == …</code> la citire</td></tr><tr><td>pozele</td><td>doar cine e logat</td><td><code>PhotoEndpoints.cs</code>: <code>RequireAuthorization()</code></td></tr><tr><td>pagina Administrare: conturile, rapoartele, cererea de alimente</td><td>doar adminii</td><td><code>AdminOnly</code> din <code>Features/Admin/AdminEndpoints.cs</code></td></tr></table></div>
 
 <h3>Limitarea cererilor</h3>
 <p>ASP.NET Core are un <strong>limitator de cereri</strong> inclus (rate limiter): o piesă prin care trec cererile și care numără câte a trimis fiecare client într-un interval. Peste limită, cererea e refuzată înainte să ajungă la endpoint. Blocarea de mai sus apără un cont; limitatorul apără serverul și tokenii DeepSeek.</p>
-<div class="tablewrap"><table class=""><tr><th>Politica</th><th>Se numără pentru</th><th>Limita</th><th>Pe ce</th></tr><tr><td><code>auth</code></td><td>fiecare adresă IP</td><td>10 cereri pe minut</td><td>login, „Am uitat parola”, resetarea, confirmarea emailului, schimbarea parolei și a emailului, toate <code>/api/invites/*</code></td></tr><tr><td><code>ai</code></td><td>fiecare cont logat</td><td>30 de cereri la 10 minute</td><td>toate <code>/api/ai/*</code></td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Politica</th><th>Se numără pentru</th><th>Limita</th><th>Pe ce</th></tr><tr><td><code>auth</code></td><td>fiecare adresă IP</td><td>10 cereri pe minut</td><td>login, „Am uitat parola”, resetarea, confirmarea emailului, schimbarea parolei și a emailului, toate <code>/api/invites/*</code>, contul nou, confirmarea și retrimiterea lui, contul de probă, ștergerea contului, „Raportează o greșeală”</td></tr><tr><td><code>ai</code></td><td>fiecare cont logat</td><td>30 de cereri la 10 minute</td><td>toate <code>/api/ai/*</code></td></tr></table></div>
 <pre class="mermaid">flowchart LR
   T[Telefonul] --&gt; C[Caddy]
   C --&gt;|X-Forwarded-For| F[UseForwardedHeaders]
@@ -584,10 +602,15 @@ Retry-After: 42
 { "status": 429, "detail": "Prea multe cereri. Încearcă din nou peste 1 min." }</code></pre>
 <p><code>Retry-After</code> spune în câte secunde se reia fereastra. Limitele se schimbă fără cod, cu <code>RateLimits__AuthPerMinute</code> (implicit 10) și <code>RateLimits__AiPerTenMinutes</code> (implicit 30). Testul <code>Too_many_auth_requests_from_one_address_get_429</code> trimite exact limita de cereri de la o adresă, verifică 429 la următoarea și faptul că altă adresă trece.</p>
 
+<h3>Limita zilnică la AI</h3>
+<p>Limitatorul numără în memorie, pe ferestre scurte. Cu înregistrarea publică, cineva și-ar putea face multe conturi și ar cheltui tokenii DeepSeek câte 30 la 10 minute pe fiecare. De aceea AI-ul are și o limită pe zi, numărată în Postgres, în tabelul <code>ai_usage</code>, de filtrul <code>AiQuotaFilter</code>:</p>
+<div class="tablewrap"><table class=""><tr><th>Cine</th><th>Cereri pe zi (ziua UTC)</th><th>Setare</th></tr><tr><td>un utilizator</td><td>20</td><td><code>RateLimits__AiPerUserPerDay</code></td></tr><tr><td>un cont de probă</td><td>5</td><td><code>RateLimits__AiPerDemoPerDay</code></td></tr><tr><td>toată aplicația</td><td>300</td><td><code>RateLimits__AiTotalPerDay</code></td></tr><tr><td>un admin</td><td>fără limită</td><td>—</td></tr></table></div>
+<p>Peste limită, răspunsul e 429. Mecanismul complet e în <a href="#conturi">capitolul 15</a>.</p>
+
 <div class="note"><p><strong>Cheia DeepSeek stă doar pe server</strong>: în <code>deploy/.env</code> în producție, în user-secrets pe laptop. Telefonul cere <code>/api/ai/…</code>, iar API-ul cheamă DeepSeek. Dacă cheia ar fi în telefon, oricine deschide DevTools ar putea s-o copieze.</p></div>
 
 <h2 id="ai"><span class="no">Capitolul 6</span>Alimente, scanare și AI</h2>
-<p>Un aliment nou intră pe unul din trei drumuri: scanezi codul de bare, faci o poză la etichetă sau îl scrii de mână. Toate ajung în același formular, unde verifici și salvezi. Alimentul intră în baza generală, pe care o văd toate conturile, și direct în cămara bucătăriei tale.</p>
+<p>Un aliment nou intră pe unul din trei drumuri: scanezi codul de bare, faci o poză la etichetă sau îl scrii de mână. Toate ajung în același formular, unde verifici și salvezi. Alimentul intră în <strong>bucătăria ta</strong>, unde îl văd doar membrii ei, și direct în cămară. Un admin are în plus bifa <strong>„Adaugă în baza generală”</strong>: așa alimentul îl văd toate conturile. Cine modifică ce aliment e în <a href="#conturi">capitolul 15</a>.</p>
 <pre class="mermaid">flowchart TD
   S[Scanezi codul] --&gt; L{E deja în telefon?}
   L --&gt;|da| F[Deschide fișa lui]
@@ -627,7 +650,7 @@ Retry-After: 42
   participant P as Postgres
   participant D as DeepSeek
   T-&gt;&gt;A: „desert cu mere”, cât mai ai azi
-  A-&gt;&gt;P: alimentele, cămara, profilul tău
+  A-&gt;&gt;P: alimentele tale, cămara, profilul
   A-&gt;&gt;A: scoate ce ai exclus
   A-&gt;&gt;D: cererea + lista numerotată de alimente
   D--&gt;&gt;A: rețeta, cu alimente după număr
@@ -640,14 +663,14 @@ Retry-After: 42
   participant P as Postgres
   participant D as DeepSeek
   T-&gt;&gt;A: „desert cu mere”, cât mai ai azi
-  A-&gt;&gt;P: alimentele, cămara, profilul tău
+  A-&gt;&gt;P: alimentele tale, cămara, profilul
   A-&gt;&gt;A: scoate ce ai exclus
   A-&gt;&gt;D: cererea + lista numerotată de alimente
   D--&gt;&gt;A: rețeta, cu alimente după număr
   A-&gt;&gt;A: verifică numerele, le face id-uri
   A--&gt;&gt;T: ciorna rețetei
   T-&gt;&gt;T: calculează valorile și notele</code></pre></details>
-<ul><li><strong>Alimentele pleacă numerotate (0, 1, 2…)</strong>, nu cu id-ul de 36 de caractere: AI-ul greșește mai rar un număr, iar API-ul aruncă numerele care nu există.</li><li><strong>Excluderile se aplică pe server</strong>: ce ai exclus nici nu ajunge la DeepSeek.</li><li><strong>Cămara are întâietate</strong>: alimentele din cămara bucătăriei tale au semnul <code>pantry</code>, iar promptul cere să le folosească întâi.</li><li><strong>Valorile le calculează aplicația</strong>, din alimentele din bază, nu le ia de la AI.</li><li><strong>Pașii vin fără numere</strong>: promptul cere un pas pe rând, fără numere, iar <code>recipeSteps</code> din <code>lib/recipes.ts</code> scoate numerele rămase. Altfel ar apărea „1. 1. Spală merele”.</li></ul>
+<ul><li><strong>Alimentele pleacă numerotate (0, 1, 2…)</strong>, nu cu id-ul de 36 de caractere: AI-ul greșește mai rar un număr, iar API-ul aruncă numerele care nu există.</li><li><strong>Doar alimentele pe care le vezi</strong>: din baza generală și din bucătăria ta. Alimentele altor bucătării nu ajung la DeepSeek.</li><li><strong>Excluderile se aplică pe server</strong>: ce ai exclus nici nu ajunge la DeepSeek.</li><li><strong>Cămara are întâietate</strong>: alimentele din cămara bucătăriei tale au semnul <code>pantry</code>, iar promptul cere să le folosească întâi.</li><li><strong>Valorile le calculează aplicația</strong>, din alimentele din bază, nu le ia de la AI.</li><li><strong>Pașii vin fără numere</strong>: promptul cere un pas pe rând, fără numere, iar <code>recipeSteps</code> din <code>lib/recipes.ts</code> scoate numerele rămase. Altfel ar apărea „1. 1. Spală merele”.</li></ul>
 
 <h3>Scanarea farfuriei</h3><p>Faci o poză la mâncare din antetul ecranului Azi (camera), iar aplicația propune ce să notezi. Codul e în <code>components/app/meal-scan.tsx</code> și <code>ScanMeal</code> din <code>AiEndpoints.cs</code>.</p>
 <pre class="mermaid">sequenceDiagram
@@ -656,7 +679,7 @@ Retry-After: 42
   participant P as Postgres
   participant D as DeepSeek
   T-&gt;&gt;A: POST /api/ai/meals/scan, poza
-  A-&gt;&gt;P: toate alimentele
+  A-&gt;&gt;P: baza generală + bucătăria ta
   A-&gt;&gt;D: poza + lista numerotată
   D--&gt;&gt;A: alimente găsite și estimate
   A-&gt;&gt;A: verifică numerele, limitează valorile
@@ -669,19 +692,21 @@ Retry-After: 42
   participant P as Postgres
   participant D as DeepSeek
   T-&gt;&gt;A: POST /api/ai/meals/scan, poza
-  A-&gt;&gt;P: toate alimentele
+  A-&gt;&gt;P: baza generală + bucătăria ta
   A-&gt;&gt;D: poza + lista numerotată
   D--&gt;&gt;A: alimente găsite și estimate
   A-&gt;&gt;A: verifică numerele, limitează valorile
   A--&gt;&gt;T: foods, estimated, note
   T-&gt;&gt;T: ecranul de verificare
   T-&gt;&gt;T: Adaugă la masă</code></pre></details>
-<ol><li>Telefonul micșorează poza la 1280 px și o trimite ca text (<code>data:image/jpeg;base64,…</code>).</li><li>API-ul trimite la DeepSeek poza și lista alimentelor din bază: număr, nume în română și engleză, categorie, valori la 100 g.</li><li>DeepSeek întoarce alimentele găsite în listă (număr și grame) și pe cele care nu sunt în listă (nume, grame, valori estimate pentru porție), plus o notă despre ce nu se vede: uleiul, untul, zahărul.</li><li>Ecranul de verificare: schimbi gramele cu + și −, scoți ce nu e bine, alegi masa, apeși <strong>„Adaugă la masă”</strong>.</li></ol>
+<ol><li>Telefonul micșorează poza la 1280 px și o trimite ca text (<code>data:image/jpeg;base64,…</code>).</li><li>API-ul trimite la DeepSeek poza și lista alimentelor din baza generală și din bucătăria ta: număr, nume în română și engleză, categorie, valori la 100 g.</li><li>DeepSeek întoarce alimentele găsite în listă (număr și grame) și pe cele care nu sunt în listă (nume, grame, valori estimate pentru porție), plus o notă despre ce nu se vede: uleiul, untul, zahărul.</li><li>Ecranul de verificare: schimbi gramele cu + și −, scoți ce nu e bine, alegi masa, apeși <strong>„Adaugă la masă”</strong>.</li></ol>
 <p><strong>Gramele în starea din bază.</strong> Valorile din bază sunt pentru alimentul cum îl cumperi: orezul, pastele, ovăzul și lintea uscate, carnea și peștele crude. De aceea DeepSeek întoarce <code>grams</code> (în starea din bază, pentru calcul) și <code>servedGrams</code> (cât se vede gătit; ecranul scrie „în farfurie ≈ 150 g gătit”).</p>
 <div class="tablewrap"><table class=""><tr><th>150 g de orez fiert, socotite…</th><th>Grame în calcul</th><th>kcal (orez uscat: 365 la 100 g)</th></tr><tr><td>greșit, ca orez uscat</td><td>150</td><td><span class="m kcal">548</span></td></tr><tr><td>corect, cam 55 g uscat</td><td>55</td><td><span class="m kcal">201</span></td></tr></table></div>
 <p><strong>Ce intră în jurnal.</strong> Un aliment găsit în bază intră cu <code>foodId</code>, iar valorile vin din bază. Unul <strong>estimat</strong> intră <strong>fără <code>foodId</code></strong>, cu valorile estimate salvate în intrare (<code>logEstimatedItem</code>), și apare cu eticheta „estimat”. Baza de alimente nu se umple cu ghiceli.</p>
 
-<div class="tablewrap"><table class=""><tr><th>Situație</th><th>Ce vezi</th><th>HTTP</th></tr><tr><td>nu e cheie pe server</td><td>„AI-ul nu e configurat: lipsește cheia DeepSeek pe server.”</td><td>503</td></tr><tr><td>DeepSeek dă eroare sau JSON greșit</td><td>mesajul de eroare; formularul rămâne cum era</td><td>502</td></tr><tr><td>peste 30 de cereri la 10 minute, pe cont</td><td>„Prea multe cereri. Încearcă din nou peste N min.”</td><td>429</td></tr><tr><td>ești offline</td><td>butoanele de AI sunt dezactivate</td><td>—</td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Situație</th><th>Ce vezi</th><th>HTTP</th></tr><tr><td>nu e cheie pe server</td><td>„AI-ul nu e configurat: lipsește cheia DeepSeek pe server.”</td><td>503</td></tr><tr><td>DeepSeek dă eroare sau JSON greșit</td><td>mesajul de eroare; formularul rămâne cum era</td><td>502</td></tr><tr><td>peste 30 de cereri la 10 minute, pe cont</td><td>„Prea multe cereri. Încearcă din nou peste N min.”</td><td>429</td></tr><tr><td>ai folosit cererile tale de azi</td><td>„Ai folosit cele 20 cereri AI de azi. Mâine poți din nou.” (5 la un cont de probă)</td><td>429</td></tr><tr><td>toată aplicația a folosit cererile de azi</td><td>„AI-ul a ajuns la limita de azi pentru toată aplicația. Încearcă mâine.”</td><td>429</td></tr><tr><td>ești offline</td><td>butoanele de AI sunt dezactivate</td><td>—</td></tr></table></div>
+
+<h3>Limita zilnică</h3><p>Pe lângă cele 30 de cereri la 10 minute pe cont, AI-ul are o limită pe zi, numărată în Postgres, în tabelul <code>ai_usage</code>, de filtrul <code>AiQuotaFilter</code> din <code>Features/Ai/AiQuota.cs</code>: 20 de cereri pentru un utilizator, 5 pentru un cont de probă, 300 pentru toată aplicația, fără limită pentru un admin. Contează completarea alimentului, rețeta generată și scanarea farfuriei. Ziua e ziua UTC. Cererea se numără înainte să ruleze endpoint-ul, deci și una respinsă apoi, de exemplu cu o poză prea mare.</p>
 
 <h2 id="calcule"><span class="no">Capitolul 7</span>Calculele</h2>
 <p>Toate calculele se fac în telefon, în TypeScript, ca să meargă offline: funcții simple din <code>web/src/lib/</code>, fiecare cu teste lângă ea. Exemplele folosesc datele reale din testul aplicației: varianta „Omletă cu spanac · 350 kcal” și „Plan B”.</p>
@@ -744,7 +769,7 @@ Retry-After: 42
 <div class="tablewrap"><table class=""><tr><th>Telefon</th><th>Instalarea</th><th>Scurtături</th></tr><tr><td>iPhone</td><td>Safari → Share → „Add to Home Screen”</td><td>nu există</td></tr><tr><td>Android</td><td>meniul Chrome → „Instalează aplicația”</td><td>ține degetul pe iconiță</td></tr></table></div>
 
 <h3>Ce merge offline și ce nu</h3>
-<div class="tablewrap"><table class=""><tr><th>Merge offline</th><th>Cere internet</th></tr><tr><td>Azi, jurnalul, copierea dintr-o zi, ziua completă</td><td>login-ul și „Contul tău”</td></tr><tr><td>alimente, cămara, rețete, planuri, cumpărături</td><td>secțiunea Bucătăria și pagina de invitație</td></tr><tr><td>căutarea și scannerul pentru alimente din telefon</td><td>un cod nou în Open Food Facts</td></tr><tr><td>Progresul și greutatea</td><td>DeepSeek: alimentul completat, rețeta, scanarea farfuriei</td></tr><tr><td>schimbarea limbii</td><td>„Am uitat parola” și linkurile din email</td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Merge offline</th><th>Cere internet</th></tr><tr><td>Azi, jurnalul, copierea dintr-o zi, ziua completă</td><td>login-ul și „Contul tău”</td></tr><tr><td>alimente, cămara, rețete, planuri, cumpărături</td><td>secțiunea Bucătăria și pagina de invitație</td></tr><tr><td>căutarea și scannerul pentru alimente din telefon</td><td>un cod nou în Open Food Facts</td></tr><tr><td>Progresul și greutatea</td><td>DeepSeek: alimentul completat, rețeta, scanarea farfuriei</td></tr><tr><td>schimbarea limbii</td><td>„Am uitat parola” și linkurile din email</td></tr><tr><td></td><td>contul nou, contul de probă, ștergerea contului</td></tr><tr><td></td><td>pagina Administrare și „Raportează o greșeală”</td></tr></table></div>
 <p>Ce faci offline intră în coadă și pleacă la server când revine internetul. Ce cere internet merge direct la API, fără coadă.</p>
 
 <div class="note"><p><strong>Cum am verificat.</strong> Browserul din aplicația Claude nu acceptă service worker-e, așa că am testat cu Chrome pornit fără interfață, pe build-ul de producție. Prima vizită a instalat service worker-ul și a pus în cache toate fișierele, cu scannerul. Cu Chrome offline, pagina de login s-a deschis din cache. După login, tot offline, s-au deschis Azi, Alimente și Cumpărături, cu datele din Dexie, iar iconița arăta „Offline”.</p></div>
@@ -848,9 +873,12 @@ RESEND_API_KEY=re_...</code></pre>
 </div></div>
 
 <div class="step"><div class="n">7</div><div class="b"><h3>Resend: emailurile</h3>
-<p><strong>Resend</strong> trimite emailuri la o cerere HTTP; API-ul îl cheamă la „Am uitat parola” și la schimbarea emailului. Trimite doar de pe un domeniu dovedit prin DNS: <strong>SPF</strong> (TXT cu serverele care au voie să trimită), <strong>DKIM</strong> (TXT cu cheia publică pentru semnătura emailului) și un <strong>MX</strong> pentru răspunsurile automate.</p>
-<ol><li>Pe resend.com îți faci cont.</li><li><strong>Domains → Add Domain</strong> → <code>macromate.exemplu.com</code> (regiunea din Europa, dacă te întreabă).</li><li>În Namecheap, <strong>Advanced DNS</strong>: TXT-urile la <strong>Host Records</strong>; MX-ul la <strong>Mail Settings → Custom MX</strong>. La Host scrii partea dinaintea domeniului: <code>resend._domainkey.macromate</code>, <code>send.macromate</code>. Valorile le copiezi exact din Resend.</li><li>În Resend: <strong>Verify DNS Records</strong>.</li><li><strong>API Keys → Create API Key</strong>, cu <strong>Sending access</strong>. Cheia (<code>re_…</code>) apare o dată; o pui în <code>.env</code>.</li></ol>
-<p class="look"><span>Caută</span> starea <strong>Verified</strong> la domeniu. Dacă folosești redirecționarea de email Namecheap pe domeniul principal, Custom MX o oprește. Fără cheie Resend, emailul ajunge doar în logurile API-ului (<code>Email to …</code>).</p>
+<p><strong>Resend</strong> trimite emailuri la o cerere HTTP; API-ul îl cheamă la „Am uitat parola”, la schimbarea emailului și la confirmarea unui cont nou. Planul gratuit trimite un număr limitat de emailuri pe zi și pe lună; limitele exacte sunt în panoul Resend. Trimite doar de pe un domeniu dovedit prin DNS:</p>
+<div class="tablewrap"><table class=""><tr><th>Type</th><th>Host în Namecheap</th><th>Ce e</th></tr><tr><td>TXT</td><td><code>resend._domainkey.macromate</code></td><td><strong>DKIM</strong>: cheia publică cu care serverul care primește verifică semnătura emailului</td></tr><tr><td>CNAME</td><td><code>send.macromate</code></td><td>spre serverele Resend: cine are voie să trimită (SPF) și unde se întorc emailurile care n-au ajuns</td></tr><tr><td>CNAME</td><td><code>rsend.macromate</code></td><td>la fel, pentru regiunea din Europa</td></tr><tr><td>TXT, opțional</td><td><code>_dmarc</code></td><td><strong>DMARC</strong>: <code>v=DMARC1; p=none;</code>, „nu bloca nimic, doar raportează”</td></tr></table></div>
+<p>Nu e nicio înregistrare MX, deci redirecționarea de email a domeniului principal rămâne neatinsă.</p>
+<ol><li>Pe resend.com îți faci cont.</li><li><strong>Domains → Add Domain</strong> → <code>macromate.exemplu.com</code>, regiunea Ireland. <strong>Tracking subdomain</strong> rămâne gol: un link rescris de Resend arată mai suspect pentru filtrele de spam. <strong>Enable Sending</strong> pornit, <strong>Enable Receiving</strong> oprit.</li><li>Resend arată valorile scurtate, cu <code>[…]</code>: le copiezi cu iconița de lângă fiecare, nu le tastezi.</li><li>În Namecheap, <strong>Advanced DNS → Host Records → Add New Record</strong>, pentru fiecare rând: tipul, Host-ul exact ca în Resend, valoarea copiată, bifa verde.</li><li>În Resend: <strong>I've already added the records</strong>.</li><li><strong>API Keys → Create API Key</strong>: <code>macromate-prod</code>, <strong>Sending access</strong>, domeniul tău. Cheia (<code>re_…</code>) apare o dată; o pui în <code>.env</code>, apoi <code>up -d</code>.</li></ol>
+<pre><code>dig +short @dns1.registrar-servers.com TXT resend._domainkey.macromate.exemplu.com</code></pre>
+<p class="look"><span>Caută</span> un text care începe cu <code>"p=MIGfMA</code>, are peste 200 de caractere și nu conține <code>…</code>; apoi, în Resend, starea <strong>Verified</strong> la domeniu. Fără cheie Resend, emailul ajunge doar în logurile API-ului (<code>Email to …</code>).</p>
 </div></div>
 
 <div class="step"><div class="n">8</div><div class="b"><h3>Pornirea</h3>
@@ -867,16 +895,20 @@ RESEND_API_KEY=re_...</code></pre>
 <p class="look"><span>Caută</span> <code>{"status":"ok"}</code>.</p>
 </div></div>
 
-<div class="step"><div class="n">9</div><div class="b"><h3>Primele conturi</h3>
-<p>Nu există înregistrare publică. Contul tău îl faci cu <code>create-user</code>:</p>
+<div class="step"><div class="n">9</div><div class="b"><h3>Primele conturi și rolul de admin</h3>
+<p>Un cont se face în patru feluri: cu <code>create-user</code> pe server, din pagina de login cu „Creează unul” și un link pe email, dintr-o invitație în bucătărie, sau cu „Încearcă fără cont” (cont de probă, șters după 24 de ore). Contul tău îl faci cu <code>create-user</code>:</p>
 <pre><code>docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll create-user --email adresa-ta@exemplu.com --name Florin</code></pre>
 <p class="look"><span>Caută</span> <code>Parola (minim 10 caractere):</code> → tastezi (nu apare nimic) → <code>Contul adresa-ta@exemplu.com a fost creat.</code></p>
-<p><code>exec</code> pornește o comandă nouă în containerul <code>api</code>. Programul rulează migrările, vede argumentul și nu mai pornește serverul web; contul primește o bucătărie nouă, cu tine proprietar.</p>
+<p><code>exec</code> pornește o comandă nouă în containerul <code>api</code>. Programul rulează migrările, vede argumentul și nu mai pornește serverul web; contul primește o bucătărie nouă, cu tine proprietar, și e confirmat direct, fără email.</p>
 <p class="cap">Program.cs</p><pre><code>if (AdminCommands.IsCommand(args))
     return await AdminCommands.RunAsync(app, args);</code></pre>
+<p>Îți dai rolul de <strong>admin</strong>. Fără el, nimeni nu poate modifica baza generală de alimente și nimeni nu vede pagina Administrare:</p>
+<pre><code>docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll set-role --email adresa-ta@exemplu.com --role admin</code></pre>
+<p class="look"><span>Caută</span> <code>Contul adresa-ta@exemplu.com are acum rolul admin.</code></p>
+<p><strong>Dacă serverul rula deja o versiune mai veche</strong>, rulezi comanda o dată, după primul deploy cu rolurile: migrarea <code>AddAccountsAndRoles</code> nu face pe nimeni admin. Apoi reîncarci aplicația: în Profil și în meniul din stânga apare „Administrare”.</p>
 <pre><code>docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll seed-foods --as adresa-ta@exemplu.com</code></pre>
 <p class="look"><span>Caută</span> <code>Am adăugat 75 alimente.</code> A doua rulare scrie <code>0</code>: id-urile se calculează din nume. Alimentele intră în baza generală; cămara pornește goală.</p>
-<p><strong>Prietena ta</strong> intră printr-o invitație: Profil → Bucătăria → <strong>Invită în bucătărie</strong> → <strong>Trimite</strong>. Linkul <code>https://macromate.exemplu.com/invite/&lt;token&gt;</code> merge o dată, 7 zile. Ea completează numele, un email real și o parolă de minim 10 caractere, iar contul se creează direct în bucătăria ta.</p>
+<p><strong>Prietena ta</strong> intră printr-o invitație: Profil → Bucătăria → <strong>Invită în bucătărie</strong> → <strong>Trimite</strong>. Linkul <code>https://macromate.exemplu.com/invite/&lt;token&gt;</code> merge o dată, 7 zile. Ea completează numele, un email real și o parolă de minim 10 caractere, iar contul se creează direct în bucătăria ta, confirmat, fără email.</p>
 </div></div>
 
 <div class="step"><div class="n">10</div><div class="b"><h3>Copia de rezervă a bazei</h3>
@@ -898,7 +930,7 @@ docker compose -f compose.prod.yaml start api</code></pre>
 </div></div>
 
 <div class="step"><div class="n">11</div><div class="b"><h3>Volumul app-data</h3>
-<p><code>app-data</code>, montat la <code>/data</code> în <code>api</code>, ține <code>/data/keys</code> (cheile <strong>Data Protection</strong>, cu care .NET criptează cookie-ul și semnează linkurile din emailuri) și <code>/data/photos</code>. Dacă se pierde: toți sunt delogați, linkurile de resetare trimise nu mai merg, pozele dispar.</p>
+<p><code>app-data</code>, montat la <code>/data</code> în <code>api</code>, ține <code>/data/keys</code> (cheile <strong>Data Protection</strong>, cu care .NET criptează cookie-ul și semnează linkurile din emailuri: resetarea parolei, schimbarea emailului, confirmarea contului nou) și <code>/data/photos</code>. Dacă se pierde: toți sunt delogați, linkurile de resetare trimise nu mai merg, pozele dispar.</p>
 <pre><code>docker volume ls</code></pre>
 <p class="look"><span>Caută</span> <code>deploy_app-data</code>, <code>deploy_db-data</code>, <code>deploy_caddy-data</code>, <code>deploy_caddy-config</code>.</p>
 <p><strong>Niciodată <code>docker compose down -v</code></strong>: <code>-v</code> șterge volumele. Pozele și cheile le salvezi separat:</p>
@@ -907,22 +939,24 @@ docker compose -f compose.prod.yaml start api</code></pre>
 </div></div>
 
 <div class="step"><div class="n">12</div><div class="b"><h3>Actualizările</h3>
-<pre><code>cd /opt/macromate &amp;&amp; git pull &amp;&amp; cd deploy &amp;&amp; docker compose -f compose.prod.yaml up -d --build</code></pre>
-<p class="look"><span>Caută</span> <code>Fast-forward</code> sau <code>Already up to date.</code>, apoi <code>Started</code>/<code>Running</code>.</p>
-<p>Migrările rulează singure la pornirea API-ului. Pe telefoane apare <strong>Actualizează</strong>. Imaginile vechi le ștergi cu <code>docker image prune -f</code> (Caută: <code>Total reclaimed space</code>). Dacă ai schimbat doar <code>.env</code>, ajunge <code>docker compose -f compose.prod.yaml up -d</code>.</p>
+<p>Codul nou ajunge singur pe server: la fiecare push pe <code>main</code>, GitHub Actions rulează testele și, dacă trec, <code>deploy/deploy.sh</code> pe server. Cum merge și cum îl configurezi: <a href="#cicd">capitolul 14</a>. De mână, pe server, același lucru:</p>
+<pre><code>/opt/macromate/deploy/deploy.sh</code></pre>
+<p class="look"><span>Caută</span> <code>Deploying …</code>, apoi <code>Deployed …</code>. Fără argument pune ultimul commit de pe <code>main</code>; cu id-ul complet al unui commit, pune commit-ul acela.</p>
+<p>Migrările rulează singure la pornirea API-ului. Pe telefoane apare <strong>Actualizează</strong>. <code>deploy.sh</code> șterge singur imaginile vechi. Dacă ai schimbat doar <code>.env</code>, ajunge <code>docker compose -f compose.prod.yaml up -d</code> (Caută: <code>Container deploy-api-1 Recreated</code> sau <code>Started</code>).</p>
 </div></div>
 
 <h3>Când ceva nu merge</h3>
-<div class="tablewrap"><table class=""><tr><th>Simptom</th><th>Te uiți la</th><th>Ce faci</th></tr><tr><td>certificatul nu se emite</td><td><code>… logs web</code>: <code>challenge failed</code>, <code>NXDOMAIN</code>, <code>timeout</code></td><td>DNS-ul nu arată încă spre server (<code>dig</code>) sau un firewall blochează 80/443; apoi <code>restart web</code></td></tr><tr><td>browserul arată 502</td><td><code>… ps</code> și <code>… logs api --tail 100</code></td><td>Caddy merge, API-ul nu răspunde; des: parola din <code>.env</code> schimbată după prima pornire</td></tr><tr><td>emailurile nu ajung</td><td>panoul Resend, la Emails; <code>… logs api</code></td><td>nimic în Resend: cheia lipsește (<code>Email to …</code> în log), <code>EMAIL_FROM</code> pe alt domeniu, domeniul nu e Verified; <code>Delivered</code>: spam</td></tr><tr><td>linkurile din email lipsesc</td><td><code>… exec api printenv Email__PublicUrl</code></td><td>trebuie <code>https://macromate.exemplu.com</code>; fără ea, logul scrie <code>Email:PublicUrl is not set</code></td></tr><tr><td>AI-ul spune „lipsește cheia DeepSeek”</td><td><code>deploy/.env</code></td><td><code>DEEPSEEK_API_KEY</code>, apoi <code>up -d</code></td></tr><tr><td>„Prea multe cereri” (429)</td><td>—</td><td>limita de cereri; aștepți</td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Simptom</th><th>Te uiți la</th><th>Ce faci</th></tr><tr><td>certificatul nu se emite</td><td><code>… logs web</code>: <code>challenge failed</code>, <code>NXDOMAIN</code>, <code>timeout</code></td><td>DNS-ul nu arată încă spre server (<code>dig</code>) sau un firewall blochează 80/443; apoi <code>restart web</code></td></tr><tr><td>browserul arată 502</td><td><code>… ps</code> și <code>… logs api --tail 100</code></td><td>Caddy merge, API-ul nu răspunde; des: parola din <code>.env</code> schimbată după prima pornire</td></tr><tr><td>emailurile nu ajung</td><td>panoul Resend, la Emails; <code>… logs api</code></td><td>nimic în Resend: cheia lipsește (<code>Email to …</code> în log), <code>EMAIL_FROM</code> pe alt domeniu, domeniul nu e Verified; <code>Delivered</code>: spam</td></tr><tr><td>linkurile din email lipsesc</td><td><code>… exec api printenv Email__PublicUrl</code></td><td>trebuie <code>https://macromate.exemplu.com</code>; fără ea, logul scrie <code>Email:PublicUrl is not set</code></td></tr><tr><td>AI-ul spune „lipsește cheia DeepSeek”</td><td><code>deploy/.env</code></td><td><code>DEEPSEEK_API_KEY</code>, apoi <code>up -d</code></td></tr><tr><td>„Prea multe cereri” (429)</td><td>—</td><td>limita de cereri; aștepți cel mult un minut la login, zece la AI</td></tr><tr><td>„Ai folosit cele 20 cereri AI de azi” sau „AI-ul a ajuns la limita de azi” (429)</td><td><code>… exec db psql -U macromate macromate -c "select sum(count) from ai_usage where day = (now() at time zone 'utc')::date;"</code></td><td>limita zilnică; se golește la miezul nopții UTC. O ridici cu <code>RateLimits__AiPerUserPerDay</code> sau <code>RateLimits__AiTotalPerDay</code></td></tr><tr><td>nu vezi „Administrare”</td><td><code>set-role</code> din pasul 9</td><td>după <code>Contul … are acum rolul admin.</code>, reîncarci aplicația</td></tr><tr><td>contul nou nu se face: „Trimiterea de emailuri nu e configurată pe server.”</td><td><code>… exec api printenv Email__PublicUrl</code></td><td>fără <code>Email__PublicUrl</code>, <code>/register</code> răspunde 503</td></tr></table></div>
 <h3>Lista de verificare</h3>
-<ul><li>SSH ca <code>ubuntu</code>, cu cheie; pachetele la zi; <code>unattended-upgrades</code> pornit.</li><li>ufw activ: 22/tcp, 80/tcp, 443/tcp, 443/udp; firewall-ul OVH oprit sau cu aceleași porturi.</li><li>Docker și <code>docker compose</code>; <code>ubuntu</code> în grupul <code>docker</code>.</li><li>DNS: A <code>macromate</code> → IPv4; AAAA doar dacă IPv6 merge.</li><li>Resend: domeniul Verified, cheie cu Sending access.</li><li><code>.env</code>: <code>DOMAIN</code>, <code>POSTGRES_PASSWORD</code>, <code>DEEPSEEK_API_KEY</code>, <code>EMAIL_FROM</code>, <code>RESEND_API_KEY</code>; <code>chmod 600</code>.</li><li><code>Email__PublicUrl</code> = <code>https://</code> + <code>DOMAIN</code>, pus de <code>compose.prod.yaml</code>.</li><li>Limitele: 10 cereri pe minut pe IP la login și cont, 30 la 10 minute pe cont la AI; se schimbă cu <code>RateLimits__AuthPerMinute</code> și <code>RateLimits__AiPerTenMinutes</code> în <code>compose.prod.yaml</code>.</li><li>Mediul .NET e <code>Production</code>: fără conturile de test, fără <code>/openapi</code>.</li><li>Trei containere <code>Up</code>, certificat emis, <code>/api/health</code> → ok.</li><li>Contul tău, alimentele de start, invitația pentru ea.</li><li>Copia zilnică în cron, copia pe laptop, arhiva <code>app-data</code>; niciodată <code>down -v</code>.</li></ul>
+<ul><li>SSH ca <code>ubuntu</code>, cu cheie; pachetele la zi; <code>unattended-upgrades</code> pornit.</li><li>ufw activ: 22/tcp, 80/tcp, 443/tcp, 443/udp; firewall-ul OVH oprit sau cu aceleași porturi.</li><li>Docker și <code>docker compose</code>; <code>ubuntu</code> în grupul <code>docker</code>.</li><li>DNS: A <code>macromate</code> → IPv4; AAAA doar dacă IPv6 merge.</li><li>Resend: domeniul Verified, cheie cu Sending access.</li><li><code>.env</code>: <code>DOMAIN</code>, <code>POSTGRES_PASSWORD</code>, <code>DEEPSEEK_API_KEY</code>, <code>EMAIL_FROM</code>, <code>RESEND_API_KEY</code>; <code>chmod 600</code>.</li><li><code>Email__PublicUrl</code> = <code>https://</code> + <code>DOMAIN</code>, pus de <code>compose.prod.yaml</code>.</li><li>Limitele, în <code>compose.prod.yaml</code> la <code>api</code> → <code>environment</code>, doar dacă vrei altele: <code>RateLimits__AuthPerMinute</code> (10 pe minut pe IP), <code>RateLimits__AiPerTenMinutes</code> (30 la 10 minute pe cont), <code>RateLimits__AiPerUserPerDay</code> (20 pe zi), <code>RateLimits__AiPerDemoPerDay</code> (5 pe zi), <code>RateLimits__AiTotalPerDay</code> (300 pe zi, toată aplicația), <code>RateLimits__DemoMaxActive</code> (200 de conturi de probă odată).</li><li>Mediul .NET e <code>Production</code>: fără conturile de test, fără <code>/openapi</code>.</li><li>Trei containere <code>Up</code>, certificat emis, <code>/api/health</code> → ok.</li><li>Contul tău (<code>create-user</code>), rolul tău de admin (<code>set-role --role admin</code>), alimentele de start (<code>seed-foods</code>), invitația pentru ea.</li><li>Pe un server care rula o versiune mai veche: după primul deploy cu rolurile, <code>set-role --email adresa-ta --role admin</code>.</li><li>Copia zilnică în cron, copia pe laptop, arhiva <code>app-data</code>; niciodată <code>down -v</code>.</li></ul>
 <div class="tablewrap"><table class=""><tr><th>Cost</th><th>Cât</th></tr><tr><td>OVH VPS-1</td><td>4,49 € + TVA pe lună, fără angajament</td></tr><tr><td>domeniu Namecheap</td><td>pe an</td></tr><tr><td>Resend</td><td>planul gratuit</td></tr><tr><td>DeepSeek</td><td>din tokenii pe care îi ai</td></tr></table></div>
 
 <h2 id="bucataria"><span class="no">Capitolul 10</span>Bucătăria comună</h2>
-<p><strong>Bucătăria</strong> e grupul de conturi care împart cămara, rețetele, planurile și listele de cumpărături. Fiecare cont e într-o singură bucătărie la un moment dat; un cont nou are bucătăria lui, goală.</p>
+<p><strong>Bucătăria</strong> e grupul de conturi care împart alimentele adăugate de ei, cămara, rețetele, planurile și listele de cumpărături. Fiecare cont e într-o singură bucătărie la un moment dat; un cont nou are bucătăria lui, goală.</p>
 <pre class="mermaid">flowchart TD
   G[Baza generală de alimente] --&gt;|Adaugă în cămară| C
   subgraph B[Bucătăria: a membrilor]
+    A[Alimentele bucătăriei]
     C[Cămara]
     R[Rețete și variante]
     P[Planuri]
@@ -933,6 +967,7 @@ docker compose -f compose.prod.yaml start api</code></pre>
 <details><summary>Codul Mermaid</summary><pre><code>flowchart TD
   G[Baza generală de alimente] --&gt;|Adaugă în cămară| C
   subgraph B[Bucătăria: a membrilor]
+    A[Alimentele bucătăriei]
     C[Cămara]
     R[Rețete și variante]
     P[Planuri]
@@ -940,9 +975,13 @@ docker compose -f compose.prod.yaml start api</code></pre>
   end
   F[Tu: jurnal, greutate, ținte] --&gt; B
   E[Ea: jurnal, greutate, ținte] --&gt; B</code></pre></details>
-<div class="tablewrap"><table class=""><tr><th>Tabel sau coloană</th><th>Ce ține</th></tr><tr><td><code>kitchens</code></td><td>id, <code>owner_id</code> (proprietarul)</td></tr><tr><td><code>users.kitchen_id</code></td><td>bucătăria în care e contul acum</td></tr><tr><td><code>users.archive_kitchen_id</code></td><td>arhiva contului, dacă are una</td></tr><tr><td><code>kitchen_invites</code></td><td>token, bucătăria, cine a invitat, expiră după 7 zile, <code>used_at</code></td></tr><tr><td><code>pantry_items</code></td><td>cămara: un rând pe aliment și bucătărie</td></tr><tr><td><code>kitchen_id</code> pe rețete, variante, planuri, liste</td><td>a cărei bucătării e rândul</td></tr></table></div>
-<p>La <code>GET /api/sync</code>, alimentele vin toate, iar tabelele de bucătărie doar cu <code>KitchenId == bucătăria ta</code>. La scriere, <code>KitchenTable</code> respinge cu <code>not-owner</code> un rând din altă bucătărie, iar <code>FoodTable</code> lasă un aliment să fie modificat doar de autor și de bucătăria lui.</p>
-<h3>Cămara</h3><p><strong>Cămara</strong> e lista de alimente pe care bucătăria le are de obicei acasă; a înlocuit favoritele. Un aliment nou intră direct în ea. La „Adaugă” e tabul Cămara (Recente, Cămara, Toate, Rețete), pagina Alimente o arată implicit, alternativele și DeepSeek o folosesc întâi. La trecerea pe modelul nou, favoritele au intrat în cămară.</p>
+<div class="tablewrap"><table class=""><tr><th>Tabel sau coloană</th><th>Ce ține</th></tr><tr><td><code>kitchens</code></td><td>id, <code>owner_id</code> (proprietarul)</td></tr><tr><td><code>users.kitchen_id</code></td><td>bucătăria în care e contul acum</td></tr><tr><td><code>users.archive_kitchen_id</code></td><td>arhiva contului, dacă are una</td></tr><tr><td><code>kitchen_invites</code></td><td>token, bucătăria, cine a invitat, expiră după 7 zile, <code>used_at</code></td></tr><tr><td><code>pantry_items</code></td><td>cămara: un rând pe aliment și bucătărie</td></tr><tr><td><code>kitchen_id</code> pe rețete, variante, planuri, liste</td><td>a cărei bucătării e rândul</td></tr><tr><td><code>foods.kitchen_id</code></td><td>gol: alimentul e în baza generală; altfel, bucătăria alimentului</td></tr></table></div>
+<p class="cap">SyncEndpoints.cs, la citire</p><pre><code>var foods = await db.Foods.AsNoTracking().Where(x =&gt; (x.KitchenId == null || x.KitchenId == kitchenId) &amp;&amp; x.Version &gt; since).ToListAsync(ct);
+var recipes = await db.Recipes.AsNoTracking().Where(x =&gt; x.KitchenId == kitchenId &amp;&amp; x.Version &gt; since).ToListAsync(ct);</code></pre>
+<p>Alimentele vin din baza generală și din bucătăria ta; rețetele, cămara și restul doar din bucătăria ta. Lista de conturi din răspuns, pentru „adăugat de …”, are doar membrii bucătăriei tale.</p>
+<div class="tablewrap"><table class=""><tr><th>Tabelul</th><th>Poți modifica un rând dacă…</th></tr><tr><td>alimente (<code>FoodTable</code>)</td><td>e în bucătăria ta; dacă e în baza generală, doar dacă ești admin</td></tr><tr><td>rețete, variante, planuri, liste, cămară (<code>KitchenTable</code>)</td><td>rândul e în bucătăria ta</td></tr><tr><td>jurnal, planul zilei, greutate, profil (<code>PersonalTable</code>)</td><td>rândul e al tău</td></tr></table></div>
+<p>Altfel, rândul e respins cu <code>not-owner</code>. Un rând nou primește automat bucătăria ta: ce trimite telefonul în <code>kitchenId</code> se ignoră. La alimente, o excepție: un admin poate lăsa <code>kitchenId</code> gol, ca alimentul să intre în baza generală (<a href="#conturi">capitolul 15</a>).</p>
+<h3>Cămara</h3><p><strong>Cămara</strong> e lista de alimente pe care bucătăria le are de obicei acasă; a înlocuit favoritele. Un aliment nou, scanat sau scris de tine, intră în bucătăria ta și direct în cămară. La „Adaugă” e tabul Cămara (Recente, Cămara, Toate, Rețete), pagina Alimente o arată implicit, alternativele și DeepSeek o folosesc întâi. La trecerea pe modelul nou, favoritele au intrat în cămară.</p>
 <p>Id-ul unui rând din cămară se calculează din bucătărie și aliment, la fel în telefon și pe server. <strong>SHA-256</strong> e o funcție care face din orice text un număr lung, mereu același pentru același text; din el se iau primii 16 octeți.</p>
 <div class="two">
 <div><p class="cap">TypeScript · lib/pantry.ts (fragment)</p><pre><code>export async function pantryItemId(kitchenId: string, foodId: string) {
@@ -992,7 +1031,7 @@ docker compose -f compose.prod.yaml start api</code></pre>
   A-&gt;&gt;P: contul ei intră în bucătărie
   A-&gt;&gt;P: token folosit</code></pre></details>
 <ol><li>Profil → Bucătăria → <strong>Invită în bucătărie</strong>. Tokenul are 24 de octeți aleatori, scriși ca text sigur pentru adrese.</li><li>Ea deschide <code>/invite/&lt;token&gt;</code> (<code>routes/invite.$token.tsx</code>) și vede „Te invită: Florin.”.</li><li><strong>Fără cont</strong>: nume, email, parolă → <code>POST /api/invites/&lt;token&gt;/register</code>; contul se creează direct în bucătăria ta. <strong>Logată</strong>: „Aduci și ce ai tu?” → <code>POST …/accept</code> cu <code>bringMine</code>.</li><li>Tokenul primește <code>used_at</code>; al doilea click primește 410, „Invitația nu mai e valabilă. Cere un link nou.”.</li></ol>
-<div class="tablewrap"><table class=""><tr><th>Alegerea</th><th>Ce se întâmplă cu ce avea ea</th></tr><tr><td><strong>Da, aduc tot</strong></td><td>rețetele, variantele, planurile și listele ei primesc <code>kitchen_id</code> = bucătăria ta; cămara ei se adaugă la a ta, fără dubluri</td></tr><tr><td><strong>Nu</strong></td><td>bucătăria ei veche devine <strong>arhiva</strong> ei (<code>archive_kitchen_id</code>), neatinsă</td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Alegerea</th><th>Ce se întâmplă cu ce avea ea</th></tr><tr><td><strong>Da, aduc tot</strong></td><td>alimentele, rețetele, variantele, planurile și listele ei primesc <code>kitchen_id</code> = bucătăria ta; cămara ei se adaugă la a ta, fără dubluri</td></tr><tr><td><strong>Nu</strong></td><td>bucătăria ei veche devine <strong>arhiva</strong> ei (<code>archive_kitchen_id</code>), neatinsă, cu alimentele ei cu tot</td></tr></table></div>
 <p><code>JoinAsync</code> face totul într-o singură scriere de sincronizare, cu lacăt și un singur <code>version</code>. Refuză cu 409 dacă e deja în bucătăria ta sau dacă bucătăria ei are și alți membri (întâi iese de acolo).</p>
 <h3>Telefonul după schimbare</h3>
 <p class="cap">web/src/db/sync.ts</p><pre><code>const knownKitchen = await getMeta('kitchenId')
@@ -1001,12 +1040,12 @@ if (knownKitchen &amp;&amp; knownKitchen !== response.kitchenId &amp;&amp; since
   await applyPull(await api.pull(0))
   return
 }</code></pre>
-<p>Răspunsul de la sincronizare conține <code>kitchenId</code>. Dacă diferă de cel din Dexie, telefonul golește tabelele de bucătărie, pune cursorul la 0 și cere tot din nou. Jurnalul și profilul rămân.</p>
-<h3>Plecarea, proprietarul, arhiva</h3><ul><li><strong>„Ieși din bucătărie”</strong> (doar când sunteți cel puțin doi): primești o bucătărie nouă, cu tine proprietar, cu o <strong>copie</strong> a tot, cu id-uri noi; planurile arată spre variantele copiate, iar jurnalul și planurile tale de zi trec pe copii. Bucătăria comună rămâne neschimbată la ceilalți.</li><li><strong>Proprietarul</strong> (<code>kitchens.owner_id</code>) e cine a creat bucătăria. Doar el vede <strong>„Scoate”</strong>; altcineva primește 403, „Doar proprietarul bucătăriei poate scoate membri.”. Un membru scos pățește ca la plecare. Dacă proprietarul pleacă, rolul trece la un membru rămas.</li><li><strong>Arhiva</strong> e o bucătărie fără membri, cu ce aveai înainte de „Nu”. După plecare apare „Aduci înapoi și ce aveai înainte?”; din Profil, <strong>„Adu tot înapoi”</strong> mută tot odată în bucătăria ta. Cine a invitat nu are arhivă.</li></ul>
+<p>Răspunsul de la sincronizare conține <code>kitchenId</code>. Dacă diferă de cel din Dexie, telefonul golește tabelele de bucătărie și alimentele (unele erau ale bucătăriei vechi), pune cursorul la 0 și cere tot din nou: bucătăria nouă și baza generală. Jurnalul și profilul rămân.</p>
+<h3>Plecarea, proprietarul, arhiva</h3><ul><li><strong>„Ieși din bucătărie”</strong> (doar când sunteți cel puțin doi): primești o bucătărie nouă, cu tine proprietar, cu o <strong>copie</strong> a tot (alimentele bucătăriei, rețete, variante, planuri, liste, cămară), cu id-uri noi. Rețetele arată spre alimentele copiate, planurile spre variantele copiate; jurnalul, planurile tale de zi și listele „îmi place” și „exclud” trec pe copii. Alimentele din baza generală nu se copiază: le vede oricum toată lumea. Bucătăria comună rămâne neschimbată la ceilalți.</li><li><strong>Proprietarul</strong> (<code>kitchens.owner_id</code>) e cine a creat bucătăria. Doar el vede <strong>„Scoate”</strong>; altcineva primește 403, „Doar proprietarul bucătăriei poate scoate membri.”. Un membru scos pățește ca la plecare. Dacă proprietarul pleacă sau își șterge contul, rolul trece la un membru rămas.</li><li><strong>Arhiva</strong> e o bucătărie fără membri, cu ce aveai înainte de „Nu”; Profilul arată ce e în ea, de exemplu „3 alimente, 2 rețete, 5 alimente în cămară”. După plecare apare „Aduci înapoi și ce aveai înainte?”; din Profil, <strong>„Adu tot înapoi”</strong> mută tot odată în bucătăria ta. Cine a invitat nu are arhivă.</li></ul>
 <p class="cap">KitchenService.RemoveMemberAsync</p><pre><code>if (!await db.Kitchens.AnyAsync(k =&gt; k.Id == kitchenId &amp;&amp; k.OwnerId == userId, ct))
     return new KitchenError(messages["OnlyOwnerCanRemove"], StatusCodes.Status403Forbidden);
 return await LeaveAsync(db, memberId, messages, ct);</code></pre>
-<div class="tablewrap"><table class=""><tr><th>Ce</th><th>Fișier</th></tr><tr><td>intrarea, plecarea, scoaterea, arhiva</td><td><code>Features/Kitchens/KitchenService.cs</code></td></tr><tr><td>endpoint-urile <code>/api/kitchen/*</code>, <code>/api/invites/*</code></td><td><code>Features/Kitchens/KitchenEndpoints.cs</code></td></tr><tr><td>tabelele</td><td><code>Data/Kitchen.cs</code>, <code>AppUser.cs</code></td></tr><tr><td>Profil → Bucătăria</td><td><code>components/app/kitchen-section.tsx</code></td></tr><tr><td>pagina de invitație</td><td><code>routes/invite.$token.tsx</code></td></tr><tr><td>intrarea și plecarea din telefon</td><td><code>db/kitchen.ts</code>, <code>db/sync.ts</code></td></tr><tr><td>testele</td><td><code>KitchenTests.cs</code></td></tr></table></div>
+<div class="tablewrap"><table class=""><tr><th>Ce</th><th>Fișier</th></tr><tr><td>intrarea, plecarea, scoaterea, arhiva</td><td><code>Features/Kitchens/KitchenService.cs</code></td></tr><tr><td>endpoint-urile <code>/api/kitchen/*</code>, <code>/api/invites/*</code></td><td><code>Features/Kitchens/KitchenEndpoints.cs</code></td></tr><tr><td>tabelele</td><td><code>Data/Kitchen.cs</code>, <code>AppUser.cs</code></td></tr><tr><td>Profil → Bucătăria</td><td><code>components/app/kitchen-section.tsx</code></td></tr><tr><td>pagina de invitație</td><td><code>routes/invite.$token.tsx</code></td></tr><tr><td>intrarea și plecarea din telefon</td><td><code>db/kitchen.ts</code>, <code>db/sync.ts</code></td></tr><tr><td>testele</td><td><code>KitchenTests.cs</code>; copierea alimentelor la plecare în <code>AccountsAndRolesTests.cs</code></td></tr></table></div>
 
 <h2 id="azi"><span class="no">Capitolul 11</span>Ecranul Azi</h2>
 <p><strong>Azi</strong> e ecranul principal: jurnalul zilei, grupat pe mese, lângă ținta ta. Codul e în <code>routes/_app/index.tsx</code>; citește doar din Dexie.</p>
@@ -1029,8 +1068,8 @@ return await LeaveAsync(db, memberId, messages, ct);</code></pre>
 <div class="tablewrap"><table class=""><tr><th>Ce</th><th>Calcul</th><th>Rezultat</th></tr><tr><td>greutatea</td><td>media pe 7 zile, sau cea din profil</td><td>85 kg</td></tr><tr><td>menținerea</td><td>(10 × 85 + 6,25 × 180 − 5 × 30 + 5) × 1,375</td><td>2516 kcal</td></tr><tr><td>diferența pe zi</td><td>1970 − 2516</td><td>−546 kcal</td></tr><tr><td>în 28 de zile</td><td>−546 × 28 / 7700</td><td>−2,0 kg</td></tr><tr><td>estimarea</td><td>85 − 2,0</td><td><strong>83,0 kg</strong></td></tr></table></div>
 
 <h2 id="cont"><span class="no">Capitolul 12</span>Contul și emailurile</h2>
-<p>În Profil, <strong>„Contul tău”</strong> schimbă numele (direct), emailul (cu parola actuală și un link pe adresa nouă) și parola (cu parola actuală). Pe login, <strong>„Ai uitat parola?”</strong> trimite un link pe email. Codul: <code>Features/Auth/AccountEndpoints.cs</code> și <code>components/app/account-section.tsx</code>.</p>
-<p>ASP.NET Core Identity are generatoare de <strong>tokenuri</strong>: texte semnate de server, care dovedesc că linkul vine de la el și e pentru contul acela. <code>AddDefaultTokenProviders()</code> le pornește; un token merge <strong>2 ore</strong> și e semnat cu cheile din <code>/data/keys</code>.</p>
+<p>În Profil, <strong>„Contul tău”</strong> schimbă numele (direct), emailul (cu parola actuală și un link pe adresa nouă) și parola (cu parola actuală), și <strong>șterge contul</strong> (cu parola actuală). Pe login sunt trei linkuri:</p><ul><li><strong>„Ai uitat parola?”</strong>: un link pe email, cu care îți faci o parolă nouă;</li><li><strong>„Nu ai cont? Creează unul”</strong>: contul nou, activat dintr-un link pe email;</li><li><strong>„Încearcă fără cont”</strong>: un cont de probă, care se șterge singur după 24 de ore.</li></ul><p>Codul: <code>Features/Auth/AccountEndpoints.cs</code>, <code>SignupEndpoints.cs</code> și <code>components/app/account-section.tsx</code>. Contul nou, contul de probă și ștergerea sunt pe larg în <a href="#conturi">capitolul 15</a>; aici sunt pe scurt.</p>
+<p>ASP.NET Core Identity are generatoare de <strong>tokenuri</strong>: texte semnate de server, care dovedesc că linkul vine de la el și e pentru contul acela. <code>AddDefaultTokenProviders()</code> le pornește; un token merge <strong>2 ore</strong> și e semnat cu cheile din <code>/data/keys</code>. Sunt trei feluri: de resetare a parolei, de schimbare a emailului și de confirmare a contului nou. Fiecare merge doar pentru treaba lui.</p>
 <p class="cap">Program.cs</p><pre><code>builder.Services.AddIdentityCore&lt;AppUser&gt;(...)
     .AddDefaultTokenProviders();
 builder.Services.Configure&lt;DataProtectionTokenProviderOptions&gt;(o =&gt; o.TokenLifespan = TimeSpan.FromHours(2));</code></pre>
@@ -1065,6 +1104,10 @@ builder.Services.Configure&lt;DataProtectionTokenProviderOptions&gt;(o =&gt; o.T
   A--&gt;&gt;T: 204, parola e schimbată</code></pre></details>
 <ol><li>Pe <code>/forgot-password</code> scrii emailul.</li><li>API-ul caută contul. Dacă nu există, răspunde 204 și nu trimite nimic; dacă există, trimite linkul și răspunde tot 204.</li><li>Aplicația arată același mesaj în ambele cazuri. Altfel, oricine ar putea afla ce adrese au cont: <strong>enumerarea conturilor</strong>. Testul <code>An_unknown_email_gets_the_same_answer_and_no_mail</code> verifică asta.</li><li>Pe <code>/reset-password</code> scrii parola nouă de două ori; API-ul o schimbă și scoate blocarea contului.</li></ol>
 <h3>Emailul și parola</h3><ul><li><strong>Emailul</strong>: <code>POST /api/auth/me/email</code> verifică parola actuală (5 greșeli = blocare 5 minute) și adresa nouă, apoi trimite linkul pe adresa nouă și răspunde 202. Adresa se schimbă abia la <code>/confirm-email</code>, din link.</li><li><strong>Parola</strong>: <code>POST /api/auth/me/password</code> cu parola actuală și cea nouă; greșită → 400, „Parola actuală nu e corectă.”. După schimbare primești un cookie nou și rămâi logat.</li></ul>
+<h3>Contul nou și emailul de confirmare</h3><ol><li>Pe <code>/register</code> scrii numele, emailul și parola → <code>POST /api/auth/register</code>.</li><li>API-ul face contul cu <code>EmailConfirmed = false</code>, cu bucătăria lui, și răspunde 202.</li><li>Trimite „Confirmă-ți contul MacroMate”, cu un link spre <code>/confirm-account?userId=…&amp;token=…</code>, valabil 2 ore.</li><li>Deschizi linkul; pagina trimite <code>POST /api/auth/confirm-account</code>, iar API-ul confirmă contul și te loghează.</li></ol>
+<p>Până deschizi linkul, login-ul cu parola bună răspunde 403: „Contul nu e confirmat încă. Deschide linkul din emailul de confirmare.” Cu parola greșită, 401, ca la orice cont. <strong>„Retrimite emailul”</strong> cere <code>POST /api/auth/resend-confirmation</code>, care răspunde mereu 204: nu spune dacă adresa are cont. Conturile din invitație, cu <code>create-user</code> sau de probă sunt confirmate direct.</p>
+<h3>Ștergerea contului</h3><p>Profil → Contul tău → <strong>„Șterge contul”</strong>, cu parola actuală → <code>POST /api/auth/me/delete</code>. API-ul șterge de tot datele tale; dacă erai singur în bucătărie, o șterge și pe ea, cu tot ce are. Dacă mai sunt membri, bucătăria rămâne la ei. Parola greșită: 400. Singurul admin: 409, „Ești singurul admin. Dă întâi rolul de admin altcuiva.”.</p>
+<h3>Contul de probă</h3><p>Nu are email adevărat (<code>demo-…@demo.invalid</code>) și nici o parolă pe care s-o știi. De aceea „Contul tău” nu arată Emailul și Parola, <code>POST /api/auth/me/email</code> și <code>/me/password</code> răspund 403, iar „Șterge contul” nu cere parola.</p>
 <h3>Cine trimite emailul</h3><p>API-ul cere interfața <code>IEmailSender</code>, adică lista de metode pe care o are orice trimițător de email. Două clase o au; alegerea se face la pornire:</p>
 <p class="cap">Program.cs</p><pre><code>if (string.IsNullOrWhiteSpace(builder.Configuration["Email:ResendApiKey"]))
     builder.Services.AddSingleton&lt;IEmailSender, LogEmailSender&gt;();
@@ -1075,8 +1118,8 @@ else
 <p class="cap">AccountEndpoints.Link</p><pre><code>var origin = !string.IsNullOrWhiteSpace(options.Value.PublicUrl)
     ? options.Value.PublicUrl.TrimEnd('/')
     : env.IsDevelopment() ? $"{http.Request.Scheme}://{http.Request.Host}" : null;</code></pre>
-<p>Cu <code>PublicUrl</code> setat, ia adresa de acolo. Pe laptop, o ia din headerul <code>Host</code> al cererii. În producție, fără <code>PublicUrl</code>, nu face linkul: „Am uitat parola” nu trimite nimic (și scrie în log), iar schimbarea emailului răspunde 503. Motivul: headerul <code>Host</code> îl scrie cine trimite cererea; un atacator ar putea cere resetarea parolei tale cu <code>Host: site-ul-lui.com</code>, iar linkul din emailul tău ar duce la el, cu tokenul tău. Pe server, <code>compose.prod.yaml</code> pune <code>Email__PublicUrl: https://${DOMAIN}</code>.</p>
-<p>Toate endpoint-urile contului sunt sub politica <code>auth</code> a limitatorului: 10 cereri pe minut de la aceeași adresă IP, pe toate împreună. Textele emailurilor sunt în <code>Messages.resx</code> și <code>Messages.en.resx</code>, în limba cererii.</p>
+<p>Cu <code>PublicUrl</code> setat, ia adresa de acolo. Pe laptop, o ia din headerul <code>Host</code> al cererii. În producție, fără <code>PublicUrl</code>, nu face linkul: „Am uitat parola” nu trimite nimic (și scrie în log), schimbarea emailului răspunde 503, iar contul nou din <code>/register</code> răspunde tot 503 și nu se face (fără link, nimeni nu l-ar putea activa). Motivul: headerul <code>Host</code> îl scrie cine trimite cererea; un atacator ar putea cere resetarea parolei tale cu <code>Host: site-ul-lui.com</code>, iar linkul din emailul tău ar duce la el, cu tokenul tău. Pe server, <code>compose.prod.yaml</code> pune <code>Email__PublicUrl: https://${DOMAIN}</code>.</p>
+<p>Toate endpoint-urile contului sunt sub politica <code>auth</code> a limitatorului: 10 cereri pe minut de la aceeași adresă IP, pe toate împreună, cu contul nou, confirmarea și retrimiterea lui, contul de probă și ștergerea contului. Textele emailurilor sunt în <code>Messages.resx</code> și <code>Messages.en.resx</code> (<code>ResetPasswordText</code>, <code>ChangeEmailText</code>, <code>ConfirmAccountText</code>), în limba cererii.</p>
 
 <h2 id="limbi"><span class="no">Capitolul 13</span>Română și engleză</h2>
 <p>Niciun text nu e scris direct în cod: textele stau în fișiere separate pe limbi, iar codul cere textul după o <strong>cheie</strong>, de exemplu <code>profile.kitchen.invite</code>. Mecanismul se numește <strong>i18n</strong> (internaționalizare; „18” sunt literele dintre „i” și „n”).</p>
@@ -1145,5 +1188,327 @@ else
 </div>
 <p>Erorile lui Identity (de exemplu parola prea scurtă) trec prin <code>LocalizedIdentityErrorDescriber</code>, care le ia din aceleași fișiere. DeepSeek scrie rețeta și scanarea farfuriei în limba cererii. <code>LocalizationTests.cs</code> verifică textele cu <code>en</code>, <code>ro</code> și fără header.</p>
 
-<hr><footer>MacroMate · ghid construit pe 2026-10-04 · sursa în <code>docs/ghid/</code>, specificația în <code>docs/spec.md</code>, bucătăria în <code>docs/bucataria.md</code></footer>
+
+<h2 id="cicd"><span class="no">Capitolul 14</span>CI/CD</h2>
+<p><strong>CI/CD</strong> e un program care rulează singur la fiecare push pe GitHub:</p>
+<ul><li><strong>CI</strong> (continuous integration): rulează testele, lint-ul și build-ul pe un calculator al GitHub-ului. Dacă ceva pică, ai un X roșu la commit.</li><li><strong>CD</strong> (continuous deployment): dacă totul a trecut și commit-ul e pe <code>main</code>, pune codul pe server.</li></ul>
+<p>Programul e <strong>GitHub Actions</strong>. Pașii lui sunt în <code>.github/workflows/ci-cd.yml</code>. Un fișier de felul ăsta se numește <strong>workflow</strong>, iar fiecare bloc din el se numește <strong>job</strong>.</p>
+<pre class="mermaid">flowchart LR
+  P[git push pe main] --&gt; A[job api: dotnet test]
+  P --&gt; W[job web: lint, test, build]
+  A --&gt; D{amândouă verzi?}
+  W --&gt; D
+  D --&gt;|nu| X[X roșu, nimic pe server]
+  D --&gt;|da| S[job deploy: ssh pe server]
+  S --&gt; SH[deploy.sh: checkout + compose up]
+  SH --&gt; H[verifică /api/health]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  P[git push pe main] --&gt; A[job api: dotnet test]
+  P --&gt; W[job web: lint, test, build]
+  A --&gt; D{amândouă verzi?}
+  W --&gt; D
+  D --&gt;|nu| X[X roșu, nimic pe server]
+  D --&gt;|da| S[job deploy: ssh pe server]
+  S --&gt; SH[deploy.sh: checkout + compose up]
+  SH --&gt; H[verifică /api/health]</code></pre></details>
+
+<h3>Ce rulează la fiecare push</h3>
+<div class="tablewrap"><table class=""><tr><th>Job</th><th>Ce face</th><th>Când</th></tr><tr><td><code>api</code></td><td>pornește un Postgres 18 lângă el și rulează <code>dotnet test api</code></td><td>la orice push și la orice pull request spre <code>main</code></td></tr><tr><td><code>web</code></td><td><code>pnpm install</code>, <code>pnpm lint</code>, <code>pnpm test</code>, <code>pnpm build</code> (cu <code>tsc -b</code>)</td><td>la fel</td></tr><tr><td><code>deploy</code></td><td>intră pe server cu SSH și rulează <code>deploy/deploy.sh</code></td><td>doar pe <code>main</code>, doar dacă <code>api</code> și <code>web</code> au trecut</td></tr></table></div>
+<p><code>api</code> și <code>web</code> rulează în paralel; <code>deploy</code> le așteaptă pe amândouă (<code>needs: [api, web]</code>). La un <strong>pull request</strong> rulează doar testele: vezi dacă ramura strică ceva înainte s-o unești în <code>main</code>.</p>
+
+<h3>Ce face deploy.sh pe server</h3>
+<pre class="mermaid">sequenceDiagram
+  participant G as GitHub Actions
+  participant S as Serverul
+  participant D as deploy.sh
+  participant C as Docker Compose
+  G-&gt;&gt;S: ssh cu cheia de deploy + id-ul commit-ului
+  S-&gt;&gt;D: rulează doar deploy.sh
+  D-&gt;&gt;D: git fetch, checkout pe commit
+  D-&gt;&gt;C: up -d --build
+  C--&gt;&gt;D: containerele refăcute
+  D-&gt;&gt;C: /api/health, de cel mult 30 de ori
+  D--&gt;&gt;G: Deployed sau eroare
+  G-&gt;&gt;G: verifică /api/health de pe internet</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant G as GitHub Actions
+  participant S as Serverul
+  participant D as deploy.sh
+  participant C as Docker Compose
+  G-&gt;&gt;S: ssh cu cheia de deploy + id-ul commit-ului
+  S-&gt;&gt;D: rulează doar deploy.sh
+  D-&gt;&gt;D: git fetch, checkout pe commit
+  D-&gt;&gt;C: up -d --build
+  C--&gt;&gt;D: containerele refăcute
+  D-&gt;&gt;C: /api/health, de cel mult 30 de ori
+  D--&gt;&gt;G: Deployed sau eroare
+  G-&gt;&gt;G: verifică /api/health de pe internet</code></pre></details>
+<p class="cap">deploy/deploy.sh (fragment)</p><pre><code>git fetch --quiet origin main
+git checkout --quiet --detach "$target"
+docker compose -f compose.prod.yaml up -d --build --remove-orphans</code></pre>
+<ol><li>Aduce de pe GitHub commit-urile noi.</li><li>Trece exact pe commit-ul care a trecut testele. GitHub îi trimite id-ul lui, cele 40 de caractere din <code>git log</code>. Dacă între timp ai mai dat un push, fiecare deploy pune commit-ul lui, în ordine.</li><li>Reconstruiește imaginile și reface containerele care s-au schimbat. Migrările bazei rulează singure la pornirea API-ului.</li><li>Întreabă API-ul <code>/api/health</code>, din containerul <code>web</code>, de cel mult 30 de ori, la 2 secunde. Dacă răspunde, șterge imaginile vechi și iese cu succes. Dacă nu, afișează ultimele 50 de rânduri din logurile API-ului și iese cu eroare, iar job-ul din GitHub devine roșu.</li></ol>
+<p>După <code>deploy.sh</code>, GitHub mai verifică o dată <code>https://macromate.developedbyflow.com/api/health</code>, de pe internet. Cât durează: 2–4 minute testele, apoi 1–3 minute build-ul pe server. Aplicația e oprită doar cât se reface containerul, câteva secunde.</p>
+
+<h3>Cheia de deploy: poate face un singur lucru</h3>
+<p>GitHub intră pe server cu o cheie SSH separată, făcută doar pentru el. Pe server, cheia e scrisă în <code>~/.ssh/authorized_keys</code> așa:</p>
+<pre><code>command="/opt/macromate/deploy/deploy.sh",restrict ssh-ed25519 AAAA… github-actions-deploy</code></pre>
+<ul><li><code>command="…"</code>: oricine intră cu cheia asta rulează doar <code>deploy.sh</code>, orice ar cere. Ce cere ajunge în <code>deploy.sh</code> ca <code>SSH_ORIGINAL_COMMAND</code>.</li><li><code>restrict</code>: fără terminal, fără redirecționări de porturi.</li><li><code>deploy.sh</code> acceptă doar un id de commit de 40 de caractere (<code>0-9a-f</code>). Orice altceva e refuzat cu <code>Expected a full commit id</code>.</li></ul>
+<div class="note"><p>Dacă cineva fură cheia din GitHub, tot ce poate face e să pună pe server un commit care există deja în repo. Cheia ta personală (<code>~/.ssh/id_ed25519</code>) rămâne neatinsă: cu ea intri tu, cu terminal, ca până acum.</p></div>
+
+<h3>Setările din GitHub</h3>
+<div class="tablewrap"><table class=""><tr><th>Nume</th><th>Fel</th><th>Ce e</th></tr><tr><td><code>DEPLOY_SSH_KEY</code></td><td>secret</td><td>partea privată a cheii de deploy</td></tr><tr><td><code>DEPLOY_KNOWN_HOSTS</code></td><td>secret</td><td>amprenta serverului, ca GitHub să știe că vorbește cu serverul tău și nu cu altul</td></tr><tr><td><code>DEPLOY_HOST</code></td><td>variabilă</td><td>IP-ul serverului</td></tr></table></div>
+<p>Un <strong>secret</strong> nu se mai poate citi după ce l-ai salvat, nici de tine; GitHub îl ascunde și din loguri. O <strong>variabilă</strong> se vede. Cât timp <code>DEPLOY_HOST</code> nu e setată, job-ul <code>deploy</code> e sărit (<code>skipped</code>), iar testele rulează în continuare.</p>
+
+<h3>Configurarea, o singură dată</h3>
+<p>Serverul e VPS-ul OVH de la <code>57.131.199.95</code>, cu utilizatorul <code>ubuntu</code>. Toate comenzile sunt pe <strong>laptop</strong>, în afară de cea marcată „pe server”.</p>
+<div class="step"><div class="n">1</div><div class="b"><h3>Cheia de deploy</h3>
+<p>Fără parolă: GitHub n-are cine s-o tasteze.</p>
+<pre><code>ssh-keygen -t ed25519 -f ~/.ssh/macromate_deploy -N "" -C "github-actions-deploy"</code></pre>
+<p class="look"><span>Caută</span> <code>Your identification has been saved in …/macromate_deploy</code>.</p></div></div>
+<div class="step"><div class="n">2</div><div class="b"><h3>Partea publică pe server</h3>
+<pre><code>ssh ubuntu@57.131.199.95 "echo 'command=\"/opt/macromate/deploy/deploy.sh\",restrict $(cat ~/.ssh/macromate_deploy.pub)' &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; tail -1 ~/.ssh/authorized_keys"</code></pre>
+<p class="look"><span>Caută</span> un rând care începe cu <code>command="/opt/macromate/deploy/deploy.sh",restrict ssh-ed25519</code> și se termină cu <code>github-actions-deploy</code>.</p></div></div>
+<div class="step"><div class="n">3</div><div class="b"><h3>Pe server: commit-ul cu deploy.sh</h3>
+<pre><code>cd /opt/macromate &amp;&amp; git pull</code></pre>
+<p class="look"><span>Caută</span> <code>deploy/deploy.sh</code> în lista de fișiere noi.</p></div></div>
+<div class="step"><div class="n">4</div><div class="b"><h3>Încerci cheia, ca GitHub</h3>
+<pre><code>ssh -i ~/.ssh/macromate_deploy -o IdentitiesOnly=yes ubuntu@57.131.199.95</code></pre>
+<p class="look"><span>Caută</span> <code>Deploying …</code>, mesajele lui compose, apoi <code>Deployed …</code>. Conexiunea se închide singură.</p></div></div>
+<div class="step"><div class="n">5</div><div class="b"><h3>GitHub CLI</h3>
+<pre><code>gh auth login</code></pre>
+<p>Dacă n-ai făcut-o deja: alegi <code>GitHub.com</code>, <code>HTTPS</code>, apoi <code>Login with a web browser</code>.</p></div></div>
+<div class="step"><div class="n">6</div><div class="b"><h3>Cele trei setări</h3>
+<pre><code>gh secret set DEPLOY_SSH_KEY --repo developedbyflow/macro-mate &lt; ~/.ssh/macromate_deploy</code></pre>
+<pre><code>ssh-keyscan -t ed25519 57.131.199.95 | gh secret set DEPLOY_KNOWN_HOSTS --repo developedbyflow/macro-mate</code></pre>
+<pre><code>gh variable set DEPLOY_HOST --repo developedbyflow/macro-mate --body 57.131.199.95</code></pre>
+<p class="look"><span>Caută</span> <code>✓ Set Actions secret …</code> și <code>✓ Created variable DEPLOY_HOST</code>.</p></div></div>
+<div class="step"><div class="n">7</div><div class="b"><h3>Ștergi cheia privată de pe laptop</h3>
+<p>Acum e în GitHub; pe laptop nu-ți mai trebuie.</p>
+<pre><code>rm ~/.ssh/macromate_deploy</code></pre></div></div>
+<div class="step"><div class="n">8</div><div class="b"><h3>Prima rulare, de mână</h3>
+<pre><code>gh workflow run ci-cd.yml --repo developedbyflow/macro-mate &amp;&amp; sleep 5 &amp;&amp; gh run watch --repo developedbyflow/macro-mate</code></pre>
+<p class="look"><span>Caută</span> <code>✓ API tests</code>, <code>✓ Web lint, tests and build</code>, <code>✓ Deploy to production</code>.</p></div></div>
+
+<h3>Unde te uiți</h3>
+<ul><li>Pe GitHub, tab-ul <strong>Actions</strong>: fiecare rulare, cu pașii și logurile lor.</li><li>La fiecare commit, lângă mesaj: o bifă verde sau un X roșu.</li><li>Pe pagina repo-ului, în dreapta, <strong>Deployments → production</strong>: ce commit e acum pe server.</li><li>În terminal: <code>gh run list --repo developedbyflow/macro-mate</code>.</li></ul>
+
+<h3>Când ceva nu merge</h3>
+<div class="tablewrap"><table class=""><tr><th>Simptom</th><th>Te uiți la</th><th>Ce faci</th></tr><tr><td>X roșu la <code>API tests</code> sau <code>Web lint, tests and build</code></td><td>logul job-ului, în Actions</td><td>repari pe laptop, rulezi <code>dotnet test api</code> și <code>pnpm --dir web test</code>, dai push din nou. Pe server nu s-a schimbat nimic</td></tr><tr><td><code>Permission denied (publickey)</code> la deploy</td><td>rândul din <code>authorized_keys</code>, secretul <code>DEPLOY_SSH_KEY</code></td><td>repeți pașii 1, 2 și 6 cu o cheie nouă</td></tr><tr><td><code>Host key verification failed</code></td><td>secretul <code>DEPLOY_KNOWN_HOSTS</code></td><td>apare după o reinstalare a serverului: rulezi iar <code>ssh-keyscan</code> din pasul 6</td></tr><tr><td><code>The API did not answer /api/health</code></td><td>ultimele rânduri din logul job-ului (logurile API-ului)</td><td>des: o migrare care pică. Repari și dai push, sau revii la commit-ul vechi</td></tr><tr><td><code>deploy</code> apare <code>skipped</code></td><td>variabila <code>DEPLOY_HOST</code></td><td><code>gh variable list --repo developedbyflow/macro-mate</code></td></tr></table></div>
+
+<h3>Revii la o versiune veche</h3>
+<p>Pe server, cu id-ul complet al commit-ului bun (din <code>git log</code> sau din GitHub):</p>
+<pre><code>/opt/macromate/deploy/deploy.sh ID_COMMIT_COMPLET</code></pre>
+<p class="look"><span>Caută</span> <code>Deploying …</code>, apoi <code>Deployed …</code>.</p>
+<p>Fără argument, <code>deploy.sh</code> pune ultimul commit de pe <code>main</code>. O migrare deja rulată nu se anulează la revenire: codul vechi trebuie să meargă cu baza nouă.</p>
+
+<h2 id="conturi"><span class="no">Capitolul 15</span>Conturi, roluri și contul de probă</h2>
+<p>Până acum, un cont se făcea doar cu <code>create-user</code> pe server sau dintr-o invitație. Acum aplicația are:</p>
+<ul><li><strong>contul nou din pagina de login</strong>, cu un email de confirmare;</li><li><strong>rolul de admin</strong>, care modifică baza generală de alimente;</li><li><strong>alimentele bucătăriei</strong>: ce adaugă un utilizator rămâne în bucătăria lui;</li><li>pagina <strong>Administrare</strong>, cu cererea de alimente, rapoartele și rolurile;</li><li><strong>„Raportează o greșeală”</strong> la alimentele din baza generală;</li><li>o <strong>limită zilnică la AI</strong>, pe cont și pe toată aplicația;</li><li><strong>ștergerea contului</strong>, din Profil;</li><li><strong>contul de probă</strong>: „Încearcă fără cont”.</li></ul>
+<p>Codul nou e în <code>Features/Auth/SignupEndpoints.cs</code>, <code>Features/Admin/AdminEndpoints.cs</code> și <code>Features/Ai/AiQuota.cs</code>. Tabelele noi vin din migrarea <code>AddAccountsAndRoles</code>.</p>
+
+<h3>Contul nou</h3>
+<p>Pe login e linkul <strong>„Nu ai cont? Creează unul”</strong>. Duce la <code>/register</code>, unde scrii numele, emailul și o parolă de minim 10 caractere.</p>
+<pre class="mermaid">sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant R as Resend
+  participant M as Emailul tău
+  T-&gt;&gt;A: POST /api/auth/register
+  A-&gt;&gt;A: cont neconfirmat + bucătărie nouă
+  A-&gt;&gt;A: token de confirmare, 2 ore
+  A-&gt;&gt;R: emailul cu linkul
+  A--&gt;&gt;T: 202
+  R-&gt;&gt;M: Confirmă-ți contul MacroMate
+  M-&gt;&gt;T: deschizi /confirm-account
+  T-&gt;&gt;A: POST /api/auth/confirm-account
+  A-&gt;&gt;A: verifică tokenul, confirmă contul
+  A--&gt;&gt;T: cookie, ești logat</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant R as Resend
+  participant M as Emailul tău
+  T-&gt;&gt;A: POST /api/auth/register
+  A-&gt;&gt;A: cont neconfirmat + bucătărie nouă
+  A-&gt;&gt;A: token de confirmare, 2 ore
+  A-&gt;&gt;R: emailul cu linkul
+  A--&gt;&gt;T: 202
+  R-&gt;&gt;M: Confirmă-ți contul MacroMate
+  M-&gt;&gt;T: deschizi /confirm-account
+  T-&gt;&gt;A: POST /api/auth/confirm-account
+  A-&gt;&gt;A: verifică tokenul, confirmă contul
+  A--&gt;&gt;T: cookie, ești logat</code></pre></details>
+<ol><li>API-ul verifică numele (1–60 de caractere), emailul și faptul că adresa nu are deja cont.</li><li>Face contul cu <code>EmailConfirmed = false</code> și o <strong>bucătărie nouă</strong>, a lui. Răspunde 202: contul există, dar nu merge încă.</li><li>Trimite un link spre <code>/confirm-account?userId=…&amp;token=…</code>, valabil <strong>2 ore</strong>. Tokenul îl face Identity, cu <code>GenerateEmailConfirmationTokenAsync</code>, semnat cu cheile din <code>/data/keys</code>.</li><li>Deschizi linkul; pagina trimite singură <code>POST /api/auth/confirm-account</code>. <code>ConfirmEmailAsync</code> verifică tokenul de fiecare dată; fără un token bun, răspunsul e 400 și nu te loghează. Linkul deschis a doua oară, în cele 2 ore, merge din nou.</li></ol>
+<div class="tablewrap"><table class=""><tr><th>Răspuns la register</th><th>Când</th></tr><tr><td>202</td><td>contul e făcut, emailul a plecat</td></tr><tr><td>400</td><td>numele, emailul sau parola nu trec. Ex.: „Scrie un nume de cel mult 60 de caractere.”</td></tr><tr><td>409</td><td>adresa are deja cont: „Există deja un cont cu adresa asta.”</td></tr><tr><td>503</td><td>în producție, fără <code>Email:PublicUrl</code>: „Trimiterea de emailuri nu e configurată pe server.” Contul nu se face</td></tr></table></div>
+<p>La 409, API-ul spune că adresa are deja cont. „Am uitat parola” nu spune asta niciodată.</p>
+<p><strong>Login-ul unui cont neconfirmat</strong>, în <code>AuthEndpoints.cs</code>, înainte de verificarea obișnuită:</p>
+<pre><code>if (!user.EmailConfirmed)
+    return await users.CheckPasswordAsync(user, request.Password)
+        ? Results.Problem(messages["EmailNotConfirmed"], statusCode: StatusCodes.Status403Forbidden)
+        : Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);</code></pre>
+<ul><li>Parola bună: 403, „Contul nu e confirmat încă. Deschide linkul din emailul de confirmare.” Sub mesaj apare <strong>„Retrimite emailul de confirmare”</strong>.</li><li>Parola greșită: 401, „Email sau parolă greșită.”, ca la orice cont. Cine nu știe parola nu află dacă un cont e confirmat.</li><li><strong>Retrimiterea</strong>: <code>POST /api/auth/resend-confirmation</code> răspunde mereu 204 și trimite emailul doar dacă adresa are un cont neconfirmat.</li></ul>
+<div class="tablewrap"><table class=""><tr><th>Cum se face contul</th><th>Confirmat</th></tr><tr><td>din pagina de login (<code>/register</code>)</td><td>după link</td></tr><tr><td>din invitația în bucătărie</td><td>direct</td></tr><tr><td>cu <code>create-user</code> pe server</td><td>direct</td></tr><tr><td>conturile de test de pe laptop (<code>DevSeed</code>)</td><td>direct</td></tr><tr><td>contul de probă</td><td>direct</td></tr></table></div>
+<p>Toate trec prin <code>KitchenService.CreateUserAsync</code>, care primește acum <code>emailConfirmed</code>. Migrarea <code>AddAccountsAndRoles</code> a marcat confirmate toate conturile vechi (<code>UPDATE users SET email_confirmed = true;</code>).</p>
+
+<h3>Rolurile: user și admin</h3>
+<p>Un <strong>rol</strong> e un nume pus pe un cont, după care serverul decide ce are voie contul să facă. ASP.NET Core Identity are rolurile incluse; le pornește <code>.AddRoles&lt;IdentityRole&lt;Guid&gt;&gt;()</code> din <code>Program.cs</code>. MacroMate are un singur rol, <code>admin</code>. Un cont fără rol e un utilizator obișnuit: „user” nu e un rând în bază, e lipsa rolului.</p>
+<div class="tablewrap"><table class=""><tr><th>Tabel</th><th>Ce ține</th></tr><tr><td><code>roles</code></td><td>rolurile: un rând, <code>admin</code></td></tr><tr><td><code>user_roles</code></td><td>perechi cont–rol: cine e admin</td></tr></table></div>
+<p>Tabelele existau din prima migrare, dar erau goale. Rândul <code>admin</code> îl face API-ul la fiecare pornire, dacă lipsește:</p>
+<p class="cap">Data/AppRoles.cs</p><pre><code>public static async Task EnsureAsync(RoleManager&lt;IdentityRole&lt;Guid&gt;&gt; roles)
+{
+    if (!await roles.RoleExistsAsync(Admin))
+        await roles.CreateAsync(new IdentityRole&lt;Guid&gt;(Admin) { Id = Guid.NewGuid() });
+}</code></pre>
+<div class="two">
+<div><p class="cap">Un admin, în plus</p><ul><li>modifică și șterge alimentele din baza generală;</li><li>adaugă alimente direct în baza generală;</li><li>deschide pagina Administrare (<code>/admin</code>);</li><li>dă și ia rolul de admin;</li><li>nu are limită zilnică la AI.</li></ul></div>
+<div><p class="cap">Un admin, nu</p><ul><li>nu vede rețetele, planurile sau jurnalul altor conturi;</li><li>nu modifică alimentele altor bucătării.</li></ul></div>
+</div>
+<p><strong>Cum află telefonul rolul.</strong> Răspunsul de la login și de la <code>GET /api/auth/me</code> (<code>MeResponse</code>) are trei câmpuri noi: <code>isAdmin</code>, <code>isDemo</code>, <code>demoExpiresAt</code>. Telefonul îl ține în Dexie, iar ecranele ascund butoanele pe care contul nu le poate folosi.</p>
+<p>Serverul nu se bazează pe ce ascunde telefonul. Un <strong>filtru de endpoint</strong> (<code>IEndpointFilter</code>) e o funcție care rulează înaintea endpoint-ului și poate opri cererea. Endpoint-urile <code>/api/admin/*</code> trec prin unul care verifică rolul în bază la fiecare cerere:</p>
+<pre><code>public sealed class AdminOnly(AppDbContext db, CurrentUser me) : IEndpointFilter
+{
+    public async ValueTask&lt;object?&gt; InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next) =&gt;
+        await AppRoles.IsAdminAsync(db, me.Id, context.HttpContext.RequestAborted) ? await next(context) : Results.StatusCode(StatusCodes.Status403Forbidden);
+}</code></pre>
+
+<h3>Cum dai rolul</h3>
+<div class="step"><div class="n">1</div><div class="b"><h3>Primul admin, pe server</h3>
+<p>După primul deploy cu versiunea asta, nimeni nu e admin. Îți dai rolul:</p>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll set-role --email adresa-ta@exemplu.com --role admin</code></pre>
+<p class="look"><span>Caută</span> <code>Contul adresa-ta@exemplu.com are acum rolul admin.</code> Dacă scrie <code>Nu există contul …</code>, adresa e greșită.</p>
+<p>Comanda e programul API-ului cu <code>set-role</code> ca prim argument, ca <code>create-user</code> și <code>seed-foods</code> (<code>Admin/AdminCommands.cs</code>). Reîncarci aplicația: ea cere <code>GET /api/auth/me</code>, primește <code>isAdmin: true</code> și arată „Administrare”.</p></div></div>
+<div class="step"><div class="n">2</div><div class="b"><h3>Iei rolul cuiva</h3>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll set-role --email adresa@exemplu.com --role user</code></pre>
+<p class="look"><span>Caută</span> <code>Contul adresa@exemplu.com are acum rolul user.</code></p></div></div>
+<div class="step"><div class="n">3</div><div class="b"><h3>Vezi cine e admin</h3>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml exec db psql -U macromate macromate -c "select u.email from users u join user_roles ur on ur.user_id = u.id join roles r on r.id = ur.role_id where r.name = 'admin';"</code></pre>
+<p class="look"><span>Caută</span> adresa ta în coloana <code>email</code>, apoi <code>(1 row)</code>.</p></div></div>
+<ul><li><strong>Din aplicație</strong>, după ce ești admin: Administrare → <strong>Utilizatori</strong>, bifa <strong>Admin</strong> lângă fiecare cont. Lista nu arată conturile de probă; lângă un cont care nu și-a deschis linkul scrie „neconfirmat”.</li><li><strong>Ultimul admin rămâne admin.</strong> Dacă ești singurul și îți scoți bifa: 409, „Ești singurul admin. Dă întâi rolul de admin altcuiva.” Aceeași regulă oprește ștergerea contului și <code>set-role --role user</code> pe server.</li><li><strong>Pe laptop</strong>, primul cont de test (Florin) primește rolul la fiecare pornire, din <code>DevSeed.cs</code>; <code>cont2@macromate.local</code> e utilizator obișnuit.</li></ul>
+
+<h3>Alimentele: baza generală și alimentele bucătăriei</h3>
+<div class="tablewrap"><table class=""><tr><th><code>kitchen_id</code></th><th>Ce e alimentul</th><th>Cine îl vede</th><th>Cine îl modifică și îl șterge</th></tr><tr><td>gol (<code>null</code>)</td><td>din <strong>baza generală</strong></td><td>toate conturile</td><td>doar adminii</td></tr><tr><td>id-ul unei bucătării</td><td>al <strong>bucătăriei</strong></td><td>doar membrii ei</td><td>doar membrii ei</td></tr></table></div>
+<p>Alimentele de dinainte de migrare au <code>kitchen_id</code> gol, deci sunt în baza generală, împreună cu cele 75 de alimente de start.</p>
+<pre class="mermaid">flowchart TD
+  F[Modifici un aliment] --&gt; K{kitchen_id gol?}
+  K --&gt;|da: baza generală| AD{Ești admin?}
+  AD --&gt;|da| OK[Se salvează]
+  AD --&gt;|nu| NO[Respins: not-owner]
+  K --&gt;|nu: al unei bucătării| SAME{E bucătăria ta?}
+  SAME --&gt;|da| OK
+  SAME --&gt;|nu| NO</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart TD
+  F[Modifici un aliment] --&gt; K{kitchen_id gol?}
+  K --&gt;|da: baza generală| AD{Ești admin?}
+  AD --&gt;|da| OK[Se salvează]
+  AD --&gt;|nu| NO[Respins: not-owner]
+  K --&gt;|nu: al unei bucătării| SAME{E bucătăria ta?}
+  SAME --&gt;|da| OK
+  SAME --&gt;|nu| NO</code></pre></details>
+<p class="cap">FoodTable din Features/Sync/SyncTables.cs</p><pre><code>protected override Task&lt;bool&gt; IsOwnedByAsync(AppDbContext db, Food food, SyncActor actor, CancellationToken ct) =&gt;
+    Task.FromResult(food.KitchenId is { } kitchenId ? kitchenId == actor.KitchenId : actor.IsAdmin);
+
+protected override void SetOwner(Food food, SyncActor actor)
+{
+    food.CreatedBy = actor.UserId;
+    food.KitchenId = actor.IsAdmin &amp;&amp; food.KitchenId is null ? null : actor.KitchenId;
+}</code></pre>
+<ul><li><code>IsOwnedByAsync</code> decide cine poate modifica un aliment care există deja.</li><li><code>SetOwner</code> rulează la un aliment nou. Un utilizator obișnuit primește mereu bucătăria lui, orice ar trimite telefonul. Doar un admin poate lăsa <code>kitchen_id</code> gol.</li><li>La o modificare, <code>kitchen_id</code> rămâne cel din bază (<code>Food.KeepServerFieldsFrom</code>). Un aliment nu trece din bucătărie în baza generală prin editare.</li></ul>
+<div class="tablewrap"><table class=""><tr><th>Cine</th><th>Aliment nou</th><th>Aliment din baza generală</th></tr><tr><td>utilizator</td><td>intră în bucătăria lui; în listă are eticheta „bucătăria ta”, pe fișă „Din bucătăria ta · adăugat de …”</td><td>fără creion și fără ștergere; scrie „Alimentele din baza generală le modifică doar adminul.” și are <strong>„Raportează o greșeală”</strong></td></tr><tr><td>admin</td><td>bifa <strong>„Adaugă în baza generală”</strong>, bifată de la început; debifată, alimentul rămâne în bucătăria lui</td><td>îl modifică și îl șterge</td></tr></table></div>
+<p>În telefon, <code>saveRow</code> din <code>web/src/db/mutations.ts</code> pune <code>kitchenId</code> pe aliment: gol pentru baza generală, altfel bucătăria ținută în Dexie. La citire, <code>SyncEndpoints.cs</code> ia baza generală plus alimentele bucătăriei tale, iar lista de conturi are doar membrii bucătăriei tale:</p>
+<pre><code>var users = await db.Users.AsNoTracking().Where(u =&gt; u.KitchenId == kitchenId).Select(u =&gt; new SyncUser(u.Id, u.DisplayName)).ToListAsync(ct);
+var foods = await db.Foods.AsNoTracking().Where(x =&gt; (x.KitchenId == null || x.KitchenId == kitchenId) &amp;&amp; x.Version &gt; since).ToListAsync(ct);</code></pre>
+<p><strong>AI-ul</strong> primește aceeași listă: la rețeta generată și la scanarea farfuriei, DeepSeek vede doar alimentele din baza generală și din bucătăria ta. <strong>La plecarea</strong> din bucătărie, alimentele ei se copiază în bucătăria ta nouă, cu id-uri noi; <strong>la intrare</strong> cu „Da, aduc tot”, alimentele tale intră în bucătăria comună, iar cu „Nu” rămân în arhivă (<a href="#bucataria">capitolul 10</a>).</p>
+
+<h3>Pagina Administrare</h3>
+<p>Pagina <code>/admin</code> are trei taburi și cere internet. Un cont fără rol care deschide adresa vede doar „Eroare 403”.</p>
+<p><strong>Cerere.</strong> Ce alimente adaugă utilizatorii în bucătăriile lor, ca să știi ce merită pus în baza generală. <code>GET /api/admin/food-demand</code>:</p>
+<ol><li>Ia toate alimentele din bucătării, fără bucătăriile conturilor de probă.</li><li>Le grupează după <strong>codul de bare</strong>, dacă au; altfel după <strong>nume</strong>, cu litere mici și fără diacritice: „Brânză de vaci” și „branza de vaci” ajung în același grup.</li><li>Numără <strong>în câte bucătării</strong> apare fiecare grup.</li><li>Pune semnul <strong>„deja în bază”</strong> dacă un aliment din baza generală are același cod de bare sau același nume.</li><li>Ordinea: întâi cele care nu sunt în bază, apoi după numărul de bucătării. Cel mult 100 de rânduri.</li></ol>
+<p class="cap">NormalizeName</p><pre><code>var decomposed = name.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+foreach (var c in decomposed)
+    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+        builder.Append(char.IsWhiteSpace(c) ? ' ' : c);</code></pre>
+<p><code>Normalize(NormalizationForm.FormD)</code> desparte fiecare literă de semnul ei: „â” devine „a” plus „^”. Bucla păstrează literele și aruncă semnele. <strong>„Pune în bază”</strong> (<code>POST /api/admin/food-demand/{foodId}/promote</code>) face o <strong>copie</strong> a alimentului în baza generală, cu id nou și cu tine autor. Alimentele din bucătării rămân neatinse.</p>
+<p><strong>Rapoarte.</strong> Greșelile trimise de utilizatori, cele mai vechi primele: numele alimentului, mesajul, cine l-a trimis, data. <strong>„Deschide alimentul”</strong> duce la fișă, unde îl corectezi; <strong>„Rezolvat”</strong> pune <code>resolved_at</code> și scoate raportul din listă.</p>
+<p><strong>Utilizatori.</strong> Lista conturilor, fără cele de probă, cu bifa <strong>Admin</strong>.</p>
+
+<h3>„Raportează o greșeală”</h3>
+<p>Pe un aliment din baza generală, un utilizator scrie ce e greșit, de exemplu „Pe eticheta mea, proteina e 10 g la 100 g, nu 3 g.”.</p>
+<ul><li>Telefonul trimite <code>POST /api/foods/{foodId}/reports</code>; cere internet.</li><li>Mesajul are între 3 și 500 de caractere; altfel 400, „Scrie ce e greșit, între 3 și 500 de caractere.”</li><li>Doar alimentele din baza generală se raportează; pe cele ale bucătăriei tale le corectezi singur.</li><li>E sub limita <code>auth</code>: 10 cereri pe minut de la o adresă IP.</li><li>Raportul ajunge în <code>food_reports</code> și în tabul <strong>Rapoarte</strong>.</li></ul>
+
+<h3>Limita zilnică la AI</h3>
+<p>Pe lângă limita veche, 30 de cereri la 10 minute pe cont, AI-ul are o limită pe zi. Ea apără tokenii DeepSeek de conturi noi făcute în serie.</p>
+<div class="tablewrap"><table class=""><tr><th>Cine</th><th>Limita pe zi</th></tr><tr><td>un utilizator</td><td>20 de cereri</td></tr><tr><td>un cont de probă</td><td>5 cereri</td></tr><tr><td>toată aplicația</td><td>300 de cereri</td></tr><tr><td>un admin</td><td>fără limită</td></tr></table></div>
+<p>Contează completarea alimentului, rețeta generată și scanarea farfuriei; verificarea „e AI-ul pregătit?” nu. <strong>Ziua</strong> e ziua UTC: în România, contorul pornește de la zero la 3 noaptea vara și la 2 noaptea iarna. Numărătoarea stă în <code>ai_usage</code>, un rând pe cont și pe zi, cu <code>count</code>. Filtrul <code>AiQuotaFilter</code> rulează înaintea fiecărui endpoint de AI:</p>
+<pre class="mermaid">flowchart TD
+  R[Cerere spre AI] --&gt; A{Ești admin?}
+  A --&gt;|da| E[Endpoint-ul cheamă DeepSeek]
+  A --&gt;|nu| U{Ai atins limita ta?}
+  U --&gt;|da| X1[429: limita ta]
+  U --&gt;|nu| T{Aplicația a atins 300?}
+  T --&gt;|da| X2[429: limita aplicației]
+  T --&gt;|nu| C[count + 1 în ai_usage]
+  C --&gt; E</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart TD
+  R[Cerere spre AI] --&gt; A{Ești admin?}
+  A --&gt;|da| E[Endpoint-ul cheamă DeepSeek]
+  A --&gt;|nu| U{Ai atins limita ta?}
+  U --&gt;|da| X1[429: limita ta]
+  U --&gt;|nu| T{Aplicația a atins 300?}
+  T --&gt;|da| X2[429: limita aplicației]
+  T --&gt;|nu| C[count + 1 în ai_usage]
+  C --&gt; E</code></pre></details>
+<p>Creșterea e un singur SQL, ca două cereri în același timp să nu piardă una:</p>
+<pre><code>INSERT INTO ai_usage (user_id, day, count) VALUES (@user, @day, 1)
+ON CONFLICT (user_id, day) DO UPDATE SET count = ai_usage.count + 1</code></pre>
+<p><code>ON CONFLICT</code> înseamnă: dacă rândul pentru ziua asta există deja, crește-l; altfel, fă-l.</p>
+<ul><li>Cererea se numără <strong>înainte</strong> să ruleze endpoint-ul: una respinsă apoi, de exemplu cu o poză prea mare, se numără și ea.</li><li>O cerere oprită de limita de 30 la 10 minute nu se numără: limitatorul o oprește înainte de filtru.</li><li>Cererile adminilor nu se numără deloc, deci nu intră nici în totalul de 300.</li><li>Mesajele: 429, „Ai folosit cele 20 cereri AI de azi. Mâine poți din nou.” (5 la un cont de probă); 429, „AI-ul a ajuns la limita de azi pentru toată aplicația. Încearcă mâine.”</li></ul>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml exec db psql -U macromate macromate -c "select u.email, a.count from ai_usage a join users u on u.id = a.user_id where a.day = (now() at time zone 'utc')::date order by a.count desc;"</code></pre>
+<p class="look"><span>Caută</span> câte cereri are fiecare cont azi. <code>(now() at time zone 'utc')::date</code> e ziua UTC, aceeași ca în filtru.</p>
+
+<h3>Ștergerea contului</h3>
+<p>Profil → Contul tău → <strong>„Șterge contul”</strong>: scrii parola, confirmi „Șterge definitiv”, iar telefonul trimite <code>POST /api/auth/me/delete</code>. Contul de probă nu cere parola. <code>AccountService.DeleteAsync</code> face totul într-o tranzacție: ori se șterge tot, ori nimic.</p>
+<ol><li>Șterge datele tale: jurnalul, planurile de zi, greutățile, profilul, rapoartele trimise, rândurile din <code>ai_usage</code>, invitațiile făcute de tine.</li><li>Bucătăria: dacă ești <strong>singur</strong> în ea, o șterge cu tot (alimente, rețete, variante, planuri, liste, cămară, invitații). Dacă mai sunt membri, rămâne la ei; dacă erai proprietarul, rolul trece la alt membru.</li><li>Dacă ai o arhivă, o șterge.</li><li>Șterge contul din Identity (<code>users.DeleteAsync</code>), cu rolurile lui.</li></ol>
+<p>Telefonul golește apoi Dexie și te duce la login. Rândurile se șterg de tot (<code>ExecuteDeleteAsync</code>), nu doar se marchează cu <code>deleted_at</code>: e ștergerea cerută de GDPR. Excepție: copiile de rezervă. Cele din <code>deploy/backups</code> le mai au până se rotesc, după 14 zile; cele de pe laptop, până le ștergi.</p>
+<div class="tablewrap"><table class=""><tr><th>Răspuns</th><th>Când</th></tr><tr><td>204</td><td>contul e șters</td></tr><tr><td>400</td><td>parola e greșită: „Parola actuală nu e corectă.”</td></tr><tr><td>409</td><td>ești singurul admin: „Ești singurul admin. Dă întâi rolul de admin altcuiva.”</td></tr></table></div>
+
+<h3>Contul de probă</h3>
+<p>Pe login, sub formular, e butonul <strong>„Încearcă fără cont”</strong>: cine vrea să vadă aplicația intră fără email și fără parolă.</p>
+<pre class="mermaid">sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  T-&gt;&gt;A: POST /api/auth/demo
+  A-&gt;&gt;P: câte conturi de probă sunt?
+  A-&gt;&gt;P: cont demo, is_demo, expiră în 24 h
+  A-&gt;&gt;P: date de exemplu, din DemoData.cs
+  A--&gt;&gt;T: cookie de sesiune
+  T-&gt;&gt;T: banda „Cont de probă”</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  T-&gt;&gt;A: POST /api/auth/demo
+  A-&gt;&gt;P: câte conturi de probă sunt?
+  A-&gt;&gt;P: cont demo, is_demo, expiră în 24 h
+  A-&gt;&gt;P: date de exemplu, din DemoData.cs
+  A--&gt;&gt;T: cookie de sesiune
+  T-&gt;&gt;T: banda „Cont de probă”</code></pre></details>
+<ol><li>Verifică câte conturi de probă există. La 200 răspunde 503: „Conturile de probă sunt ocupate acum. Încearcă mai târziu.”</li><li>Face un cont <code>demo-&lt;32 de caractere&gt;@demo.invalid</code>, cu numele „Vizitator”, o parolă aleatoare pe care n-o știe nimeni, <code>is_demo = true</code> și <code>demo_expires_at</code> peste 24 de ore. Contul are bucătăria lui. <code>.invalid</code> e un domeniu rezervat, care nu există pe internet: nicio adresă de probă nu e a cuiva.</li><li>Pune date de exemplu (<code>DemoData.cs</code>), din alimentele de start: profilul cu 1800 kcal și 150 g proteine; trei rețete (omletă cu spanac, pui cu orez și broccoli, iaurt cu afine și ovăz); planul „Zi obișnuită”, cu patru mese; ultimele 7 zile cu planul ales și jurnalul completat, azi doar micul dejun; opt cântăriri, la 3 zile una, de la 78 kg în jos; alimentele folosite, în cămară. Dacă alimentele de start lipsesc, contul pornește doar cu profilul și cântăririle.</li><li>Te loghează cu un cookie de sesiune, fără <code>expires</code>: browserul îl uită când îl închizi.</li></ol>
+<ul><li><strong>Ce vede</strong>: sus, banda „Cont de probă. Se șterge pe …, cu tot ce ai pus în el.”, cu <strong>„Fă-ți cont”</strong>, care te deloghează și te duce la <code>/register</code>. Datele de probă nu trec în contul nou.</li><li><strong>Ce nu poate</strong>: să schimbe emailul sau parola (403, „Contul de probă nu poate schimba emailul sau parola. Fă-ți un cont al tău.”); să primească rolul de admin, nici nu apare în Utilizatori; să folosească AI-ul de mai mult de 5 ori pe zi. Alimentele lui nu intră în tabul Cerere.</li></ul>
+<p><strong>Ștergerea automată.</strong> <code>DemoCleanup</code> din <code>Features/Auth/DemoCleanup.cs</code> e un <strong>serviciu de fundal</strong> (<code>BackgroundService</code>): o clasă pe care .NET o pornește odată cu API-ul și o lasă să ruleze alături de cereri. La pornire și apoi la fiecare 30 de minute, șterge conturile de probă expirate, cu același <code>AccountService.DeleteAsync</code>. Un cont de probă dispare deci între 24 de ore și 24 de ore și jumătate după ce a fost făcut.</p>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml logs api | grep -i "demo accounts"</code></pre>
+<p class="look"><span>Caută</span> <code>Deleted 3 expired demo accounts</code>; rândul apare doar când s-a șters ceva. <code>Deleting expired demo accounts failed</code> e o eroare: rândurile de sub el spun care.</p>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; docker compose -f compose.prod.yaml exec db psql -U macromate macromate -c "select count(*) from users where is_demo;"</code></pre>
+<p class="look"><span>Caută</span> numărul din coloana <code>count</code>. Peste 200 nu urcă.</p>
+
+<h3>Setările</h3>
+<p>Toate sunt în <code>RateLimitOptions</code> din <code>Features/Security/RateLimiting.cs</code>. Pe server le adaugi în <code>deploy/compose.prod.yaml</code>, la <code>api</code> → <code>environment</code>.</p>
+<div class="tablewrap"><table class=""><tr><th>Setare</th><th>Implicit</th><th>Ce e</th></tr><tr><td><code>RateLimits__AiPerUserPerDay</code></td><td>20</td><td>cereri AI pe zi pentru un utilizator</td></tr><tr><td><code>RateLimits__AiPerDemoPerDay</code></td><td>5</td><td>cereri AI pe zi pentru un cont de probă</td></tr><tr><td><code>RateLimits__AiTotalPerDay</code></td><td>300</td><td>cereri AI pe zi pentru toată aplicația</td></tr><tr><td><code>RateLimits__DemoMaxActive</code></td><td>200</td><td>câte conturi de probă pot exista în același timp</td></tr><tr><td><code>RateLimits__AiPerTenMinutes</code></td><td>30</td><td>limita veche, pe cont, la 10 minute</td></tr><tr><td><code>RateLimits__AuthPerMinute</code></td><td>10</td><td>limita veche, pe adresă IP, la login și cont</td></tr></table></div>
+<p>Cât merge contul de probă (24 de ore) e în cod: <code>SignupEndpoints.DemoLifetime</code>.</p>
+
+<h3>Unde e codul</h3>
+<div class="tablewrap"><table class=""><tr><th>Ce</th><th>Fișier</th></tr><tr><td>contul nou, confirmarea, retrimiterea, contul de probă, ștergerea</td><td><code>Features/Auth/SignupEndpoints.cs</code></td></tr><tr><td>ștergerea datelor unui cont</td><td><code>Features/Auth/AccountService.cs</code></td></tr><tr><td>datele și ștergerea automată a contului de probă</td><td><code>Features/Auth/DemoData.cs</code>, <code>DemoCleanup.cs</code></td></tr><tr><td>login-ul unui cont neconfirmat</td><td><code>Features/Auth/AuthEndpoints.cs</code></td></tr><tr><td>rolul <code>admin</code> și comanda <code>set-role</code></td><td><code>Data/AppRoles.cs</code>, <code>Admin/AdminCommands.cs</code></td></tr><tr><td>endpoint-urile <code>/api/admin/*</code></td><td><code>Features/Admin/AdminEndpoints.cs</code></td></tr><tr><td>raportarea unei greșeli</td><td><code>Features/Foods/FoodReportEndpoints.cs</code>, <code>Data/FoodReport.cs</code></td></tr><tr><td>limita zilnică la AI</td><td><code>Features/Ai/AiQuota.cs</code>, <code>Data/AiUsage.cs</code></td></tr><tr><td>cine modifică un aliment</td><td><code>FoodTable</code> din <code>Features/Sync/SyncTables.cs</code>; în telefon, <code>canEditFood</code> din <code>web/src/hooks/use-data.ts</code></td></tr><tr><td>migrarea</td><td><code>Data/Migrations/20261004173155_AddAccountsAndRoles.cs</code></td></tr><tr><td>paginile noi</td><td><code>web/src/routes/register.tsx</code>, <code>confirm-account.tsx</code>, <code>_app/admin.tsx</code>; „Încearcă fără cont” în <code>login.tsx</code></td></tr><tr><td>banda contului de probă</td><td><code>DemoBanner</code> din <code>web/src/routes/_app.tsx</code></td></tr><tr><td>„Șterge contul”</td><td><code>web/src/components/app/account-section.tsx</code></td></tr><tr><td>„Raportează o greșeală”, fișa fără editare</td><td><code>web/src/routes/_app/foods/$foodId/index.tsx</code></td></tr><tr><td>testele</td><td><code>api/MacroMate.Api.Tests/AccountsAndRolesTests.cs</code></td></tr></table></div>
+<p>Testele au nume care spun regula, de exemplu <code>A_new_account_works_only_after_the_emailed_link_is_opened</code>, <code>Base_foods_are_read_only_for_users_and_editable_by_admins</code> și <code>A_demo_account_has_a_small_daily_ai_limit</code>.</p>
+
+<hr><footer>MacroMate · ghid construit pe 2026-10-04, actualizat noaptea cu CI/CD și conturile · sursa în <code>docs/ghid/</code>, specificația în <code>docs/spec.md</code>, bucătăria în <code>docs/bucataria.md</code></footer>
 </div>
