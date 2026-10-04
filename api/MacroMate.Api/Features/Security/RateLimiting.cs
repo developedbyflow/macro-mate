@@ -11,6 +11,10 @@ public sealed class RateLimitOptions
 {
     public int AuthPerMinute { get; set; } = 10;
     public int AiPerTenMinutes { get; set; } = 30;
+    public int AiPerUserPerDay { get; set; } = 20;
+    public int AiPerDemoPerDay { get; set; } = 5;
+    public int AiTotalPerDay { get; set; } = 300;
+    public int DemoMaxActive { get; set; } = 200;
 }
 
 public static class RateLimiting

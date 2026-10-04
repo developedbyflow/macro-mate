@@ -147,4 +147,40 @@ Dacă n-ai cerut tu, ignoră emailul.</value>
   <data name="TooManyRequests" xml:space="preserve">
     <value>Prea multe cereri. Încearcă din nou peste {0} min.</value>
   </data>
+  <data name="EmailNotConfirmed" xml:space="preserve">
+    <value>Contul nu e confirmat încă. Deschide linkul din emailul de confirmare.</value>
+  </data>
+  <data name="ConfirmAccountSubject" xml:space="preserve">
+    <value>Confirmă-ți contul MacroMate</value>
+  </data>
+  <data name="ConfirmAccountText" xml:space="preserve">
+    <value>Salut, {0}!
+
+Mai ai un pas: deschide linkul de mai jos, în următoarele 2 ore, ca să-ți activezi contul MacroMate:
+
+{1}
+
+Dacă nu ți-ai făcut tu contul, ignoră emailul.</value>
+  </data>
+  <data name="DemoName" xml:space="preserve">
+    <value>Vizitator</value>
+  </data>
+  <data name="DemoNotAllowed" xml:space="preserve">
+    <value>Contul de probă nu poate schimba emailul sau parola. Fă-ți un cont al tău.</value>
+  </data>
+  <data name="DemoUnavailable" xml:space="preserve">
+    <value>Conturile de probă sunt ocupate acum. Încearcă mai târziu.</value>
+  </data>
+  <data name="LastAdmin" xml:space="preserve">
+    <value>Ești singurul admin. Dă întâi rolul de admin altcuiva.</value>
+  </data>
+  <data name="AiDailyLimit" xml:space="preserve">
+    <value>Ai folosit cele {0} cereri AI de azi. Mâine poți din nou.</value>
+  </data>
+  <data name="AiTotalLimit" xml:space="preserve">
+    <value>AI-ul a ajuns la limita de azi pentru toată aplicația. Încearcă mâine.</value>
+  </data>
+  <data name="ReportMessageInvalid" xml:space="preserve">
+    <value>Scrie ce e greșit, între 3 și 500 de caractere.</value>
+  </data>
 </root>

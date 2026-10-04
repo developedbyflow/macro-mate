@@ -1,6 +1,8 @@
 # Bucătăria: alimente comune, cămară și partajare
 
-> **Construită pe 2026-10-04.** Codul: `api/MacroMate.Api/Features/Kitchens/`, `api/MacroMate.Api/Data/Kitchen.cs`, `web/src/components/app/kitchen-section.tsx`, `web/src/routes/invite.$token.tsx`, `web/src/db/kitchen.ts`. Cum funcționează: `docs/ghid/10-bucataria.md`. Față de textul de mai jos, s-a construit altfel: arhiva se aduce înapoi toată odată („Adu tot înapoi”), nu câte un lucru; partajarea în afara bucătăriei („Salvează la mine”) și înregistrarea din pagina de login nu sunt construite (contul nou se face doar din invitație sau cu `create-user`).
+> **Construită pe 2026-10-04.** Codul: `api/MacroMate.Api/Features/Kitchens/`, `api/MacroMate.Api/Data/Kitchen.cs`, `web/src/components/app/kitchen-section.tsx`, `web/src/routes/invite.$token.tsx`, `web/src/db/kitchen.ts`. Cum funcționează: `docs/ghid/10-bucataria.md`. Față de textul de mai jos, s-a construit altfel: arhiva se aduce înapoi toată odată („Adu tot înapoi”), nu câte un lucru; partajarea în afara bucătăriei („Salvează la mine”) nu e construită.
+>
+> **Schimbat după, tot pe 2026-10-04** (`docs/ghid/15-conturi-si-roluri.md`): un aliment nou nu mai intră în baza generală, ci în **bucătăria** celui care l-a adăugat (`foods.kitchen_id`). Baza generală o modifică doar adminii. Alimentele bucătăriei se mută la intrare și se copiază la plecare, ca rețetele. Contul nou se face și din pagina de login, cu email de confirmare.
 
 Specificația pentru schimbarea de model de date de după deploy. Stabilită cu Florin pe 2026-10-04.
 
@@ -72,5 +74,5 @@ flowchart TD
 
 ## Întrebări deschise
 
-- **Cine modifică un aliment din baza generală?** Propunere: doar cine l-a adăugat. Ceilalți îl pot scoate din cămară, nu îl pot șterge pentru toți.
-- **Înregistrarea din aplicație**: acum conturile se fac doar cu `create-user` pe server. Odată cu bucătăria, contul se face din link-ul de invitație sau din pagina de login.
+- **Cine modifică un aliment din baza generală?** Rezolvat: doar adminii. Ce adaugă un utilizator rămâne în bucătăria lui și îl modifică membrii ei. Ceilalți raportează o greșeală.
+- **Înregistrarea din aplicație**: rezolvat. Contul se face din linkul de invitație, din pagina de login (cu email de confirmare), cu `create-user` pe server sau ca un cont de probă.

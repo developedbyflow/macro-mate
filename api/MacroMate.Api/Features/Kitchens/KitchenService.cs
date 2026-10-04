@@ -21,9 +21,12 @@ public static class KitchenService
         string displayName,
         string password,
         Guid? kitchenId,
-        CancellationToken ct)
+        bool emailConfirmed,
+        CancellationToken ct,
+        Action<AppUser>? configure = null)
     {
-        var user = new AppUser { Id = Guid.NewGuid(), UserName = email, Email = email, DisplayName = displayName };
+        var user = new AppUser { Id = Guid.NewGuid(), UserName = email, Email = email, DisplayName = displayName, EmailConfirmed = emailConfirmed };
+        configure?.Invoke(user);
         if (kitchenId is { } existing)
         {
             user.KitchenId = existing;
@@ -154,6 +157,7 @@ public static class KitchenService
         if (archiveId is not { } id)
             return null;
         return new ArchiveSummary(
+            await db.Foods.CountAsync(f => f.KitchenId == id && f.DeletedAt == null, ct),
             await db.Recipes.CountAsync(r => r.KitchenId == id && r.DeletedAt == null, ct),
             await db.MealPlans.CountAsync(p => p.KitchenId == id && p.DeletedAt == null, ct),
             await db.ShoppingLists.CountAsync(s => s.KitchenId == id && s.DeletedAt == null, ct),
@@ -164,13 +168,16 @@ public static class KitchenService
         db.Users.Where(u => u.Id == userId).Select(u => u.KitchenId).SingleAsync(ct);
 
     static async Task<bool> HasContentAsync(AppDbContext db, Guid kitchenId, CancellationToken ct) =>
-        await db.Recipes.AnyAsync(r => r.KitchenId == kitchenId && r.DeletedAt == null, ct)
+        await db.Foods.AnyAsync(f => f.KitchenId == kitchenId && f.DeletedAt == null, ct)
+        || await db.Recipes.AnyAsync(r => r.KitchenId == kitchenId && r.DeletedAt == null, ct)
         || await db.MealPlans.AnyAsync(p => p.KitchenId == kitchenId && p.DeletedAt == null, ct)
         || await db.ShoppingLists.AnyAsync(s => s.KitchenId == kitchenId && s.DeletedAt == null, ct)
         || await db.PantryItems.AnyAsync(p => p.KitchenId == kitchenId && p.DeletedAt == null, ct);
 
     static async Task MoveContentsAsync(AppDbContext db, Guid from, Guid to, long version, DateTimeOffset now, CancellationToken ct)
     {
+        await db.Foods.Where(f => f.KitchenId == from && f.DeletedAt == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(f => f.KitchenId, to).SetProperty(f => f.Version, version).SetProperty(f => f.UpdatedAt, now), ct);
         await MoveAsync(db.Recipes, from, to, version, now, ct);
         await MoveAsync(db.RecipeVariants, from, to, version, now, ct);
         await MoveAsync(db.MealPlans, from, to, version, now, ct);
@@ -226,10 +233,24 @@ public static class KitchenService
             row.Version = version;
         }
 
+        var foods = await db.Foods.AsNoTracking().Where(f => f.KitchenId == from && f.DeletedAt == null).ToListAsync(ct);
+        var foodIds = foods.ToDictionary(f => f.Id, _ => Guid.NewGuid());
+        Guid FoodCopy(Guid id) => foodIds.TryGetValue(id, out var copy) ? copy : id;
+        foreach (var food in foods)
+        {
+            food.Id = foodIds[food.Id];
+            food.KitchenId = to;
+            food.CreatedAt = now;
+            food.UpdatedAt = now;
+            food.Version = version;
+            db.Foods.Add(food);
+        }
+
         var recipes = await db.Recipes.AsNoTracking().Where(r => r.KitchenId == from && r.DeletedAt == null).ToListAsync(ct);
         var recipeIds = recipes.ToDictionary(r => r.Id, _ => Guid.NewGuid());
         foreach (var recipe in recipes)
         {
+            recipe.IngredientFoodIds = recipe.IngredientFoodIds.Select(FoodCopy).ToList();
             Stamp(recipe, recipeIds[recipe.Id]);
             db.Recipes.Add(recipe);
         }
@@ -240,6 +261,8 @@ public static class KitchenService
         {
             variantIds[variant.Id] = Guid.NewGuid();
             variant.RecipeId = recipeIds[variant.RecipeId];
+            foreach (var ingredient in variant.Ingredients)
+                ingredient.FoodId = FoodCopy(ingredient.FoodId);
             Stamp(variant, variantIds[variant.Id]);
             db.RecipeVariants.Add(variant);
         }
@@ -249,8 +272,12 @@ public static class KitchenService
         foreach (var plan in plans)
         {
             foreach (var item in plan.Meals.SelectMany(m => m.Items))
+            {
                 if (item.VariantId is { } variantId && variantIds.TryGetValue(variantId, out var copy))
                     item.VariantId = copy;
+                if (item.FoodId is { } foodId)
+                    item.FoodId = FoodCopy(foodId);
+            }
             Stamp(plan, planIds[plan.Id]);
             db.MealPlans.Add(plan);
         }
@@ -267,7 +294,7 @@ public static class KitchenService
 
         var pantry = await db.PantryItems.AsNoTracking().Where(p => p.KitchenId == from && p.DeletedAt == null).ToListAsync(ct);
         foreach (var item in pantry)
-            await AddToPantryAsync(db, to, item.FoodId, item.CreatedBy, version, now, ct);
+            await AddToPantryAsync(db, to, FoodCopy(item.FoodId), item.CreatedBy, version, now, ct);
 
         foreach (var dayPlan in await db.DayPlans.Where(d => d.UserId == userId && d.MealPlanId != null).ToListAsync(ct))
         {
@@ -278,15 +305,38 @@ public static class KitchenService
             dayPlan.Version = version;
         }
 
-        foreach (var entry in await db.JournalEntries.Where(j => j.UserId == userId && j.VariantId != null).ToListAsync(ct))
+        foreach (var entry in await db.JournalEntries.Where(j => j.UserId == userId && (j.VariantId != null || j.FoodId != null)).ToListAsync(ct))
         {
-            if (!variantIds.TryGetValue(entry.VariantId!.Value, out var copy))
+            var variant = entry.VariantId is { } v && variantIds.TryGetValue(v, out var variantCopy) ? variantCopy : entry.VariantId;
+            var food = entry.FoodId is { } f ? FoodCopy(f) : (Guid?)null;
+            if (variant == entry.VariantId && food == entry.FoodId)
                 continue;
-            entry.VariantId = copy;
+            entry.VariantId = variant;
+            entry.FoodId = food;
             entry.UpdatedAt = now;
             entry.Version = version;
         }
+
+        if (foodIds.Count > 0 && await db.UserProfiles.SingleOrDefaultAsync(p => p.UserId == userId, ct) is { } profile)
+        {
+            profile.LikedFoodIds = profile.LikedFoodIds.Select(FoodCopy).ToList();
+            profile.ExcludedFoodIds = profile.ExcludedFoodIds.Select(FoodCopy).ToList();
+            profile.UpdatedAt = now;
+            profile.Version = version;
+        }
+    }
+
+    public static async Task DeleteKitchenAsync(AppDbContext db, Guid kitchenId, CancellationToken ct)
+    {
+        await db.PantryItems.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.ShoppingLists.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.MealPlans.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.RecipeVariants.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.Recipes.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.Foods.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.KitchenInvites.Where(x => x.KitchenId == kitchenId).ExecuteDeleteAsync(ct);
+        await db.Kitchens.Where(x => x.Id == kitchenId).ExecuteDeleteAsync(ct);
     }
 }
 
-public sealed record ArchiveSummary(int Recipes, int MealPlans, int ShoppingLists, int PantryItems);
+public sealed record ArchiveSummary(int Foods, int Recipes, int MealPlans, int ShoppingLists, int PantryItems);

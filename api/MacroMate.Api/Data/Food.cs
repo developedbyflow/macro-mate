@@ -20,4 +20,11 @@ public class Food : SharedEntity
     public List<string> EstimatedFields { get; set; } = [];
     public string Source { get; set; } = "manual";
     public Guid? PhotoId { get; set; }
+    public Guid? KitchenId { get; set; }
+
+    public override void KeepServerFieldsFrom(SyncEntity existing)
+    {
+        base.KeepServerFieldsFrom(existing);
+        KitchenId = ((Food)existing).KitchenId;
+    }
 }

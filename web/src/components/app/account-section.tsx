@@ -1,14 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { Trash2 } from 'lucide-react'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { saveMe } from '@/db/session'
+import { deleteAccount, saveMe } from '@/db/session'
 import { useMe } from '@/hooks/use-data'
 import { useOnline } from '@/hooks/use-online'
 import { errorText } from '@/lib/errors'
+import { ConfirmDelete } from './confirm-delete'
 
 export function AccountSection() {
   const { t } = useTranslation()
@@ -20,8 +23,10 @@ export function AccountSection() {
       <h2 className="text-lg font-semibold">{t('profile.account.title')}</h2>
       <div className="divide-y rounded-2xl border bg-card text-sm">
         {me && <NameForm key={me.displayName} current={me.displayName} disabled={!online} />}
-        {me && <EmailForm current={me.email} disabled={!online} />}
-        <PasswordForm disabled={!online} />
+        {me && !me.isDemo && <EmailForm current={me.email} disabled={!online} />}
+        {me && !me.isDemo && <PasswordForm disabled={!online} />}
+        {me?.isDemo && <p className="p-4 text-muted-foreground">{t('profile.account.demo')}</p>}
+        {me && <DeleteAccount demo={me.isDemo} disabled={!online} />}
       </div>
       {!online && <p className="text-xs text-muted-foreground">{t('profile.account.offline')}</p>}
     </section>
@@ -144,6 +149,49 @@ function PasswordForm({ disabled }: { disabled: boolean }) {
           <FormButtons pending={mutation.isPending} disabled={disabled} label={t('profile.account.savePassword')} onCancel={() => setOpen(false)} />
         </form>
       )}
+    </div>
+  )
+}
+
+function DeleteAccount({ demo, disabled }: { demo: boolean; disabled: boolean }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [password, setPassword] = useState('')
+
+  async function confirm() {
+    try {
+      await deleteAccount(demo ? null : password)
+      toast.success(t('profile.account.delete.done'))
+      await navigate({ to: '/login' })
+    } catch (error) {
+      toast.error(errorText(error))
+    }
+  }
+
+  return (
+    <div className="space-y-2 p-4">
+      {!demo && (
+        <Input
+          type="password"
+          autoComplete="current-password"
+          placeholder={t('profile.account.delete.password')}
+          aria-label={t('profile.account.delete.password')}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="h-10"
+        />
+      )}
+      <ConfirmDelete
+        title={t('profile.account.delete.title')}
+        description={t('profile.account.delete.description')}
+        confirmLabel={t('profile.account.delete.confirm')}
+        onConfirm={confirm}
+        trigger={
+          <Button variant="ghost" className="h-10 w-full text-destructive" disabled={disabled || (!demo && password.length === 0)}>
+            <Trash2 className="size-4" /> {t('profile.account.delete.action')}
+          </Button>
+        }
+      />
     </div>
   )
 }

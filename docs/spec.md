@@ -1,7 +1,7 @@
 # MacroMate — specificație v1
 
 PWA pentru Florin și prietena lui. Se instalează pe telefon, merge offline și folosește camera.
-Fiecare are contul lui. Alimentele sunt comune tuturor; cămara, rețetele, planurile și listele sunt comune în bucătărie. Interfața e în română și în engleză.
+Fiecare are contul lui. Baza generală de alimente e comună tuturor și o îngrijește un admin; alimentele adăugate de voi, cămara, rețetele, planurile și listele sunt comune în bucătărie. Oricine își poate face cont din pagina de login sau poate încerca aplicația cu un cont de probă. Interfața e în română și în engleză.
 
 ---
 
@@ -72,12 +72,19 @@ Cheia DeepSeek stă doar pe server, nu ajunge niciodată în telefon.
 
 ## 3. Conturi
 
-- Nu există înregistrare publică. Primul cont se face cu comanda `create-user` pe server; restul, din linkul de invitație în bucătărie.
+- Un cont se face:
+  - din pagina de login, cu „Creează unul”: contul are bucătăria lui și merge după ce deschizi linkul primit pe email (valabil 2 ore). Până atunci, login-ul răspunde „Contul nu e confirmat încă.”;
+  - din linkul de invitație în bucătărie: confirmat direct;
+  - cu comanda `create-user` pe server: confirmat direct;
+  - cu „Încearcă fără cont”: un cont de probă cu date de exemplu, șters automat după 24 de ore. Nu poate schimba emailul sau parola și are 5 cereri AI pe zi.
 - Login cu email și parolă. Sesiunea ține mult, ca să nu te loghezi des de pe telefon. Numele, emailul (cu link de confirmare pe adresa nouă) și parola se schimbă din Profil; parola uitată se resetează dintr-un link pe email.
-- **Comune tuturor conturilor**: alimentele.
-- **Comune în bucătărie**: cămara, rețetele, variantele, meal plan-urile și listele de cumpărături ([bucataria.md](bucataria.md)).
+- **Ștergerea contului**, din Profil, cu parola: se șterg de tot jurnalul, greutățile, profilul și restul datelor personale. Dacă ești singur în bucătărie, se șterge și bucătăria, cu tot ce are; altfel rămâne la ceilalți.
+- **Roluri**: un cont e utilizator sau **admin**. Adminul modifică baza generală, pune în ea alimentele cerute din bucătării, rezolvă rapoartele și dă roluri, din pagina Administrare. Primul admin se face pe server, cu `set-role`. Ultimul admin nu-și poate pierde rolul.
+- **Comune tuturor conturilor**: baza generală de alimente. O modifică doar adminii; ceilalți pot raporta o greșeală.
+- **Comune în bucătărie**: alimentele adăugate de membri, cămara, rețetele, variantele, meal plan-urile și listele de cumpărături ([bucataria.md](bucataria.md)).
 - **Ale fiecăruia**: țintele, jurnalul, greutatea, excluderile și ce îi place.
 - Tot ce se adaugă are câmpul **„adăugat de”**.
+- **AI-ul are o limită pe zi**: 20 de cereri pentru un utilizator, 5 pentru un cont de probă, 300 pentru toată aplicația; adminii nu au limită.
 
 ---
 
@@ -105,16 +112,18 @@ Reguli pentru toate tabelele sincronizate:
 
 | Tabel | Al cui e | Ce ține |
 |---|---|---|
-| `foods` | comun | nume, marcă, cod de bare, categorie, valori la 100 g, greutatea unei bucăți, notele, motivul notelor, câmpurile estimate (`text[]`), sursa, poza |
-| `recipes` | comun | nume, preparare, timp, dificultate, poză, ingredientele main (`uuid[]`, fără cantități) |
-| `recipe_variants` | comun | rețeta, nume, porții, ingredientele cu grame (`jsonb`) |
-| `meal_plans` | comun | nume, mesele (`jsonb`: etichetă + elemente, fiecare element e rețetă cu porții sau aliment cu grame) |
-| `shopping_lists` | comun | nume, planurile cu zile (`jsonb`), ce s-a bifat (`text[]`) |
+| `foods` | baza generală (`kitchen_id` gol) sau bucătăria | nume, marcă, cod de bare, categorie, valori la 100 g, greutatea unei bucăți, notele, motivul notelor, câmpurile estimate (`text[]`), sursa, poza, bucătăria |
+| `recipes` | bucătăria | nume, preparare, timp, dificultate, poză, ingredientele main (`uuid[]`, fără cantități) |
+| `recipe_variants` | bucătăria | rețeta, nume, porții, ingredientele cu grame (`jsonb`) |
+| `meal_plans` | bucătăria | nume, mesele (`jsonb`: etichetă + elemente, fiecare element e rețetă cu porții sau aliment cu grame) |
+| `shopping_lists` | bucătăria | nume, planurile cu zile (`jsonb`), ce s-a bifat (`text[]`) |
 | `day_plans` | al fiecăruia | ziua și planul ales pentru ea |
 | `journal_entries` | al fiecăruia | ziua, masa, ce s-a mâncat, cantitatea și valorile copiate în momentul notării |
 | `user_profiles` | al fiecăruia | datele din calculator, țintele, obiectivul, excluderile, „îmi place” |
 | `weight_entries` | al fiecăruia | ziua și greutatea; o cântărire pe zi |
-| `users`, `roles`, `user_*` | — | tabelele de login ale ASP.NET Core Identity |
+| `users`, `roles`, `user_*` | — | tabelele de login ale ASP.NET Core Identity; `user_roles` ține cine e admin; `users` are și `is_demo`, `demo_expires_at` |
+| `food_reports` | — | greșelile raportate la alimentele din baza generală, cu `resolved_at` |
+| `ai_usage` | — | câte cereri AI a făcut fiecare cont într-o zi UTC |
 
 **De ce unele liste stau în `jsonb` sau în coloane-listă și nu în tabele separate**: o variantă fără ingredientele ei nu are sens, iar serverul nu caută niciodată „toate variantele care conțin oul X”. Așa că varianta se scrie și se sincronizează dintr-o bucată. Conflictul se rezolvă pe tot rândul: câștigă ultima salvare.
 
@@ -135,10 +144,10 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - **„Copiază de ieri”** pe o masă sau pe toată ziua (meniul ⋯ din antet; butonul apare și când ziua e goală).
    - **Scanarea** din antet deschide camera pentru masa de acum (după oră). Un cod necunoscut deschide „Aliment nou” cu codul deja căutat.
    - Cercul cu calorii și cardul de sub el duc la **Progres**.
-   - Fără reclame și fără duplicate: baza e doar a voastră, fiecare aliment apare o singură dată.
+   - Fără reclame. Baza generală o îngrijește adminul; ce adaugi tu rămâne în bucătăria ta.
 2. **Alimente**
    - Listă cu căutare (după numele în română sau în engleză) și filtre: categorie, notă glicemică, de proteină și de volum, cămara.
-   - Fișa alimentului arată valorile (la 100 g, pe o bucată sau la orice gramaj), notele, motivul notelor și cine l-a adăugat.
+   - Fișa alimentului arată valorile (la 100 g, pe o bucată sau la orice gramaj), notele, motivul notelor și de unde e: „Din baza generală” sau „Din bucătăria ta · adăugat de …”. Un aliment din baza generală nu se poate edita decât de admin; ceilalți au „Raportează o greșeală”.
    - Un aliment nou se adaugă scanând codul, cu o poză la etichetă sau manual (§6).
 3. **Rețete**
    - Listă cu poză, timp, dificultate și note.
@@ -162,7 +171,8 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
 7. **Profil**
    - Calculatorul și țintele (modificabile), cu obiectivul: greutatea țintă și ritmul.
    - Excluderi și „îmi place”.
-   - Contul (nume, email, parolă), bucătăria, limba și ieșirea din cont.
+   - Contul (nume, email, parolă, ștergerea contului), bucătăria, limba și ieșirea din cont.
+   - Pentru admini, linkul spre **Administrare**: taburile Cerere (alimentele adăugate în bucătării, grupate după cod de bare sau nume, cu „Pune în bază”), Rapoarte și Utilizatori (rolurile).
 
 Peste tot unde apare o listă de rețete sau alimente, ce ai exclus nu apare.
 
@@ -184,6 +194,7 @@ flowchart TD
 - Ce citește DeepSeek din poza etichetei e exact. Ce completează doar după nume e marcat „estimat”.
 - La fiecare aliment, DeepSeek întoarce: valorile care lipsesc, categoria, `glycemic_grade` și un motiv de o propoziție.
 - Fără internet, alimentul se salvează cu ce ai completat tu. Notele vin când revine internetul.
+- Alimentul nou intră în bucătăria ta. Un admin are bifa „Adaugă în baza generală”.
 
 **Criteriile date AI-ului**, ca notele să fie la fel de la un aliment la altul:
 - **Glicemic**, pentru cine are rezistență la insulină. Se judecă după **încărcătura glicemică** a unei porții obișnuite: indicele glicemic × gramele de carbohidrați din porție / 100.
@@ -243,7 +254,7 @@ Scrii ce vrei, ex. „am poftă de un desert cu mere”. Poți adăuga o limită
 
 DeepSeek primește:
 - cererea ta;
-- alimentele din bază, fără cele excluse de tine;
+- alimentele din baza generală și din bucătăria ta, fără cele excluse de tine;
 - ce îți place;
 - limita ta sau, dacă nu ai dat una, cât mai ai azi din kcal și macro.
 
@@ -269,7 +280,7 @@ Construit pe 2026-10-04, toți cei 7 pași:
 Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele A–C (glicemic de la DeepSeek, proteină și volum calculate din valori), ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri, valorile pe porție și obiectivele (greutate țintă și ritm, cu progresul și data estimată în Progres).
 
 Adăugat apoi, tot pe 2026-10-04:
-- **Bucătăria comună** ([bucataria.md](bucataria.md)): cămara în locul favoritelor; invitație prin link (`/invite/<token>`, o dată, 7 zile), cu cont nou sau cu „Aduci și ce ai tu?” (Da = aduci tot, Nu = arhivă); plecarea cu o copie a tot; arhiva adusă înapoi din Profil; proprietarul (`kitchens.owner_id`), singurul care scoate membri, iar la plecarea lui rolul trece la un membru rămas. Alimentele rămân ale tuturor conturilor.
+- **Bucătăria comună** ([bucataria.md](bucataria.md)): cămara în locul favoritelor; invitație prin link (`/invite/<token>`, o dată, 7 zile), cu cont nou sau cu „Aduci și ce ai tu?” (Da = aduci tot, Nu = arhivă); plecarea cu o copie a tot; arhiva adusă înapoi din Profil; proprietarul (`kitchens.owner_id`), singurul care scoate membri, iar la plecarea lui rolul trece la un membru rămas. Alimentele din baza generală rămân ale tuturor conturilor; cele adăugate de membri sunt ale bucătăriei (vezi mai jos).
 - **Română și engleză**: aplicația (react-i18next, limba din browser, comutator în Profil și pe login), mesajele API-ului (`Accept-Language`, `Messages.resx`), numele alimentelor și motivul notei glicemice în ambele limbi (`foods.name_en`, `foods.grades_reason_en`), răspunsurile DeepSeek în limba cererii.
 - **Contul tău**, în Profil: nume, email cu link de confirmare pe adresa nouă, parolă cu parola actuală. „Am uitat parola” cu link pe email, valabil 2 ore. Emailurile pleacă prin Resend.
 - **Limitarea cererilor**: 10 pe minut de la o adresă IP la login, cont și invitații; 30 la 10 minute pe cont la AI (fără verificarea stării AI-ului); peste limită, 429 cu `Retry-After` și mesajul „Încearcă din nou peste N min.”.
@@ -278,9 +289,18 @@ Adăugat apoi, tot pe 2026-10-04:
 - **Meniul din stânga**: numele utilizatorului, cu un cerc cu inițiala, în locul lui „Profil”.
 - **Rețetele generate**: pașii fără numere duble.
 - **Țintele în Profil**: procentul din calorii lângă proteine, carbohidrați și grăsimi, plus comutatorul „Macro în: grame / procente” (se salvează tot în grame).
+- **Conturi și roluri** ([ghid/15-conturi-si-roluri.md](ghid/15-conturi-si-roluri.md)):
+  - contul nou din pagina de login (`/register`), cu email de confirmare prin Resend (link `/confirm-account`, 2 ore), retrimiterea emailului și 403 la login până la confirmare; conturile vechi, cele din invitație și cele din `create-user` sunt confirmate direct;
+  - rolul `admin` (roluri ASP.NET Core Identity), dat din pagina Administrare sau cu `set-role` pe server; pe laptop, primul cont de test e admin;
+  - `foods.kitchen_id`: alimentele adăugate de utilizatori rămân în bucătăria lor; baza generală o modifică doar adminii; la plecarea din bucătărie, alimentele ei se copiază și tot ce arăta spre ele arată spre copii; AI-ul vede doar baza generală și bucătăria ta; lista de conturi din sincronizare are doar membrii bucătăriei;
+  - pagina Administrare: Cerere („Pune în bază” face o copie în baza generală), Rapoarte, Utilizatori;
+  - „Raportează o greșeală” la alimentele din baza generală;
+  - limita zilnică la AI: 20 pe utilizator, 5 pe cont de probă, 300 pe toată aplicația, fără limită pentru admini;
+  - ștergerea contului din Profil;
+  - contul de probă: „Încearcă fără cont”, cu date de exemplu, șters automat după 24 de ore, cel mult 200 în același timp.
 
 Ce mai e de făcut:
 - **Deploy-ul pe OVH VPS-1**: după confirmarea plății și primirea IP-ului, îl faci tu, după `docs/ghid/09-deploy.md`, cu DNS-ul în Namecheap și domeniul verificat în Resend.
+- **Primul admin pe server**: după primul deploy cu rolurile, rulezi `set-role --email adresa-ta --role admin` (`docs/ghid/09-deploy.md`, pasul 9). Până atunci, nimeni nu poate modifica baza generală.
 - **Partajarea în afara bucătăriei** (rețetă sau plan trimis ca link, „Salvează la mine”): nu e construită.
-- **Înregistrarea**: doar din invitația în bucătărie; primul cont se face cu `create-user`.
 - **Netestat cu o poză reală**: scanarea a fost verificată cu farfurii desenate (inclusiv ramura „estimat”, cu o pizza); o poză adevărată încă nu.

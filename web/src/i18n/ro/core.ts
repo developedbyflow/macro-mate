@@ -24,6 +24,7 @@ export const core = {
     recipes: 'Rețete',
     foods: 'Alimente',
     shopping: 'Cumpărături',
+    admin: 'Administrare',
   },
   sync: {
     offline: 'Offline',

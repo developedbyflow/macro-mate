@@ -10,11 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as ConfirmAccountRouteImport } from './routes/confirm-account'
 import { Route as ConfirmEmailRouteImport } from './routes/confirm-email'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppAdminRouteImport } from './routes/_app/admin'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppProgressRouteImport } from './routes/_app/progress'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
@@ -37,6 +40,11 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmAccountRoute = ConfirmAccountRouteImport.update({
+  id: '/confirm-account',
+  path: '/confirm-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfirmEmailRoute = ConfirmEmailRouteImport.update({
   id: '/confirm-email',
   path: '/confirm-email',
@@ -52,6 +60,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -60,6 +73,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -151,10 +169,13 @@ const AppRecipesRecipeIdVariantsVariantIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/confirm-account': typeof ConfirmAccountRoute
   '/confirm-email': typeof ConfirmEmailRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin': typeof AppAdminRoute
   '/profile': typeof AppProfileRoute
   '/progress': typeof AppProgressRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -174,10 +195,13 @@ export interface FileRoutesByFullPath {
   '/recipes/$recipeId/variants/$variantId': typeof AppRecipesRecipeIdVariantsVariantIdRoute
 }
 export interface FileRoutesByTo {
+  '/confirm-account': typeof ConfirmAccountRoute
   '/confirm-email': typeof ConfirmEmailRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin': typeof AppAdminRoute
   '/profile': typeof AppProfileRoute
   '/progress': typeof AppProgressRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -200,10 +224,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/confirm-account': typeof ConfirmAccountRoute
   '/confirm-email': typeof ConfirmEmailRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_app/admin': typeof AppAdminRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/progress': typeof AppProgressRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -227,10 +254,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/confirm-account'
     | '/confirm-email'
     | '/forgot-password'
     | '/login'
+    | '/register'
     | '/reset-password'
+    | '/admin'
     | '/profile'
     | '/progress'
     | '/invite/$token'
@@ -250,10 +280,13 @@ export interface FileRouteTypes {
     | '/recipes/$recipeId/variants/$variantId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/confirm-account'
     | '/confirm-email'
     | '/forgot-password'
     | '/login'
+    | '/register'
     | '/reset-password'
+    | '/admin'
     | '/profile'
     | '/progress'
     | '/invite/$token'
@@ -275,10 +308,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/confirm-account'
     | '/confirm-email'
     | '/forgot-password'
     | '/login'
+    | '/register'
     | '/reset-password'
+    | '/_app/admin'
     | '/_app/profile'
     | '/_app/progress'
     | '/invite/$token'
@@ -301,9 +337,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  ConfirmAccountRoute: typeof ConfirmAccountRoute
   ConfirmEmailRoute: typeof ConfirmEmailRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   InviteTokenRoute: typeof InviteTokenRoute
 }
@@ -315,6 +353,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirm-account': {
+      id: '/confirm-account'
+      path: '/confirm-account'
+      fullPath: '/confirm-account'
+      preLoaderRoute: typeof ConfirmAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirm-email': {
@@ -338,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -350,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -475,6 +534,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppProfileRoute: typeof AppProfileRoute
   AppProgressRoute: typeof AppProgressRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -495,6 +555,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppProfileRoute: AppProfileRoute,
   AppProgressRoute: AppProgressRoute,
   AppIndexRoute: AppIndexRoute,
@@ -519,9 +580,11 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  ConfirmAccountRoute: ConfirmAccountRoute,
   ConfirmEmailRoute: ConfirmEmailRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   InviteTokenRoute: InviteTokenRoute,
 }

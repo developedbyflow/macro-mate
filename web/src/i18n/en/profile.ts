@@ -14,6 +14,15 @@ export const profile = {
     savePassword: 'Save password',
     passwordChanged: 'Your password was changed.',
     offline: 'You need internet to change your account details.',
+    demo: 'This is a demo account: the email and password can’t be changed.',
+    delete: {
+      action: 'Delete account',
+      title: 'Delete your account?',
+      description: 'Your account, log, weights and targets are deleted. If you’re alone in your kitchen, its recipes, plans, lists and foods are deleted too. This can’t be undone.',
+      password: 'Your password, to confirm',
+      confirm: 'Delete for good',
+      done: 'Your account was deleted.',
+    },
   },
   targets: {
     macroMode: 'Macros in',
@@ -80,7 +89,7 @@ export const profile = {
   },
   kitchen: {
     title: 'Kitchen',
-    intro: 'The pantry, recipes, plans, and shopping lists are shared by everyone in the kitchen. Each person’s log, weight, and targets stay their own.',
+    intro: 'The foods you add, the pantry, recipes, plans, and shopping lists are shared by everyone in the kitchen. Each person’s log, weight, and targets stay their own.',
     offline: 'You need to be online to see who’s in the kitchen.',
     loading: 'Loading…',
     somethingWrong: 'Something went wrong. Try again.',
@@ -116,6 +125,8 @@ export const profile = {
       mealPlans_other: '{{count}} plans',
       shoppingLists_one: '{{count}} list',
       shoppingLists_other: '{{count}} lists',
+      foods_one: '{{count}} food',
+      foods_other: '{{count}} foods',
       pantryItems_one: '{{count}} pantry item',
       pantryItems_other: '{{count}} pantry items',
     },

@@ -116,7 +116,7 @@ public static class KitchenEndpoints
         if (await users.FindByEmailAsync(email) is not null)
             return Results.Problem(messages["EmailAlreadyRegistered"], statusCode: StatusCodes.Status409Conflict);
 
-        var (user, errors) = await KitchenService.CreateUserAsync(users, db, email, name, request.Password, invite.KitchenId, ct);
+        var (user, errors) = await KitchenService.CreateUserAsync(users, db, email, name, request.Password, invite.KitchenId, true, ct);
         if (user is null)
             return Results.Problem(string.Join(" ", errors), statusCode: StatusCodes.Status400BadRequest);
 
@@ -126,6 +126,6 @@ public static class KitchenEndpoints
 
         await signIn.SignInAsync(user, isPersistent: true);
         await AuthEndpoints.EnsureProfileAsync(db, user.Id, ct);
-        return Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName));
+        return Results.Ok(await AuthEndpoints.MeAsync(users, user));
     }
 }

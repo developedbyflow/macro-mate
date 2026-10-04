@@ -47,6 +47,9 @@ export const foods = {
     manualText: 'You fill it in, and AI can fill the gaps.',
     needsInternet: 'You need internet.',
     saveFood: 'Save food',
+    addToBase: 'Add to the shared base',
+    addToBaseHint: 'Everyone will see it. Untick to keep it in your kitchen only.',
+    addedToBase: '{{name}} was added to the shared base.',
   },
   label: {
     hint: 'Take a clear photo of the nutrition facts table. The name is optional: if you leave it empty, DeepSeek reads it from the package.',
@@ -56,7 +59,22 @@ export const foods = {
     otherPhoto: 'Another photo',
     read: 'Read label',
   },
+  origin: {
+    base: 'From the shared base',
+    kitchen: 'From your kitchen · added by {{name}}',
+    kitchenShort: 'your kitchen',
+  },
+  report: {
+    action: 'Report a mistake',
+    title: 'What’s wrong with {{name}}?',
+    description: 'An admin corrects foods in the shared base. Write which value is wrong and what the right one is.',
+    placeholder: 'e.g. My label says 10 g protein per 100 g, not 3 g.',
+    send: 'Send',
+    sent: 'Thanks. An admin will check the values.',
+    needsInternet: 'You need internet to send the report.',
+  },
   detail: {
+    readOnly: 'Only an admin can change foods in the shared base.',
     deleted: 'This food was deleted.',
     noGlycemicGrade: 'No glycemic grade yet. Open “Edit” and tap “Fill with AI”. Protein and volume are calculated from the values.',
     like: 'I like it',
@@ -82,6 +100,7 @@ export const foods = {
     action: 'Edit',
     title: 'Edit {{name}}',
     saved: 'Saved.',
+    notAllowed: 'This food is in the shared base, which only an admin can change.',
   },
   form: {
     aiFilled: 'DeepSeek filled in the values and grades.',

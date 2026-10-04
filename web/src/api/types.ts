@@ -32,6 +32,10 @@ export type MealScanResult = Schemas['MealScanResult']
 export type RecipeGenerateRequest = Schemas['RecipeGenerateRequest']
 export type RecipeDraft = Schemas['RecipeDraft']
 export type AiStatus = Schemas['AiStatus']
+export type AdminUser = Schemas['AdminUser']
+export type FoodDemand = Schemas['FoodDemand']
+export type OpenReport = Schemas['OpenReport']
+export type PromotedFood = Schemas['PromotedFood']
 
 export type SyncRow = Food | Recipe | RecipeVariant | MealPlan | ShoppingList | DayPlan | JournalEntry | UserProfile | WeightEntry | PantryItem
 

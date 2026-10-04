@@ -13,11 +13,12 @@ Ghidul te trece prin aplicație: ce piese are, cum circulă datele și unde e co
 | 7 | [Calculele](07-calcule.md) | Valori, note, alternative, ținte, ziua completă, lista de cumpărături, cu numere reale |
 | 8 | [PWA și offline](08-pwa-si-offline.md) | Cum se instalează, cum merge fără internet, ce cere internet |
 | 9 | [Deploy pe VPS (OVH)](09-deploy.md) | Pașii de la serverul gol la aplicația pe telefon, cu emailuri și copii de rezervă |
-| 10 | [Bucătăria comună](10-bucataria.md) | Cămara, invitația, Da/Nu, plecarea cu copie, proprietarul, arhiva |
+| 10 | [Bucătăria comună](10-bucataria.md) | Cămara, alimentele bucătăriei, invitația, Da/Nu, plecarea cu copie, proprietarul, arhiva |
 | 11 | [Ecranul Azi](11-ecranul-azi.md) | Banda de sus, mesele cu și fără plan, copierea, ziua completă |
-| 12 | [Contul și emailurile](12-contul-si-emailurile.md) | Numele, emailul, parola, „Am uitat parola”, Resend |
+| 12 | [Contul și emailurile](12-contul-si-emailurile.md) | Numele, emailul, parola, „Am uitat parola”, contul nou, ștergerea contului, Resend |
 | 13 | [Română și engleză](13-romana-si-engleza.md) | Textele pe chei, pluralele, limba la API, numele alimentelor |
 | 14 | [CI/CD](14-ci-cd.md) | Testele la fiecare push, deploy-ul automat pe `main`, cheia care poate rula doar `deploy.sh` |
+| 15 | [Conturi, roluri și contul de probă](15-conturi-si-roluri.md) | Contul nou cu email de confirmare, rolul de admin, alimentele bucătăriei, Administrare, limita zilnică la AI, ștergerea contului, „Încearcă fără cont” |
 
 Ordinea recomandată: 1, 3, 10, apoi ce te interesează.
 

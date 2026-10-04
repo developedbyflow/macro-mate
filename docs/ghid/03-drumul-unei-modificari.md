@@ -116,11 +116,11 @@ flowchart TD
   |---|---|---|
   | jurnal, planul zilei, greutate, profil | `PersonalTable` | `user_id` e al tău |
   | rețete, variante, planuri, liste, cămară | `KitchenTable` | `kitchen_id` e bucătăria ta |
-  | alimente | `FoodTable` | l-ai adăugat tu sau cineva din bucătăria ta |
+  | alimente | `FoodTable` | e în bucătăria ta; un aliment din baza generală e „al tău” doar dacă ești admin |
 
   Lista de cumpărături din exemplu e în bucătăria voastră, deci bifa ta trece.
 - **Regulile** sunt în `SyncRules.cs`. De exemplu: un aliment are nume, categorie din listă și calorii între 0 și 900 la 100 g. Un rând care nu trece e respins cu motivul, iar celelalte rânduri din cerere merg mai departe.
-- **Câmpurile serverului** sunt `createdBy`, `userId`, `kitchenId`, `createdAt`, `version` și `deletedAt`. Ce trimite telefonul în ele se ignoră. Un telefon nu poate pretinde că o rețetă e a altcuiva, nu o poate muta în altă bucătărie și nu-și poate da singur un `version`. Testul `Server_fields_sent_by_the_client_are_ignored` verifică exact asta.
+- **Câmpurile serverului** sunt `createdBy`, `userId`, `kitchenId`, `createdAt`, `version` și `deletedAt`. Ce trimite telefonul în ele se ignoră. Singura excepție: un admin poate lăsa gol `kitchenId` la un aliment nou, ca să intre în baza generală. Un telefon nu poate pretinde că o rețetă e a altcuiva, nu o poate muta în altă bucătărie și nu-și poate da singur un `version`. Testul `Server_fields_sent_by_the_client_are_ignored` verifică exact asta.
 
 ## Pasul 5. Telefonul ei află de bifă
 
@@ -140,11 +140,12 @@ Un exemplu de tabel `shopping_lists` în Postgres:
 Cu `since=41`, vine doar rândul `f9`, iar cursorul ei devine 42. Pentru 2 rânduri n-ar conta, dar cu 2.000 de alimente contează: fiecare telefon primește doar ce s-a schimbat, nu toată baza.
 
 `Pull` din `SyncEndpoints.cs` filtrează după cine cere:
-- alimentele vin toate;
+- alimentele vin din baza generală și din bucătăria ei;
 - rețetele, variantele, planurile, listele și cămara vin doar din bucătăria ei;
-- jurnalul, planul zilei, greutatea și profilul vin doar ale ei.
+- jurnalul, planul zilei, greutatea și profilul vin doar ale ei;
+- lista de conturi, din care aplicația scrie „adăugat de …”, are doar membrii bucătăriei ei.
 
-Răspunsul conține și `kitchenId`, bucătăria ei de acum. Dacă diferă de cea ținută în Dexie (a intrat în altă bucătărie sau a ieșit), telefonul golește tabelele de bucătărie și cere tot de la `since=0`.
+Răspunsul conține și `kitchenId`, bucătăria ei de acum. Dacă diferă de cea ținută în Dexie (a intrat în altă bucătărie sau a ieșit), telefonul golește tabelele de bucătărie și alimentele, apoi cere tot de la `since=0`.
 
 `applyPull` din `sync.ts` pune rândurile primite în Dexie-ul ei. Lista ei se redesenează, cu bifa ta.
 

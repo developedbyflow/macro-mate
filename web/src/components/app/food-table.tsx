@@ -142,7 +142,7 @@ export function FoodTable({ foods, pantry }: { foods: Food[]; pantry: Set<string
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{foodName(food)}</span>
                       <span className="block truncate text-xs text-muted-foreground">
-                        {[food.brand, categoryLabel(food.category)].filter(Boolean).join(' · ')}
+                        {[food.brand, categoryLabel(food.category), food.kitchenId != null ? t('foods.origin.kitchenShort') : null].filter(Boolean).join(' · ')}
                       </span>
                     </span>
                   </Link>

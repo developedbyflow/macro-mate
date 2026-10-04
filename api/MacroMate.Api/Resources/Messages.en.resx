@@ -147,4 +147,40 @@ If it wasn’t you, ignore this email.</value>
   <data name="TooManyRequests" xml:space="preserve">
     <value>Too many requests. Try again in {0} min.</value>
   </data>
+  <data name="EmailNotConfirmed" xml:space="preserve">
+    <value>Your account isn't confirmed yet. Open the link in the confirmation email.</value>
+  </data>
+  <data name="ConfirmAccountSubject" xml:space="preserve">
+    <value>Confirm your MacroMate account</value>
+  </data>
+  <data name="ConfirmAccountText" xml:space="preserve">
+    <value>Hi {0},
+
+One more step: open the link below within 2 hours to activate your MacroMate account:
+
+{1}
+
+If you didn't create this account, ignore this email.</value>
+  </data>
+  <data name="DemoName" xml:space="preserve">
+    <value>Guest</value>
+  </data>
+  <data name="DemoNotAllowed" xml:space="preserve">
+    <value>The demo account can't change its email or password. Create your own account.</value>
+  </data>
+  <data name="DemoUnavailable" xml:space="preserve">
+    <value>Demo accounts are busy right now. Try again later.</value>
+  </data>
+  <data name="LastAdmin" xml:space="preserve">
+    <value>You're the only admin. Give the admin role to someone else first.</value>
+  </data>
+  <data name="AiDailyLimit" xml:space="preserve">
+    <value>You've used today's {0} AI requests. You can use AI again tomorrow.</value>
+  </data>
+  <data name="AiTotalLimit" xml:space="preserve">
+    <value>AI has reached today's limit for the whole app. Try again tomorrow.</value>
+  </data>
+  <data name="ReportMessageInvalid" xml:space="preserve">
+    <value>Describe what's wrong in 3 to 500 characters.</value>
+  </data>
 </root>

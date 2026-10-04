@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MacroMate.Api.Features.Sync;
 
-public sealed record SyncActor(Guid UserId, Guid KitchenId);
+public sealed record SyncActor(Guid UserId, Guid KitchenId, bool IsAdmin);
 
 public interface ISyncTable
 {
@@ -83,10 +83,14 @@ public abstract class SyncTable<T>(Func<T, string?> validate) : ISyncTable where
 
 public sealed class FoodTable() : SyncTable<Food>(SyncRules.Food)
 {
-    protected override async Task<bool> IsOwnedByAsync(AppDbContext db, Food food, SyncActor actor, CancellationToken ct) =>
-        food.CreatedBy == actor.UserId || await db.Users.AnyAsync(u => u.Id == food.CreatedBy && u.KitchenId == actor.KitchenId, ct);
+    protected override Task<bool> IsOwnedByAsync(AppDbContext db, Food food, SyncActor actor, CancellationToken ct) =>
+        Task.FromResult(food.KitchenId is { } kitchenId ? kitchenId == actor.KitchenId : actor.IsAdmin);
 
-    protected override void SetOwner(Food food, SyncActor actor) => food.CreatedBy = actor.UserId;
+    protected override void SetOwner(Food food, SyncActor actor)
+    {
+        food.CreatedBy = actor.UserId;
+        food.KitchenId = actor.IsAdmin && food.KitchenId is null ? null : actor.KitchenId;
+    }
 }
 
 public class KitchenTable<T>(Func<T, string?> validate) : SyncTable<T>(validate) where T : KitchenEntity

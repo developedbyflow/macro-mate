@@ -17,6 +17,39 @@
         }
       }
     },
+    "/api/foods/{foodId}/reports": {
+      "post": {
+        "tags": [
+          "FoodReportEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/barcode/{code}": {
       "get": {
         "tags": [
@@ -245,6 +278,279 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "SignupEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/confirm-account": {
+      "post": {
+        "tags": [
+          "SignupEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/resend-confirmation": {
+      "post": {
+        "tags": [
+          "SignupEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendConfirmationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/demo": {
+      "post": {
+        "tags": [
+          "SignupEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me/delete": {
+      "post": {
+        "tags": [
+          "SignupEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminUser"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userId}/role": {
+      "put": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/food-demand": {
+      "get": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodDemand"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/food-demand/{foodId}/promote": {
+      "post": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotedFood"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/reports": {
+      "get": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OpenReport"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/reports/{reportId}/resolve": {
+      "post": {
+        "tags": [
+          "AdminEndpoints"
+        ],
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -686,6 +992,34 @@
           }
         }
       },
+      "AdminUser": {
+        "required": [
+          "id",
+          "displayName",
+          "email",
+          "isAdmin",
+          "emailConfirmed"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "emailConfirmed": {
+            "type": "boolean"
+          }
+        }
+      },
       "AiStatus": {
         "required": [
           "configured"
@@ -699,6 +1033,7 @@
       },
       "ArchiveSummary": {
         "required": [
+          "foods",
           "recipes",
           "mealPlans",
           "shoppingLists",
@@ -706,6 +1041,10 @@
         ],
         "type": "object",
         "properties": {
+          "foods": {
+            "type": "integer",
+            "format": "int32"
+          },
           "recipes": {
             "type": "integer",
             "format": "int32"
@@ -794,6 +1133,22 @@
           }
         }
       },
+      "ConfirmAccountRequest": {
+        "required": [
+          "userId",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
       "ConfirmEmailRequest": {
         "required": [
           "userId",
@@ -875,6 +1230,20 @@
           }
         }
       },
+      "DeleteAccountRequest": {
+        "required": [
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "DraftIngredient": {
         "required": [
           "foodId",
@@ -912,6 +1281,7 @@
           "estimatedFields",
           "source",
           "photoId",
+          "kitchenId",
           "createdBy",
           "id",
           "createdAt",
@@ -1010,6 +1380,13 @@
             ],
             "format": "uuid"
           },
+          "kitchenId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
           "createdBy": {
             "type": "string",
             "format": "uuid"
@@ -1036,6 +1413,56 @@
           "version": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "FoodDemand": {
+        "required": [
+          "foodId",
+          "name",
+          "nameEn",
+          "brand",
+          "barcode",
+          "category",
+          "kitchens",
+          "inBase"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameEn": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "brand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "barcode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "kitchens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inBase": {
+            "type": "boolean"
           }
         }
       },
@@ -1142,6 +1569,17 @@
             "type": "string"
           },
           "reasonEn": {
+            "type": "string"
+          }
+        }
+      },
+      "FoodReportRequest": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
             "type": "string"
           }
         }
@@ -1594,7 +2032,10 @@
         "required": [
           "id",
           "email",
-          "displayName"
+          "displayName",
+          "isAdmin",
+          "isDemo",
+          "demoExpiresAt"
         ],
         "type": "object",
         "properties": {
@@ -1607,6 +2048,19 @@
           },
           "displayName": {
             "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "isDemo": {
+            "type": "boolean"
+          },
+          "demoExpiresAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -1681,6 +2135,40 @@
           }
         }
       },
+      "OpenReport": {
+        "required": [
+          "id",
+          "foodId",
+          "foodName",
+          "message",
+          "reporterName",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "foodName": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "reporterName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PantryItem": {
         "required": [
           "foodId",
@@ -1728,6 +2216,18 @@
           "version": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "PromotedFood": {
+        "required": [
+          "foodId"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -1974,6 +2474,17 @@
           }
         }
       },
+      "ResendConfirmationRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
       "ResetPasswordRequest": {
         "required": [
           "email",
@@ -2061,6 +2572,17 @@
           }
         }
       },
+      "SetRoleRequest": {
+        "required": [
+          "admin"
+        ],
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "boolean"
+          }
+        }
+      },
       "ShoppingList": {
         "required": [
           "name",
@@ -2138,6 +2660,25 @@
           "days": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "SignupRequest": {
+        "required": [
+          "email",
+          "displayName",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
           }
         }
       },
@@ -2613,6 +3154,9 @@
       "name": "MacroMate.Api"
     },
     {
+      "name": "FoodReportEndpoints"
+    },
+    {
       "name": "BarcodeEndpoints"
     },
     {
@@ -2620,6 +3164,12 @@
     },
     {
       "name": "AccountEndpoints"
+    },
+    {
+      "name": "SignupEndpoints"
+    },
+    {
+      "name": "AdminEndpoints"
     },
     {
       "name": "KitchenEndpoints"

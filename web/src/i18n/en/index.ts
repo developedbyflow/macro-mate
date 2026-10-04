@@ -1,4 +1,5 @@
 import type { Messages } from '../messages'
+import { admin } from './admin'
 import { auth } from './auth'
 import { core } from './core'
 import { foods } from './foods'
@@ -9,4 +10,4 @@ import { recipes } from './recipes'
 import { shopping } from './shopping'
 import { today } from './today'
 
-export const en = { ...core, today, progress, foods, recipes, plans, shopping, profile, auth } satisfies Messages
+export const en = { ...core, today, progress, foods, recipes, plans, shopping, profile, auth, admin } satisfies Messages

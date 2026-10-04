@@ -1,4 +1,5 @@
 using MacroMate.Api.Data;
+using MacroMate.Api.Features.Auth;
 using MacroMate.Api.Features.Kitchens;
 using Microsoft.AspNetCore.Identity;
 
@@ -6,7 +7,7 @@ namespace MacroMate.Api.Admin;
 
 public static class AdminCommands
 {
-    public static bool IsCommand(string[] args) => args.Length > 0 && args[0] is "create-user" or "seed-foods";
+    public static bool IsCommand(string[] args) => args.Length > 0 && args[0] is "create-user" or "seed-foods" or "set-role";
 
     public static async Task<int> RunAsync(WebApplication app, string[] args)
     {
@@ -25,7 +26,7 @@ public static class AdminCommands
                 }
                 var password = ReadPassword();
                 var users = services.GetRequiredService<UserManager<AppUser>>();
-                var (user, errors) = await KitchenService.CreateUserAsync(users, services.GetRequiredService<AppDbContext>(), email, name, password, null, CancellationToken.None);
+                var (user, errors) = await KitchenService.CreateUserAsync(users, services.GetRequiredService<AppDbContext>(), email, name, password, null, true, CancellationToken.None);
                 if (user is null)
                 {
                     foreach (var error in errors)
@@ -51,6 +52,35 @@ public static class AdminCommands
                 }
                 var added = await SeedFoods.RunAsync(services.GetRequiredService<AppDbContext>(), user.Id, CancellationToken.None);
                 Console.WriteLine($"Am adăugat {added} alimente.");
+                return 0;
+            }
+            case "set-role":
+            {
+                if (!options.TryGetValue("email", out var email) || !options.TryGetValue("role", out var role) || role is not ("admin" or "user"))
+                {
+                    Console.Error.WriteLine("Folosire: set-role --email adresa@exemplu.ro --role admin|user");
+                    return 1;
+                }
+                var users = services.GetRequiredService<UserManager<AppUser>>();
+                var user = await users.FindByEmailAsync(email);
+                if (user is null)
+                {
+                    Console.Error.WriteLine($"Nu există contul {email}.");
+                    return 1;
+                }
+                var isAdmin = await users.IsInRoleAsync(user, AppRoles.Admin);
+                if (role == "admin" && !isAdmin)
+                    await users.AddToRoleAsync(user, AppRoles.Admin);
+                else if (role == "user" && isAdmin)
+                {
+                    if (await AccountService.IsLastAdminAsync(services.GetRequiredService<AppDbContext>(), user.Id, CancellationToken.None))
+                    {
+                        Console.Error.WriteLine("E singurul admin. Dă întâi rolul de admin altui cont.");
+                        return 1;
+                    }
+                    await users.RemoveFromRoleAsync(user, AppRoles.Admin);
+                }
+                Console.WriteLine($"Contul {email} are acum rolul {role}.");
                 return 0;
             }
         }

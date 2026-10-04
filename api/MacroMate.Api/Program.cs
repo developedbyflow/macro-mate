@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using MacroMate.Api.Admin;
+using MacroMate.Api.Features.Admin;
 using MacroMate.Api.Data;
 using MacroMate.Api.Features.Ai;
 using MacroMate.Api.Features.Auth;
@@ -45,6 +46,7 @@ builder.Services
         o.Lockout.MaxFailedAccessAttempts = 5;
         o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     })
+    .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager()
     .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
@@ -90,6 +92,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 builder.Services.AddAppRateLimiting(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUser>();
+builder.Services.AddHostedService<DemoCleanup>();
 builder.Services.AddProblemDetails();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict);
 builder.Services.AddOpenApi(o => o.AddSchemaTransformer((schema, _, _) =>
@@ -119,6 +122,7 @@ if (!isBuildTimeOpenApi)
 {
     await using var scope = app.Services.CreateAsyncScope();
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+    await AppRoles.EnsureAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>());
     if (app.Environment.IsDevelopment())
         await DevSeed.RunAsync(scope.ServiceProvider, builder.Configuration.GetSection("DevSeed").Get<DevSeedOptions>() ?? new(), CancellationToken.None);
 }
@@ -145,6 +149,9 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuthEndpoints();
 app.MapAccountEndpoints();
+app.MapSignupEndpoints();
+app.MapAdminEndpoints();
+app.MapFoodReportEndpoints();
 app.MapKitchenEndpoints();
 app.MapSyncEndpoints();
 app.MapBarcodeEndpoints();

@@ -1,6 +1,6 @@
 # 6. Alimente, scanare și AI
 
-Un aliment nou intră în bază pe unul din trei drumuri: scanezi codul de bare, faci o poză la etichetă sau îl scrii de mână. Toate trei ajung în același formular, unde verifici ce s-a completat și salvezi. Alimentul intră în baza generală, pe care o văd toate conturile, și direct în cămara bucătăriei tale.
+Un aliment nou intră în aplicație pe unul din trei drumuri: scanezi codul de bare, faci o poză la etichetă sau îl scrii de mână. Toate trei ajung în același formular, unde verifici ce s-a completat și salvezi. Alimentul intră în **bucătăria ta**, unde îl văd doar membrii ei, și direct în cămară. Un admin are în plus bifa **„Adaugă în baza generală”**: așa alimentul îl văd toate conturile. Cine modifică ce aliment e explicat în [capitolul 15](15-conturi-si-roluri.md).
 
 ```mermaid
 flowchart TD
@@ -109,7 +109,7 @@ sequenceDiagram
   participant P as Postgres
   participant D as DeepSeek
   T->>A: „desert cu mere”, cât mai ai azi
-  A->>P: alimentele, cămara, profilul tău
+  A->>P: alimentele tale, cămara, profilul
   A->>A: scoate ce ai exclus
   A->>D: cererea + lista numerotată de alimente
   D-->>A: rețeta, cu alimente după număr
@@ -120,6 +120,7 @@ sequenceDiagram
 
 Câteva alegeri, cu motivul lor:
 - **Alimentele sunt trimise numerotate (0, 1, 2…), nu cu id-ul lor.** Un număr scurt e mai greu de greșit pentru AI decât un id de 36 de caractere. API-ul verifică fiecare număr și îl transformă înapoi în id. Numerele care nu există se aruncă.
+- **Doar alimentele pe care le vezi.** API-ul trimite alimentele din baza generală și din bucătăria ta. Alimentele altor bucătării nu ajung la DeepSeek.
 - **Excluderile se aplică pe server.** Alimentele și categoriile excluse nici nu ajung la DeepSeek, așa că nu are cum să le folosească.
 - **Cămara are întâietate.** În listă, alimentele din cămara bucătăriei tale au semnul `pantry`, iar cele care îți plac semnul `liked`. Promptul cere să le folosească întâi pe cele din cămară, apoi pe cele care îți plac.
 - **Valorile le calculează aplicația, nu AI-ul.** Ciorna arată calorii calculate din alimentele din bază, cu aceleași formule ca peste tot în aplicație.
@@ -138,7 +139,7 @@ sequenceDiagram
   participant P as Postgres
   participant D as DeepSeek
   T->>A: POST /api/ai/meals/scan, poza
-  A->>P: toate alimentele
+  A->>P: baza generală + bucătăria ta
   A->>D: poza + lista numerotată
   D-->>A: alimente găsite și estimate
   A->>A: verifică numerele, limitează valorile
@@ -148,7 +149,7 @@ sequenceDiagram
 ```
 
 1. Telefonul micșorează poza la 1280 px și o trimite ca text, ca la etichetă.
-2. API-ul trimite la DeepSeek poza și lista alimentelor din bază: număr, nume în română, nume în engleză, categorie, valori la 100 g.
+2. API-ul trimite la DeepSeek poza și lista alimentelor din baza generală și din bucătăria ta: număr, nume în română, nume în engleză, categorie, valori la 100 g.
 3. DeepSeek întoarce, pentru fiecare lucru din farfurie:
    - dacă e în listă: numărul lui și gramele;
    - dacă nu e: numele, gramele și valorile estimate pentru porția aceea, nu la 100 g;
@@ -183,6 +184,14 @@ La legume, fructe, pâine, brânză și iaurt, cele două numere sunt egale.
 
 Fiecare cont are cel mult **30 de cereri la 10 minute** spre `/api/ai/*`. Limita e numărată pe cont, de limitatorul de cereri din ASP.NET Core (politica `ai`). Peste ea, API-ul răspunde 429 cu „Prea multe cereri. Încearcă din nou peste N min.” și headerul `Retry-After`; N sunt minutele până se golește fereastra de 10 minute, calculate din același `Retry-After`. Așa, un cont scăpat sau un script nu poate cheltui tokenii DeepSeek. Limita se schimbă cu setarea `RateLimits__AiPerTenMinutes`. Verificarea „e AI-ul pregătit?” (`GET /api/ai/status`), pe care aplicația o face din câteva în câteva minute, nu intră în limită: are `.DisableRateLimiting()`.
 
+Pe lângă ea e o **limită pe zi**, numărată în Postgres, în tabelul `ai_usage`, de filtrul `AiQuotaFilter` din `Features/Ai/AiQuota.cs`:
+- un utilizator: 20 de cereri pe zi (`RateLimits__AiPerUserPerDay`);
+- un cont de probă: 5 (`RateLimits__AiPerDemoPerDay`);
+- toată aplicația: 300 (`RateLimits__AiTotalPerDay`);
+- un admin: fără limită.
+
+Contează completarea alimentului, rețeta generată și scanarea farfuriei. Ziua e ziua UTC. Cererea se numără înainte să ruleze endpoint-ul, deci și una respinsă apoi, de exemplu cu o poză prea mare. Detaliile sunt în [capitolul 15](15-conturi-si-roluri.md).
+
 ## Când AI-ul nu merge
 
 | Situație | Ce vezi | Codul HTTP |
@@ -190,6 +199,8 @@ Fiecare cont are cel mult **30 de cereri la 10 minute** spre `/api/ai/*`. Limita
 | nu e cheie pe server | „AI-ul nu e configurat: lipsește cheia DeepSeek pe server.” | 503 |
 | DeepSeek răspunde cu eroare sau cu JSON greșit | mesajul de eroare; formularul rămâne cum era | 502 |
 | prea multe cereri spre AI | „Prea multe cereri. Încearcă din nou peste N min.” (N până la 10) | 429 |
+| ai folosit cererile tale de azi | „Ai folosit cele 20 cereri AI de azi. Mâine poți din nou.” (5 la un cont de probă) | 429 |
+| toată aplicația a folosit cererile de azi | „AI-ul a ajuns la limita de azi pentru toată aplicația. Încearcă mâine.” | 429 |
 | ești offline | butoanele de AI sunt dezactivate | — |
 
 Alimentul se poate salva și fără note. Le calculezi mai târziu: Editează → „Completează cu AI”.

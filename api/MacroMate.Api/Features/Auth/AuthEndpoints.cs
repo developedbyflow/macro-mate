@@ -9,7 +9,7 @@ namespace MacroMate.Api.Features.Auth;
 
 public sealed record LoginRequest(string Email, string Password);
 
-public sealed record MeResponse(Guid Id, string Email, string DisplayName);
+public sealed record MeResponse(Guid Id, string Email, string DisplayName, bool IsAdmin, bool IsDemo, DateTimeOffset? DemoExpiresAt);
 
 public static class AuthEndpoints
 {
@@ -32,6 +32,10 @@ public static class AuthEndpoints
         var user = await users.FindByEmailAsync(request.Email.Trim());
         if (user is null)
             return Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);
+        if (!user.EmailConfirmed)
+            return await users.CheckPasswordAsync(user, request.Password)
+                ? Results.Problem(messages["EmailNotConfirmed"], statusCode: StatusCodes.Status403Forbidden)
+                : Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);
 
         var result = await signIn.PasswordSignInAsync(user, request.Password, isPersistent: true, lockoutOnFailure: true);
         if (result.IsLockedOut)
@@ -40,7 +44,7 @@ public static class AuthEndpoints
             return Results.Problem(messages["InvalidCredentials"], statusCode: StatusCodes.Status401Unauthorized);
 
         await EnsureProfileAsync(db, user.Id, ct);
-        return Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName));
+        return Results.Ok(await AuthEndpoints.MeAsync(users, user));
     }
 
     static async Task<IResult> Logout(SignInManager<AppUser> signIn)
@@ -56,8 +60,11 @@ public static class AuthEndpoints
             return Results.Unauthorized();
 
         await EnsureProfileAsync(db, user.Id, ct);
-        return Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName));
+        return Results.Ok(await AuthEndpoints.MeAsync(users, user));
     }
+
+    public static async Task<MeResponse> MeAsync(UserManager<AppUser> users, AppUser user) =>
+        new(user.Id, user.Email!, user.DisplayName, await users.IsInRoleAsync(user, AppRoles.Admin), user.IsDemo, user.DemoExpiresAt);
 
     public static async Task EnsureProfileAsync(AppDbContext db, Guid userId, CancellationToken ct)
     {

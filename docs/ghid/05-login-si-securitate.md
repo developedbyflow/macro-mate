@@ -30,6 +30,8 @@ sequenceDiagram
 3. Dacă parola e bună, API-ul pune în răspuns un cookie, `mm_auth`. Conținutul e criptat cu chei pe care le are doar serverul.
 4. Telefonul ține în Dexie cine e logat, apoi face prima sincronizare, de la zero.
 
+Un cont făcut din pagina de login, care nu și-a deschis încă linkul de confirmare, primește 403 cu parola bună și 401 cu parola greșită. Răspunsul de la login spune și dacă ești admin sau cont de probă (`isAdmin`, `isDemo`).
+
 ## Cookie-ul și ce face fiecare setare
 
 Răspunsul la login conține:
@@ -63,9 +65,19 @@ Din `Program.cs`:
 
 ## Cum se face un cont
 
-Aplicația nu are înregistrare publică. Un cont se face în două feluri:
-- **pe server**, cu comanda `create-user` (`Admin/AdminCommands.cs`): pentru primul cont. Parola se tastează ascuns și nu rămâne în istoricul terminalului;
-- **dintr-un link de invitație** în bucătărie: `POST /api/invites/<token>/register`. Linkul îl face cineva care are deja cont, merge o singură dată și expiră după 7 zile. Contul nou intră direct în bucătăria celui care a invitat.
+Un cont se face în patru feluri:
+- **din pagina de login**, cu „Creează unul”: `POST /api/auth/register`. Contul are bucătăria lui și merge doar după ce deschizi linkul primit pe email, în cel mult 2 ore;
+- **dintr-un link de invitație** în bucătărie: `POST /api/invites/<token>/register`. Linkul îl face cineva care are deja cont, merge o singură dată și expiră după 7 zile. Contul nou intră direct în bucătăria celui care a invitat;
+- **pe server**, cu comanda `create-user` (`Admin/AdminCommands.cs`). Parola se tastează ascuns și nu rămâne în istoricul terminalului;
+- **contul de probă**, cu „Încearcă fără cont”: `POST /api/auth/demo`. Se șterge singur după 24 de ore.
+
+Doar contul din pagina de login cere confirmarea pe email. Celelalte sunt confirmate direct.
+
+## Rolurile
+
+ASP.NET Core Identity are și **roluri**: nume puse pe un cont, după care serverul decide ce are voie contul. MacroMate are un singur rol, `admin`, ținut în tabelele `roles` și `user_roles`. Un admin modifică baza generală de alimente, vede pagina Administrare și dă roluri. Primul admin se face pe server, cu `set-role`.
+
+Endpoint-urile `/api/admin/*` verifică rolul în bază la fiecare cerere, cu filtrul `AdminOnly`. Fără rol, răspund 403. Tot mecanismul e în [capitolul 15](15-conturi-si-roluri.md).
 
 ## Contul și emailurile, pe scurt
 
@@ -74,7 +86,8 @@ Aplicația nu are înregistrare publică. Un cont se face în două feluri:
 - emailul nou se schimbă doar după ce deschizi linkul trimis pe el;
 - linkurile merg 2 ore și sunt semnate de server;
 - la „Am uitat parola”, API-ul răspunde **la fel** și pentru un email care nu are cont. Așa nimeni nu poate afla ce adrese au cont, încercându-le una câte una;
-- adresa din link vine din setarea `Email:PublicUrl`, nu din headerul `Host` al cererii. Headerul `Host` îl scrie cine trimite cererea; un atacator l-ar putea folosi ca linkul din emailul tău să ducă la site-ul lui, cu tokenul tău în el.
+- adresa din link vine din setarea `Email:PublicUrl`, nu din headerul `Host` al cererii. Headerul `Host` îl scrie cine trimite cererea; un atacator l-ar putea folosi ca linkul din emailul tău să ducă la site-ul lui, cu tokenul tău în el;
+- ștergerea contului cere parola actuală și șterge de tot datele tale de pe server. Ultimul admin nu își poate șterge contul.
 
 Mecanismul complet, cu emailurile prin Resend, e în capitolul despre cont și emailuri.
 
@@ -88,7 +101,7 @@ MacroMate are două **politici**, adică două seturi de reguli cu nume, în `Fe
 
 | Politica | Se numără separat pentru | Limita | Pe ce endpoint-uri |
 |---|---|---|---|
-| `auth` | fiecare adresă IP | 10 cereri pe minut | login, „Am uitat parola”, resetarea parolei, confirmarea emailului, schimbarea parolei și a emailului, toate `/api/invites/*` |
+| `auth` | fiecare adresă IP | 10 cereri pe minut | login, „Am uitat parola”, resetarea parolei, confirmarea emailului, schimbarea parolei și a emailului, toate `/api/invites/*`, contul nou, confirmarea și retrimiterea lui, contul de probă, ștergerea contului, „Raportează o greșeală” |
 | `ai` | fiecare cont logat | 30 de cereri la 10 minute | toate `/api/ai/*`: completarea alimentului, rețeta generată, scanarea farfuriei, starea cheii |
 
 Limita e pe toate endpoint-urile politicii împreună: 6 login-uri și 4 resetări în același minut fac 10.
@@ -146,19 +159,37 @@ Retry-After: 42
 
 Pe server le adaugi în `deploy/compose.prod.yaml`, la `api` → `environment`. Telefoanele din aceeași rețea Wi-Fi ies pe internet cu aceeași adresă IP, deci împart limita `auth`. Pentru câteva conturi, 10 pe minut ajung.
 
+## Limita zilnică la AI
+
+Limitatorul de mai sus numără în memorie, pe ferestre scurte. Cu înregistrarea publică, cineva și-ar putea face multe conturi și ar cheltui tokenii DeepSeek câte 30 la 10 minute pe fiecare. De aceea AI-ul are și o limită pe zi, numărată în Postgres, în tabelul `ai_usage`:
+
+| Cine | Cereri pe zi (ziua UTC) | Setare |
+|---|---|---|
+| un utilizator | 20 | `RateLimits__AiPerUserPerDay` |
+| un cont de probă | 5 | `RateLimits__AiPerDemoPerDay` |
+| toată aplicația | 300 | `RateLimits__AiTotalPerDay` |
+| un admin | fără limită | — |
+
+Numără filtrul `AiQuotaFilter`, înaintea endpoint-urilor care cheamă DeepSeek. Peste limită, răspunsul e 429: „Ai folosit cele 20 cereri AI de azi. Mâine poți din nou.” sau „AI-ul a ajuns la limita de azi pentru toată aplicația. Încearcă mâine.”. Detaliile sunt în [capitolul 15](15-conturi-si-roluri.md).
+
 ## Cine vede ce
 
 | Date | Cine le vede | Unde e regula |
 |---|---|---|
-| alimente | toate conturile; le modifică doar autorul și cei din bucătăria lui | `FoodTable` din `SyncTables.cs` |
+| alimentele din baza generală | toate conturile; le modifică doar adminii | `FoodTable` din `SyncTables.cs`; `KitchenId == null` la citire, în `SyncEndpoints.cs` |
+| alimentele unei bucătării | membrii bucătăriei; tot ei le modifică | `FoodTable`; `KitchenId == …` la citire |
+| lista de conturi (numele, pentru „adăugat de”) | membrii bucătăriei tale | `SyncEndpoints.cs`: `where KitchenId == …` |
 | rețete, variante, planuri, liste, cămară | membrii bucătăriei | `KitchenTable`: `kitchen_id` la scriere, `where KitchenId == …` la citire, în `SyncEndpoints.cs` |
 | jurnal, planul zilei, greutate, profil | doar proprietarul | `PersonalTable`: `IsOwnedBy` la scriere, `where UserId == …` la citire |
 | pozele | doar cine e logat | `PhotoEndpoints.cs`: `RequireAuthorization()` |
+| pagina Administrare: conturile, rapoartele, cererea de alimente | doar adminii | `AdminOnly` din `Features/Admin/AdminEndpoints.cs` |
 
 Testele verifică regulile:
 - `Personal_rows_stay_with_their_owner`: jurnalul tău nu ajunge la altcineva, iar o încercare de a-ți modifica o intrare primește `not-owner`;
 - `Recipes_stay_inside_their_kitchen`: o rețetă nu ajunge la un cont din altă bucătărie;
-- `Only_the_kitchen_of_the_author_can_change_a_food`: un aliment îl modifică doar bucătăria celui care l-a adăugat.
+- `Only_the_kitchen_of_the_author_can_change_a_food`: un aliment al unei bucătării îl modifică doar bucătăria lui;
+- `Base_foods_are_read_only_for_users_and_editable_by_admins`: un aliment din baza generală îl modifică doar un admin;
+- `Only_admins_manage_roles_and_the_last_admin_keeps_the_role`: `/api/admin/*` răspunde 403 unui cont fără rol, iar ultimul admin își păstrează rolul.
 
 ## Ce verifică serverul la fiecare scriere
 

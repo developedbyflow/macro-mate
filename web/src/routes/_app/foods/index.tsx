@@ -110,6 +110,7 @@ function FoodsPage() {
                       {pantry.has(food.id) && <Refrigerator className="size-3.5 shrink-0 text-primary" />}
                       <span className="truncate">{foodName(food)}</span>
                       {food.brand && <span className="truncate text-muted-foreground">· {food.brand}</span>}
+                      {food.kitchenId != null && <span className="shrink-0 rounded-full bg-accent px-1.5 py-px text-[0.65rem] font-medium text-accent-foreground">{t('foods.origin.kitchenShort')}</span>}
                     </div>
                     <div className="truncate text-xs text-muted-foreground tabular-nums">
                       {kcal(food.kcal)} kcal · {t('nutrients.proteinShort')} {num(food.proteinG)} · {t('nutrients.carbsShort')} {num(food.carbsG)} · {t('nutrients.fatShort')} {num(food.fatG)} · {categoryLabel(food.category)}

@@ -24,6 +24,7 @@ export const core = {
     recipes: 'Recipes',
     foods: 'Foods',
     shopping: 'Shopping',
+    admin: 'Admin',
   },
   sync: {
     offline: 'Offline',

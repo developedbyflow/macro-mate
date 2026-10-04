@@ -107,8 +107,9 @@ export async function setMeta<E extends MetaEntry>(entry: E) {
 }
 
 export async function resetKitchenData(kitchenId: string) {
-  await db.transaction('rw', [...kitchenTables.map((t) => db.table(t)), db.meta], async () => {
-    await Promise.all(kitchenTables.map((t) => db.table(t).clear()))
+  const tables = [...kitchenTables, 'foods'] as const
+  await db.transaction('rw', [...tables.map((t) => db.table(t)), db.meta], async () => {
+    await Promise.all(tables.map((t) => db.table(t).clear()))
     await setMeta({ key: 'cursor', value: 0 })
     await setMeta({ key: 'kitchenId', value: kitchenId })
   })

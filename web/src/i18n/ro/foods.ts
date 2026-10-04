@@ -48,6 +48,9 @@ export const foods = {
     manualText: 'Completezi tu, iar AI-ul poate umple golurile.',
     needsInternet: 'Ai nevoie de internet.',
     saveFood: 'Salvează alimentul',
+    addToBase: 'Adaugă în baza generală',
+    addToBaseHint: 'Îl văd toți utilizatorii. Dacă debifezi, rămâne doar în bucătăria ta.',
+    addedToBase: '{{name}} a fost adăugat în baza generală.',
   },
   label: {
     hint: 'Fă o poză clară la tabelul cu valori nutriționale. Numele e opțional: dacă îl lași gol, îl citește DeepSeek de pe ambalaj.',
@@ -57,7 +60,22 @@ export const foods = {
     otherPhoto: 'Altă poză',
     read: 'Citește eticheta',
   },
+  origin: {
+    base: 'Din baza generală',
+    kitchen: 'Din bucătăria ta · adăugat de {{name}}',
+    kitchenShort: 'bucătăria ta',
+  },
+  report: {
+    action: 'Raportează o greșeală',
+    title: 'Ce e greșit la {{name}}?',
+    description: 'Alimentele din baza generală le corectează adminul. Scrie ce valoare e greșită și care e cea corectă.',
+    placeholder: 'ex. Pe eticheta mea, proteina e 10 g la 100 g, nu 3 g.',
+    send: 'Trimite',
+    sent: 'Mulțumim. Adminul se uită peste valori.',
+    needsInternet: 'Ai nevoie de internet ca să trimiți raportul.',
+  },
   detail: {
+    readOnly: 'Alimentele din baza generală le modifică doar adminul.',
     deleted: 'Alimentul a fost șters.',
     noGlycemicGrade: 'Fără notă glicemică încă. Deschide „Editează” și apasă „Completează cu AI”. Proteina și volumul se calculează din valori.',
     like: 'Îmi place',
@@ -83,6 +101,7 @@ export const foods = {
     action: 'Editează',
     title: 'Editează {{name}}',
     saved: 'Salvat.',
+    notAllowed: 'Alimentul e în baza generală, pe care o modifică doar adminul.',
   },
   form: {
     aiFilled: 'DeepSeek a completat valorile și notele.',

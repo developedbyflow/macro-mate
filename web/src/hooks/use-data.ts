@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo } from 'react'
-import type { DayPlan, Food, JournalEntry, MealPlan, Recipe, RecipeVariant, ShoppingList, UserProfile, WeightEntry } from '@/api/types'
+import type { DayPlan, Food, JournalEntry, MealPlan, MeResponse, Recipe, RecipeVariant, ShoppingList, UserProfile, WeightEntry } from '@/api/types'
 import { db } from '@/db/database'
 import type { Exclusions } from '@/lib/nutrition'
 import { foodName } from '@/lib/food-name'
@@ -13,7 +13,21 @@ function alive<T extends { deletedAt: string | null }>(rows: T[]) {
 const empty: never[] = []
 
 export function useMe() {
-  return useLiveQuery(async () => (await db.meta.get('me'))?.value as { id: string; email: string; displayName: string } | undefined)
+  return useLiveQuery(async () => (await db.meta.get('me'))?.value as MeResponse | undefined)
+}
+
+export function useKitchenId() {
+  return useLiveQuery(async () => ((await db.meta.get('kitchenId'))?.value as string | undefined) ?? null)
+}
+
+export function canEditFood(food: Food, kitchenId: string | null | undefined, isAdmin: boolean) {
+  return food.kitchenId == null ? isAdmin : food.kitchenId === kitchenId
+}
+
+export function useCanEditFood(food: Food | undefined) {
+  const me = useMe()
+  const kitchenId = useKitchenId()
+  return food != null && canEditFood(food, kitchenId, me?.isAdmin ?? false)
 }
 
 export function useFoods(): Food[] {

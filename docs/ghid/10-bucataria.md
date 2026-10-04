@@ -1,6 +1,6 @@
 # 10. Bucătăria comună
 
-**Bucătăria** e grupul de conturi care împart aceleași lucruri: cămara, rețetele, planurile și listele de cumpărături. Fiecare cont e într-o singură bucătărie la un moment dat. Un cont nou are bucătăria lui, goală.
+**Bucătăria** e grupul de conturi care împart aceleași lucruri: alimentele adăugate de ei, cămara, rețetele, planurile și listele de cumpărături. Fiecare cont e într-o singură bucătărie la un moment dat. Un cont nou are bucătăria lui, goală.
 
 Datele aplicației stau acum pe trei niveluri:
 
@@ -8,6 +8,7 @@ Datele aplicației stau acum pe trei niveluri:
 flowchart TD
   G[Baza generală de alimente] -->|Adaugă în cămară| C
   subgraph B[Bucătăria: a membrilor]
+    A[Alimentele bucătăriei]
     C[Cămara]
     R[Rețete și variante]
     P[Planuri]
@@ -19,8 +20,8 @@ flowchart TD
 
 | Nivel | Ce e în el | Cine îl vede |
 |---|---|---|
-| baza generală | alimentele: cele de start și tot ce a scanat sau a scris cineva | toate conturile |
-| bucătăria | cămara, rețetele, variantele, planurile, listele | membrii bucătăriei |
+| baza generală | alimentele de start, cele adăugate de admini și cele puse în bază din pagina Administrare | toate conturile; le modifică doar adminii |
+| bucătăria | alimentele adăugate de membri, cămara, rețetele, variantele, planurile, listele | membrii bucătăriei |
 | personal | jurnalul, planul zilei, greutatea, profilul (ținte, excluderi, „îmi place”) | doar contul tău |
 
 Specificația, scrisă înainte de cod, e în `docs/bucataria.md`.
@@ -37,6 +38,7 @@ Pe server, în `api/MacroMate.Api/Data/Kitchen.cs` și `AppUser.cs`:
 | `kitchen_invites` | `token`, bucătăria, cine a invitat, `expires_at` (după 7 zile), `used_at` |
 | `pantry_items` | cămara: un rând pentru fiecare aliment din cămara unei bucătării |
 | `kitchen_id` pe `recipes`, `recipe_variants`, `meal_plans`, `shopping_lists` | a cărei bucătării e rândul |
+| `foods.kitchen_id` | gol: alimentul e în baza generală; altfel, bucătăria alimentului |
 
 În C#, tabelele de bucătărie moștenesc o clasă comună:
 
@@ -59,29 +61,29 @@ La sincronizare, telefonul cere `GET /api/sync?since=…`. În `SyncEndpoints.cs
 
 ```csharp
 var kitchenId = await db.Users.Where(u => u.Id == userId).Select(u => u.KitchenId).SingleAsync(ct);
-var foods = await db.Foods.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
+var foods = await db.Foods.AsNoTracking().Where(x => (x.KitchenId == null || x.KitchenId == kitchenId) && x.Version > since).ToListAsync(ct);
 var recipes = await db.Recipes.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
 var pantry = await db.PantryItems.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
 ```
 
-Alimentele vin toate. Rețetele și cămara vin doar din bucătăria ta.
+Alimentele vin din baza generală și din bucătăria ta. Rețetele și cămara vin doar din bucătăria ta. Lista de conturi din răspuns, din care aplicația scrie „adăugat de …”, are doar membrii bucătăriei tale.
 
 La scriere, `SyncTables.cs` are câte o regulă pe fel de tabel:
 
 | Tabelul | Poți modifica un rând dacă… |
 |---|---|
-| alimente (`FoodTable`) | l-ai adăugat tu sau l-a adăugat cineva din bucătăria ta |
+| alimente (`FoodTable`) | e în bucătăria ta; dacă e în baza generală, doar dacă ești admin |
 | rețete, variante, planuri, liste, cămară (`KitchenTable`) | rândul e în bucătăria ta |
 | jurnal, planul zilei, greutate, profil (`PersonalTable`) | rândul e al tău |
 
-Altfel, rândul e respins cu `not-owner`. Un rând nou de bucătărie primește automat bucătăria ta: ce trimite telefonul în `kitchenId` se ignoră.
+Altfel, rândul e respins cu `not-owner`. Un rând nou de bucătărie primește automat bucătăria ta: ce trimite telefonul în `kitchenId` se ignoră. La alimente, la fel, cu o excepție: un admin poate lăsa `kitchenId` gol, ca alimentul să intre în baza generală. Rolul de admin și regula completă sunt în [capitolul 15](15-conturi-si-roluri.md).
 
 ## Cămara
 
 **Cămara** e lista de alimente pe care bucătăria le are de obicei acasă. A înlocuit favoritele.
 
 - Pe un aliment: **„Adaugă în cămară”** / **„Scoate din cămară”** (iconița de frigider).
-- Un aliment nou, scanat sau scris de tine, intră direct în cămară (`addToPantry` din `routes/_app/foods/new.tsx`).
+- Un aliment nou, scanat sau scris de tine, intră în bucătăria ta și direct în cămară (`addToPantry` din `routes/_app/foods/new.tsx`).
 - La „Adaugă” sunt patru taburi: Recente, Cămara, Toate, Rețete.
 - Pagina Alimente arată implicit cămara, dacă nu e goală; „Toată baza” e la un click.
 - Alternativele unui ingredient vin întâi din cămară, apoi după apropierea valorilor.
@@ -151,8 +153,8 @@ Dacă are cont, dar nu e logată, pagina are un link spre login. Login-ul prime�
 
 | Alegerea | Ce se întâmplă cu ce avea ea |
 |---|---|
-| **Da, aduc tot** | rețetele, variantele, planurile și listele ei primesc `kitchen_id` = bucătăria ta. Cămara ei se adaugă la a ta; un aliment din ambele cămări rămâne o dată |
-| **Nu** | bucătăria ei veche devine **arhiva** ei (`archive_kitchen_id`), neatinsă. Dacă avea deja o arhivă, lucrurile se adaugă în ea |
+| **Da, aduc tot** | alimentele, rețetele, variantele, planurile și listele ei primesc `kitchen_id` = bucătăria ta. Cămara ei se adaugă la a ta; un aliment din ambele cămări rămâne o dată |
+| **Nu** | bucătăria ei veche devine **arhiva** ei (`archive_kitchen_id`), neatinsă, cu alimentele ei cu tot. Dacă avea deja o arhivă, lucrurile se adaugă în ea |
 
 Înainte de mutare, API-ul verifică două lucruri:
 - dacă e deja în bucătăria ta → 409, „Ești deja în bucătăria asta.”;
@@ -173,8 +175,8 @@ if (knownKitchen && knownKitchen !== response.kitchenId && since > 0) {
 
 1. Răspunsul de la `GET /api/sync` conține `kitchenId`.
 2. `pull` din `web/src/db/sync.ts` îl compară cu cel ținut în Dexie.
-3. Dacă diferă, `resetKitchenData` golește tabelele de bucătărie din telefon și pune cursorul la 0.
-4. Telefonul cere tot de la zero, `since=0`, și primește bucătăria nouă.
+3. Dacă diferă, `resetKitchenData` golește din telefon tabelele de bucătărie și alimentele, apoi pune cursorul la 0. Alimentele se golesc și ele, pentru că unele erau ale bucătăriei vechi.
+4. Telefonul cere tot de la zero, `since=0`, și primește bucătăria nouă și baza generală.
 
 Jurnalul, greutatea și profilul nu se ating: sunt personale.
 
@@ -184,10 +186,12 @@ Jurnalul, greutatea și profilul nu se ating: sunt personale.
 
 Din Profil, **„Ieși din bucătărie”** apare doar când sunteți cel puțin doi. `LeaveAsync`:
 1. îți face o bucătărie nouă, cu tine ca proprietar;
-2. copiază în ea tot ce e acum în bucătăria comună: rețete, variante, planuri, liste, cămară. Copiile primesc **id-uri noi**, ca să nu se amestece cu originalele;
-3. în copii, legăturile arată spre copii: un plan arată spre variantele copiate, o listă spre planurile copiate;
-4. în jurnalul tău și în planurile tale de zi, variantele și planurile se schimbă pe copii. Așa „ce am mâncat ieri” arată în continuare rețeta, din bucătăria ta nouă;
+2. copiază în ea tot ce e acum în bucătăria comună: alimentele bucătăriei, rețete, variante, planuri, liste, cămară. Copiile primesc **id-uri noi**, ca să nu se amestece cu originalele;
+3. în copii, legăturile arată spre copii: o rețetă și o variantă arată spre alimentele copiate, un plan spre variantele și alimentele copiate, o listă spre planurile copiate, cămara spre alimentele copiate;
+4. în jurnalul tău și în planurile tale de zi, alimentele, variantele și planurile se schimbă pe copii. La fel listele tale „îmi place” și „exclud” din profil. Așa „ce am mâncat ieri” arată în continuare alimentul și rețeta, din bucătăria ta nouă;
 5. contul tău trece în bucătăria nouă.
+
+Alimentele din baza generală nu se copiază: le vede oricum toată lumea.
 
 Bucătăria comună rămâne la ceilalți, neschimbată. De acum, nimic nu se mai sincronizează între cele două.
 
@@ -200,7 +204,7 @@ Dacă ai o arhivă, după plecare apare **„Aduci înapoi și ce aveai înainte
 - Doar proprietarul vede **„Scoate”** lângă ceilalți membri. Un membru scos pățește la fel ca la o plecare: primește o bucătărie a lui, cu o copie.
 - Dacă altcineva cere `POST /api/kitchen/members/{id}/remove`, API-ul răspunde 403, „Doar proprietarul bucătăriei poate scoate membri.”.
 - Nimeni nu se poate scoate pe sine (400); pentru asta e „Ieși”.
-- Dacă proprietarul pleacă, rolul trece la unul dintre membrii rămași.
+- Dacă proprietarul pleacă sau își șterge contul, rolul trece la unul dintre membrii rămași.
 
 ```csharp
 if (!await db.Kitchens.AnyAsync(k => k.Id == kitchenId && k.OwnerId == userId, ct))
@@ -210,7 +214,7 @@ return await LeaveAsync(db, memberId, messages, ct);
 
 ## Arhiva
 
-**Arhiva** e o bucătărie fără membri, care ține ce aveai înainte să spui „Nu”. Profilul arată ce e în ea, de exemplu „2 rețete, 5 alimente în cămară”, și butonul **„Adu tot înapoi”**.
+**Arhiva** e o bucătărie fără membri, care ține ce aveai înainte să spui „Nu”. Profilul arată ce e în ea, de exemplu „3 alimente, 2 rețete, 5 alimente în cămară”, și butonul **„Adu tot înapoi”**.
 
 `RestoreArchiveAsync` mută tot din arhivă în bucătăria în care ești acum, odată, și golește `archive_kitchen_id`. Alimentele care sunt deja în cămară nu se dublează.
 
@@ -229,4 +233,4 @@ return await LeaveAsync(db, memberId, messages, ct);
 | cămara în telefon | `web/src/lib/pantry.ts` |
 | testele | `api/MacroMate.Api.Tests/KitchenTests.cs` |
 
-Testele au nume care spun regula, de exemplu `Joining_with_no_archives_your_things_and_leaving_offers_them_back`, `Only_the_owner_can_remove_a_member` și `The_pantry_id_matches_the_one_the_phone_computes`.
+Testele au nume care spun regula, de exemplu `Joining_with_no_archives_your_things_and_leaving_offers_them_back`, `Only_the_owner_can_remove_a_member` și `The_pantry_id_matches_the_one_the_phone_computes`. Copierea alimentelor la plecare o verifică `Leaving_a_kitchen_copies_its_foods_and_points_the_copied_recipes_at_them`, din `AccountsAndRolesTests.cs`.

@@ -21,8 +21,8 @@ public static class SyncEndpoints
         var userId = me.Id;
 
         var kitchenId = await db.Users.Where(u => u.Id == userId).Select(u => u.KitchenId).SingleAsync(ct);
-        var users = await db.Users.AsNoTracking().Select(u => new SyncUser(u.Id, u.DisplayName)).ToListAsync(ct);
-        var foods = await db.Foods.AsNoTracking().Where(x => x.Version > since).ToListAsync(ct);
+        var users = await db.Users.AsNoTracking().Where(u => u.KitchenId == kitchenId).Select(u => new SyncUser(u.Id, u.DisplayName)).ToListAsync(ct);
+        var foods = await db.Foods.AsNoTracking().Where(x => (x.KitchenId == null || x.KitchenId == kitchenId) && x.Version > since).ToListAsync(ct);
         var recipes = await db.Recipes.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
         var variants = await db.RecipeVariants.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
         var mealPlans = await db.MealPlans.AsNoTracking().Where(x => x.KitchenId == kitchenId && x.Version > since).ToListAsync(ct);
@@ -69,7 +69,7 @@ public static class SyncEndpoints
             .ToList();
 
         var kitchenId = await db.Users.Where(u => u.Id == me.Id).Select(u => u.KitchenId).SingleAsync(ct);
-        var actor = new SyncActor(me.Id, kitchenId);
+        var actor = new SyncActor(me.Id, kitchenId, await AppRoles.IsAdminAsync(db, me.Id, ct));
         var rejected = new List<SyncRejected>();
         var version = await SyncWriter.WriteAsync(db, async (version, now) =>
         {

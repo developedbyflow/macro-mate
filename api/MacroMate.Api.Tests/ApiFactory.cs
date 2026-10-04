@@ -34,6 +34,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__Default", ConnectionString);
         Environment.SetEnvironmentVariable("Storage__Path", Path.Combine(Path.GetTempPath(), "macromate-tests"));
         Environment.SetEnvironmentVariable("RateLimits__AuthPerMinute", "200");
+        Environment.SetEnvironmentVariable("RateLimits__AiPerUserPerDay", "100000");
+        Environment.SetEnvironmentVariable("RateLimits__AiTotalPerDay", "1000000");
     }
 
     public TestOutbox Outbox { get; } = new();
@@ -41,19 +43,23 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.ConfigureTestServices(services => services.AddSingleton<IEmailSender>(Outbox));
 
-    public async Task<HttpClient> NewUserAsync(string name)
+    public static string NewEmail(string name) => $"{name.ToLowerInvariant()}-{Guid.NewGuid():N}@macromate.local";
+
+    public async Task<HttpClient> NewUserAsync(string name) => await LoginAsync(await CreateUserAsync(name));
+
+    public async Task<string> CreateUserAsync(string name)
     {
-        var email = $"{name.ToLowerInvariant()}-{Guid.NewGuid():N}@macromate.local";
+        var email = NewEmail(name);
         await using (var scope = Services.CreateAsyncScope())
         {
             var (user, errors) = await KitchenService.CreateUserAsync(
                 scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>(),
                 scope.ServiceProvider.GetRequiredService<AppDbContext>(),
-                email, name, Password, null, CancellationToken.None);
+                email, name, Password, null, true, CancellationToken.None);
             if (user is null)
                 throw new InvalidOperationException(string.Join(" ", errors));
         }
-        return await LoginAsync(email);
+        return email;
     }
 
     public async Task<HttpClient> LoginAsync(string email)

@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { db } from '@/db/database'
 import { newId, saveRow } from '@/db/mutations'
 import { useOwnerId } from '@/hooks/use-owner'
+import { useMe } from '@/hooks/use-data'
 import { addToPantry } from '@/lib/pantry'
 import { imageToDataUrl } from '@/lib/photos'
 import { foodName, primaryNameField } from '@/lib/food-name'
@@ -35,6 +36,9 @@ function NewFoodPage() {
   const { mode, barcode } = Route.useSearch()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
+  const me = useMe()
+  const [toBase, setToBase] = useState(true)
+  const base = (me?.isAdmin ?? false) && toBase
   const ai = useAiStatus()
   const [step, setStep] = useState<Step>(
     barcode ? { kind: 'working', message: t('foods.new.lookingUp') } : mode === 'scan' ? { kind: 'scanning' } : mode === 'label' ? { kind: 'label' } : mode === 'manual' ? { kind: 'form', draft: emptyDraft() } : { kind: 'choose' },
@@ -105,9 +109,9 @@ function NewFoodPage() {
 
   async function save(draft: FoodDraft) {
     const id = newId()
-    await saveRow('foods', { id, ...foodFromDraft(draft) }, ownerId)
+    await saveRow('foods', { id, ...foodFromDraft(draft) }, ownerId, { base })
     await addToPantry(id, ownerId)
-    toast.success(t('foods.new.added', { name: foodName(foodFromDraft(draft)) }))
+    toast.success(base ? t('foods.new.addedToBase', { name: foodName(foodFromDraft(draft)) }) : t('foods.new.added', { name: foodName(foodFromDraft(draft)) }))
     await navigate({ to: '/foods/$foodId', params: { foodId: id }, replace: true })
   }
 
@@ -132,6 +136,15 @@ function NewFoodPage() {
           </div>
         )}
 
+        {step.kind === 'form' && me?.isAdmin && (
+          <label className="mb-4 flex items-start gap-3 rounded-2xl border bg-card p-4 text-sm lg:max-w-xl">
+            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={toBase} onChange={(e) => setToBase(e.target.checked)} />
+            <span>
+              <span className="block font-medium">{t('foods.new.addToBase')}</span>
+              <span className="block text-muted-foreground">{t('foods.new.addToBaseHint')}</span>
+            </span>
+          </label>
+        )}
         {step.kind === 'form' && <FoodForm initial={step.draft} submitLabel={t('foods.new.saveFood')} onSubmit={save} />}
       </main>
 

@@ -20,6 +20,7 @@ export function food(overrides: Partial<Food> & Pick<Food, 'name' | 'category' |
     estimatedFields: [],
     source: 'manual',
     photoId: null,
+    kitchenId: null,
     createdBy: 'user',
     createdAt: '2026-10-04T00:00:00Z',
     updatedAt: '2026-10-04T00:00:00Z',

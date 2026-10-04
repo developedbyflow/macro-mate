@@ -68,6 +68,8 @@ Pe iPhone, Safari poate șterge datele unei aplicații web nefolosite mai multe 
 | căutarea și scannerul de coduri pentru alimente din telefon | căutarea unui cod nou în Open Food Facts |
 | Progresul și greutatea | DeepSeek: alimentul completat, rețeta generată, scanarea farfuriei |
 | schimbarea limbii | „Am uitat parola” și linkurile din email |
+| | contul nou, contul de probă, ștergerea contului |
+| | pagina Administrare și „Raportează o greșeală” |
 
 Ce faci offline intră în coadă și pleacă la server când revine internetul. Ce cere internet merge direct la API, fără coadă, iar butoanele lui sunt dezactivate sau arată un mesaj când ești offline.
 

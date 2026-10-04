@@ -21,6 +21,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Kitchen> Kitchens => Set<Kitchen>();
     public DbSet<KitchenInvite> KitchenInvites => Set<KitchenInvite>();
     public DbSet<PantryItem> PantryItems => Set<PantryItem>();
+    public DbSet<FoodReport> FoodReports => Set<FoodReport>();
+    public DbSet<AiUsage> AiUsage => Set<AiUsage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,6 +34,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             b.HasIndex(f => f.Version);
             b.HasIndex(f => f.Barcode);
+            b.HasIndex(f => f.KitchenId);
             b.Property(f => f.Name).HasMaxLength(200);
             b.Property(f => f.NameEn).HasMaxLength(200);
             b.Property(f => f.Brand).HasMaxLength(200);
@@ -85,6 +88,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         });
 
         builder.Entity<Kitchen>();
+
+        builder.Entity<FoodReport>(b =>
+        {
+            b.HasIndex(r => r.FoodId);
+            b.HasIndex(r => r.ResolvedAt);
+            b.Property(r => r.Message).HasMaxLength(500);
+        });
+
+        builder.Entity<AiUsage>(b => b.HasKey(u => new { u.UserId, u.Day }));
 
         builder.Entity<KitchenInvite>(b =>
         {

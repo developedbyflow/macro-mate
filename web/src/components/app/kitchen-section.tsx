@@ -26,6 +26,7 @@ import { ConfirmDelete } from './confirm-delete'
 
 function archiveText(archive: NonNullable<KitchenInfo['archive']>) {
   const parts = [
+    [archive.foods, 'profile.kitchen.archive.foods'],
     [archive.recipes, 'profile.kitchen.archive.recipes'],
     [archive.mealPlans, 'profile.kitchen.archive.mealPlans'],
     [archive.shoppingLists, 'profile.kitchen.archive.shoppingLists'],

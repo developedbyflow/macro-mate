@@ -31,12 +31,14 @@ public static class DevSeed
             var user = await users.FindByEmailAsync(seed.Email);
             if (user is null)
             {
-                var (created, errors) = await KitchenService.CreateUserAsync(users, db, seed.Email, seed.Name, options.Password, null, ct);
+                var (created, errors) = await KitchenService.CreateUserAsync(users, db, seed.Email, seed.Name, options.Password, null, true, ct);
                 user = created ?? throw new InvalidOperationException(string.Join(" ", errors));
             }
             first ??= user;
         }
 
+        if (!await users.IsInRoleAsync(first!, AppRoles.Admin))
+            await users.AddToRoleAsync(first!, AppRoles.Admin);
         await SeedFoods.RunAsync(db, first!.Id, ct);
     }
 }

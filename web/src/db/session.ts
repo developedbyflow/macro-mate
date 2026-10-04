@@ -7,8 +7,7 @@ export async function currentUser() {
   return getMeta('me')
 }
 
-export async function login(email: string, password: string): Promise<MeResponse> {
-  const me = await api.login(email, password)
+async function signedIn(me: MeResponse) {
   const previous = await getMeta('me')
   if (previous && previous.id !== me.id) await clearLocalData()
   await setMeta({ key: 'me', value: me })
@@ -16,13 +15,25 @@ export async function login(email: string, password: string): Promise<MeResponse
   return me
 }
 
+export async function login(email: string, password: string): Promise<MeResponse> {
+  return signedIn(await api.login(email, password))
+}
+
 export async function register(token: string, email: string, displayName: string, password: string): Promise<MeResponse> {
-  const me = await api.register(token, email, displayName, password)
-  const previous = await getMeta('me')
-  if (previous && previous.id !== me.id) await clearLocalData()
-  await setMeta({ key: 'me', value: me })
-  await syncNow()
-  return me
+  return signedIn(await api.register(token, email, displayName, password))
+}
+
+export async function confirmAccount(userId: string, token: string): Promise<MeResponse> {
+  return signedIn(await api.confirmAccount(userId, token))
+}
+
+export async function startDemo(): Promise<MeResponse> {
+  return signedIn(await api.startDemo())
+}
+
+export async function deleteAccount(password: string | null) {
+  await api.deleteAccount(password)
+  await clearLocalData()
 }
 
 export async function saveMe(me: MeResponse) {

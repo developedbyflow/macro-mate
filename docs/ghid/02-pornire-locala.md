@@ -41,7 +41,7 @@ dotnet run --project api/MacroMate.Api
 
 Caută: `Now listening on: http://localhost:5180`. La prima pornire, API-ul face singur trei lucruri:
 1. creează tabelele, rulând migrările din `Data/Migrations`;
-2. creează două conturi de test, din `appsettings.Development.json`, la `DevSeed`, fiecare cu bucătăria lui;
+2. creează două conturi de test, din `appsettings.Development.json`, la `DevSeed`, fiecare cu bucătăria lui. Primul (Florin) primește rolul de admin, al doilea e utilizator obișnuit;
 3. adaugă cele 75 de alimente din `Seed/foods.json`.
 
 Instalezi pachetele frontend-ului, o singură dată:
@@ -74,14 +74,14 @@ Caută: `Successfully saved DeepSeek:ApiKey to the secret store.` Repornești AP
 
 ## Emailurile pe laptop
 
-Pe laptop nu e cheie Resend, așa că API-ul nu trimite emailuri. Le scrie în terminalul în care rulează (`LogEmailSender`). Când ceri „Am uitat parola” sau schimbi emailul, linkul îl găsești acolo:
+Pe laptop nu e cheie Resend, așa că API-ul nu trimite emailuri. Le scrie în terminalul în care rulează (`LogEmailSender`). Când ceri „Am uitat parola”, schimbi emailul sau faci un cont nou din `/register`, linkul îl găsești acolo:
 
 ```
 warn: MacroMate.Api.Features.Email.LogEmailSender[0]
       Email to cont2@macromate.local: Resetează parola MacroMate
 ```
 
-Caută: rândul `Email to`, apoi linkul `http://localhost:5173/reset-password?…` câteva rânduri mai jos.
+Caută: rândul `Email to`, apoi linkul `http://localhost:5173/reset-password?…` (la un cont nou, `…/confirm-account?…`) câteva rânduri mai jos.
 
 ## Două conturi în același browser
 

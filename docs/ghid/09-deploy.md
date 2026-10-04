@@ -262,7 +262,7 @@ environment:
 
 ## 7. Resend: emailurile
 
-**Resend** e un serviciu care trimite emailuri la o cerere HTTP. API-ul îl cheamă la „Am uitat parola” și la schimbarea emailului. Planul gratuit ajunge pentru câteva conturi.
+**Resend** e un serviciu care trimite emailuri la o cerere HTTP. API-ul îl cheamă la „Am uitat parola”, la schimbarea emailului și la confirmarea unui cont nou. Planul gratuit trimite un număr limitat de emailuri pe zi și pe lună; limitele exacte le vezi în panoul Resend.
 
 Resend trimite doar de pe un domeniu pe care dovedești că îl ai. Dovada sunt câteva înregistrări DNS pe care ți le dă el:
 - **SPF** (TXT): lista serverelor care au voie să trimită emailuri în numele domeniului;
@@ -335,9 +335,11 @@ Caută: `{"status":"ok"}`. Cererea a trecut prin DNS, prin Caddy cu HTTPS și a 
 
 ## 9. Primele conturi
 
-Aplicația nu are înregistrare publică. Contul se face în două feluri:
-- cu comanda `create-user`, pe server: doar pentru primul cont, al tău;
-- dintr-un link de invitație în bucătărie: pentru restul.
+Un cont se face în patru feluri:
+- cu comanda `create-user`, pe server: pentru contul tău;
+- din pagina de login, cu „Creează unul” și un link de confirmare pe email;
+- dintr-un link de invitație în bucătărie;
+- cu „Încearcă fără cont”: un cont de probă, șters după 24 de ore.
 
 Creezi contul tău:
 
@@ -355,7 +357,17 @@ Ce face comanda, pas cu pas:
    if (AdminCommands.IsCommand(args))
        return await AdminCommands.RunAsync(app, args);
    ```
-4. `AdminCommands.cs` citește parola fără s-o afișeze și cheamă `KitchenService.CreateUserAsync`. Contul primește o bucătărie nouă, iar tu ești proprietarul ei.
+4. `AdminCommands.cs` citește parola fără s-o afișeze și cheamă `KitchenService.CreateUserAsync`. Contul primește o bucătărie nouă, iar tu ești proprietarul ei. Contul e confirmat direct, fără email.
+
+Îți dai rolul de **admin**. Fără el, nimeni nu poate modifica baza generală de alimente și nimeni nu vede pagina Administrare:
+
+```bash
+docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll set-role --email adresa-ta@exemplu.com --role admin
+```
+
+Caută: `Contul adresa-ta@exemplu.com are acum rolul admin.`
+
+**Dacă serverul rula deja o versiune mai veche**, comanda asta o rulezi o dată, după primul deploy cu versiunea care are rolurile. Migrarea `AddAccountsAndRoles` nu face pe nimeni admin. Apoi reîncarci aplicația în telefon: în Profil și în meniul din stânga apare „Administrare”. Rolurile sunt explicate în [capitolul 15](15-conturi-si-roluri.md).
 
 Pui cele 75 de alimente de start, cu tine ca autor:
 
@@ -372,7 +384,7 @@ Caută: `Am adăugat 75 alimente.` Dacă o rulezi din nou, scrie `Am adăugat 0 
 4. Ea îl deschide și completează numele, emailul și o parolă de minim 10 caractere → **Creează contul și intră**.
 5. Contul ei se creează direct în bucătăria ta.
 
-Emailul ei trebuie să fie real: pe el primește linkul de la „Am uitat parola”.
+Emailul ei trebuie să fie real: pe el primește linkul de la „Am uitat parola”. Contul din invitație e confirmat direct, fără email.
 
 ## 10. Copia de rezervă a bazei
 
@@ -452,7 +464,7 @@ Telefoanele își păstrează copia lor locală. La următoarea sincronizare pri
 ## 11. Volumul `app-data`
 
 Containerul `api` ține pe volumul `app-data`, montat la `/data`, două foldere:
-- **`/data/keys`**: cheile **Data Protection**, adică cheile cu care .NET criptează cookie-ul de login și semnează linkurile de resetare a parolei și de confirmare a emailului;
+- **`/data/keys`**: cheile **Data Protection**, adică cheile cu care .NET criptează cookie-ul de login și semnează linkurile de resetare a parolei, de confirmare a emailului și de confirmare a contului nou;
 - **`/data/photos`**: pozele alimentelor și ale rețetelor.
 
 Volumul trebuie să rămână de la un deploy la altul. Dacă se pierde:
@@ -511,6 +523,9 @@ Caută: `Container deploy-api-1 Recreated` sau `Started`. Compose reface doar co
 | linkurile din email lipsesc | `docker compose -f compose.prod.yaml exec api printenv Email__PublicUrl` | `https://macromate.exemplu.com` | Fără ea, API-ul scrie în log `Email:PublicUrl is not set` și nu trimite linkul |
 | AI-ul spune „lipsește cheia DeepSeek” | `deploy/.env` | `DEEPSEEK_API_KEY` completat | `docker compose -f compose.prod.yaml up -d` |
 | „Prea multe cereri” (429) | — | — | limita de cereri: aștepți cel mult un minut la login și cel mult zece minute la AI |
+| „Ai folosit cele 20 cereri AI de azi” sau „AI-ul a ajuns la limita de azi” (429) | `docker compose -f compose.prod.yaml exec db psql -U macromate macromate -c "select sum(count) from ai_usage where day = (now() at time zone 'utc')::date;"` | câte cereri AI s-au făcut azi, în total | limita zilnică: se golește la miezul nopții UTC. O ridici cu `RateLimits__AiPerUserPerDay` sau `RateLimits__AiTotalPerDay` |
+| nu vezi „Administrare” | `set-role` din pasul 9 | `Contul … are acum rolul admin.` | după comandă, reîncarci aplicația |
+| contul nou nu se poate face: „Trimiterea de emailuri nu e configurată pe server.” | `docker compose -f compose.prod.yaml exec api printenv Email__PublicUrl` | `https://macromate.exemplu.com` | fără `Email__PublicUrl`, `/register` răspunde 503 |
 
 ## Lista de verificare
 
@@ -521,10 +536,17 @@ Caută: `Container deploy-api-1 Recreated` sau `Started`. Compose reface doar co
 - [ ] Resend: domeniul `Verified`, cheie cu Sending access.
 - [ ] `deploy/.env` cu `DOMAIN`, `POSTGRES_PASSWORD`, `DEEPSEEK_API_KEY`, `EMAIL_FROM`, `RESEND_API_KEY`; `chmod 600`.
 - [ ] `Email__PublicUrl` = `https://` + `DOMAIN`, pus automat de `compose.prod.yaml`.
-- [ ] Limitele de cereri: implicit 10 pe minut pe adresă IP la login și cont, 30 la 10 minute pe cont la AI. Le schimbi cu `RateLimits__AuthPerMinute` și `RateLimits__AiPerTenMinutes`, adăugate în `compose.prod.yaml` la `api` → `environment`.
+- [ ] Limitele de cereri, adăugate dacă vrei altele în `compose.prod.yaml` la `api` → `environment`:
+  - `RateLimits__AuthPerMinute`: 10 cereri pe minut pe adresă IP, la login și cont;
+  - `RateLimits__AiPerTenMinutes`: 30 de cereri la 10 minute pe cont, la AI;
+  - `RateLimits__AiPerUserPerDay`: 20 de cereri AI pe zi pentru un utilizator;
+  - `RateLimits__AiPerDemoPerDay`: 5 cereri AI pe zi pentru un cont de probă;
+  - `RateLimits__AiTotalPerDay`: 300 de cereri AI pe zi pentru toată aplicația;
+  - `RateLimits__DemoMaxActive`: cel mult 200 de conturi de probă în același timp.
 - [ ] Mediul .NET e `Production` (implicit în container): fără conturile de test, fără `/openapi`.
 - [ ] Trei containere `Up`, certificat emis, `/api/health` răspunde `ok`.
-- [ ] Contul tău (`create-user`), alimentele (`seed-foods`), invitația pentru ea.
+- [ ] Contul tău (`create-user`), rolul tău de admin (`set-role --role admin`), alimentele (`seed-foods`), invitația pentru ea.
+- [ ] Pe un server care rula o versiune mai veche: după primul deploy cu rolurile, `set-role --email adresa-ta --role admin`.
 - [ ] Copia zilnică în cron, copia săptămânală pe laptop, arhiva `app-data`.
 - [ ] Niciodată `docker compose down -v`.
 

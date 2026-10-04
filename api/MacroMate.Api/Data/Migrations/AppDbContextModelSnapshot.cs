@@ -25,6 +25,26 @@ namespace MacroMate.Api.Data.Migrations
 
             modelBuilder.HasSequence("sync_version");
 
+            modelBuilder.Entity("MacroMate.Api.Data.AiUsage", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date")
+                        .HasColumnName("day");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer")
+                        .HasColumnName("count");
+
+                    b.HasKey("UserId", "Day")
+                        .HasName("pk_ai_usage");
+
+                    b.ToTable("ai_usage", (string)null);
+                });
+
             modelBuilder.Entity("MacroMate.Api.Data.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -45,6 +65,10 @@ namespace MacroMate.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
 
+                    b.Property<DateTimeOffset?>("DemoExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("demo_expires_at");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -59,6 +83,10 @@ namespace MacroMate.Api.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<bool>("IsDemo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_demo");
 
                     b.Property<Guid>("KitchenId")
                         .HasColumnType("uuid")
@@ -243,6 +271,10 @@ namespace MacroMate.Api.Data.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("kcal");
 
+                    b.Property<Guid?>("KitchenId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kitchen_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -290,10 +322,54 @@ namespace MacroMate.Api.Data.Migrations
                     b.HasIndex("Barcode")
                         .HasDatabaseName("ix_foods_barcode");
 
+                    b.HasIndex("KitchenId")
+                        .HasDatabaseName("ix_foods_kitchen_id");
+
                     b.HasIndex("Version")
                         .HasDatabaseName("ix_foods_version");
 
                     b.ToTable("foods", (string)null);
+                });
+
+            modelBuilder.Entity("MacroMate.Api.Data.FoodReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("FoodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("food_id");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_food_reports");
+
+                    b.HasIndex("FoodId")
+                        .HasDatabaseName("ix_food_reports_food_id");
+
+                    b.HasIndex("ResolvedAt")
+                        .HasDatabaseName("ix_food_reports_resolved_at");
+
+                    b.ToTable("food_reports", (string)null);
                 });
 
             modelBuilder.Entity("MacroMate.Api.Data.JournalEntry", b =>

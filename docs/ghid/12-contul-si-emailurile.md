@@ -1,13 +1,19 @@
 # 12. Contul și emailurile
 
-În Profil, secțiunea **„Contul tău”** schimbă trei lucruri:
-- **numele**: direct;
-- **emailul**: cu parola actuală și un link de confirmare trimis pe adresa nouă;
-- **parola**: cu parola actuală.
+În Profil, secțiunea **„Contul tău”** face patru lucruri:
+- schimbă **numele**: direct;
+- schimbă **emailul**: cu parola actuală și un link de confirmare trimis pe adresa nouă;
+- schimbă **parola**: cu parola actuală;
+- **șterge contul**: cu parola actuală.
 
-Pe pagina de login, **„Ai uitat parola?”** trimite pe email un link cu care îți faci o parolă nouă.
+Pe pagina de login sunt:
+- **„Ai uitat parola?”**: trimite pe email un link cu care îți faci o parolă nouă;
+- **„Nu ai cont? Creează unul”**: contul nou, activat dintr-un link trimis pe email;
+- **„Încearcă fără cont”**: un cont de probă, care se șterge singur după 24 de ore.
 
-Codul e în `api/MacroMate.Api/Features/Auth/AccountEndpoints.cs` și `web/src/components/app/account-section.tsx`. Toate cer internet: merg direct la API, nu prin coadă.
+Codul e în `api/MacroMate.Api/Features/Auth/AccountEndpoints.cs`, `SignupEndpoints.cs` și `web/src/components/app/account-section.tsx`. Toate cer internet: merg direct la API, nu prin coadă.
+
+Contul nou, contul de probă și ștergerea contului sunt explicate pe larg în [capitolul 15, Conturi, roluri și contul de probă](15-conturi-si-roluri.md). Aici sunt pe scurt, la partea lor de email.
 
 ## Tokenurile din linkuri
 
@@ -22,6 +28,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(o => o.TokenLifes
 - Un token e valabil **2 ore**.
 - E semnat cu cheile Data Protection din `/data/keys`. Dacă cheile se pierd, linkurile trimise deja nu mai merg.
 - Tokenul de resetare se invalidează după folosire: Identity îl leagă de „ștampila de securitate” a contului, care se schimbă la schimbarea parolei.
+- Sunt trei feluri de tokenuri: de resetare a parolei, de schimbare a emailului și de confirmare a contului nou. Fiecare merge doar pentru treaba lui.
 - Tokenul conține caractere care nu merg într-o adresă, așa că API-ul îl codează cu `WebEncoders.Base64UrlEncode` înainte să-l pună în link.
 
 ## „Am uitat parola”
@@ -66,11 +73,37 @@ sequenceDiagram
 
 Linkul merge pe adresa nouă ca să dovedești că o ai. Până nu-l deschizi, contul rămâne pe adresa veche. Testul `A_new_email_takes_effect_only_after_the_link_is_opened` verifică asta.
 
+## Contul nou și emailul de confirmare
+
+1. Pe `/register` scrii numele, emailul și parola. Telefonul trimite `POST /api/auth/register`.
+2. API-ul face contul cu `EmailConfirmed = false`, cu bucătăria lui, și răspunde 202.
+3. Trimite pe adresa ta „Confirmă-ți contul MacroMate”, cu un link spre `/confirm-account?userId=…&token=…`, valabil 2 ore.
+4. Deschizi linkul. Pagina trimite `POST /api/auth/confirm-account`. API-ul confirmă contul și te loghează.
+
+Până deschizi linkul, login-ul cu parola bună răspunde 403: „Contul nu e confirmat încă. Deschide linkul din emailul de confirmare.” Cu parola greșită răspunde 401, ca la orice cont.
+
+Dacă emailul nu a ajuns, **„Retrimite emailul”** cere `POST /api/auth/resend-confirmation`. Răspunsul e mereu 204, ca la „Am uitat parola”: nu spune dacă adresa are cont.
+
+Conturile făcute din invitație, cu `create-user` sau ca cont de probă sunt confirmate direct. Migrarea `AddAccountsAndRoles` a confirmat toate conturile vechi.
+
 ## Schimbarea parolei
 
 `POST /api/auth/me/password` cu parola actuală și cea nouă. `ChangePasswordAsync` verifică parola actuală. Dacă e greșită, răspunde 400, „Parola actuală nu e corectă.”. Parola nouă are minim 10 caractere.
 
 După schimbare, `RefreshSignInAsync` îți dă un cookie nou, deci rămâi logat pe telefonul pe care ai schimbat-o.
+
+## Ștergerea contului
+
+Profil → Contul tău → **„Șterge contul”**, cu parola actuală → `POST /api/auth/me/delete`. API-ul șterge de tot jurnalul, planurile de zi, greutățile, profilul, rapoartele, numărătoarea cererilor AI și invitațiile tale. Dacă erai singur în bucătărie, o șterge și pe ea, cu alimentele, rețetele, planurile, listele și cămara ei. Dacă mai sunt membri, bucătăria rămâne la ei. La sfârșit șterge contul.
+
+Parola greșită: 400, „Parola actuală nu e corectă.”. Dacă ești singurul admin: 409, „Ești singurul admin. Dă întâi rolul de admin altcuiva.”.
+
+## Contul de probă
+
+Contul de probă nu are email adevărat (`demo-…@demo.invalid`) și nici o parolă pe care s-o știi. De aceea:
+- „Contul tău” nu arată Emailul și Parola, ci „Ești într-un cont de probă: emailul și parola nu se pot schimba.”;
+- `POST /api/auth/me/email` și `POST /api/auth/me/password` răspund 403, „Contul de probă nu poate schimba emailul sau parola. Fă-ți un cont al tău.”;
+- „Șterge contul” nu cere parola.
 
 ## Cine trimite emailul
 
@@ -111,7 +144,7 @@ warn: MacroMate.Api.Features.Email.LogEmailSender[0]
 
 Caută: rândul `Email to` și, câteva rânduri mai jos, linkul.
 
-Textele emailurilor sunt în `Resources/Messages.resx` (română) și `Messages.en.resx` (engleză), la `ResetPasswordText` și `ChangeEmailText`. Emailul vine în limba în care era aplicația când l-ai cerut.
+Textele emailurilor sunt în `Resources/Messages.resx` (română) și `Messages.en.resx` (engleză), la `ResetPasswordText`, `ChangeEmailText` și `ConfirmAccountText`. Emailul vine în limba în care era aplicația când l-ai cerut.
 
 ## Adresa din link: `Email:PublicUrl`
 
@@ -131,13 +164,14 @@ var origin = !string.IsNullOrWhiteSpace(options.Value.PublicUrl)
 
 Fără `PublicUrl` în producție:
 - „Am uitat parola” răspunde tot 204, dar nu trimite nimic și scrie în log `Email:PublicUrl is not set, so the password reset link was not sent.`;
-- schimbarea emailului răspunde 503, „Trimiterea de emailuri nu e configurată pe server.”.
+- schimbarea emailului răspunde 503, „Trimiterea de emailuri nu e configurată pe server.”;
+- contul nou din `/register` răspunde tot 503 și nu se face. Fără link, nimeni nu l-ar putea activa.
 
 Pe server, `compose.prod.yaml` pune `Email__PublicUrl: https://${DOMAIN}`, deci setarea vine din `DOMAIN`.
 
 ## Limita de cereri
 
-Endpoint-urile contului sunt sub politica `auth` a limitatorului de cereri: cel mult 10 cereri pe minut de la aceeași adresă IP, pe toate împreună (login, „Am uitat parola”, resetarea, confirmarea, schimbarea parolei și a emailului, invitațiile). A unsprezecea primește 429, „Prea multe cereri. Încearcă din nou peste 1 min.”. Așa nimeni nu poate încerca parole sau trimite sute de emailuri de resetare în buclă.
+Endpoint-urile contului sunt sub politica `auth` a limitatorului de cereri: cel mult 10 cereri pe minut de la aceeași adresă IP, pe toate împreună (login, „Am uitat parola”, resetarea, confirmarea emailului, schimbarea parolei și a emailului, invitațiile, contul nou, confirmarea și retrimiterea lui, contul de probă, ștergerea contului). A unsprezecea primește 429, „Prea multe cereri. Încearcă din nou peste 1 min.”. Așa nimeni nu poate încerca parole sau trimite sute de emailuri de resetare în buclă.
 
 ## Setările
 
@@ -153,8 +187,10 @@ Endpoint-urile contului sunt sub politica `auth` a limitatorului de cereri: cel 
 | Ce | Fișier |
 |---|---|
 | endpoint-urile contului | `api/MacroMate.Api/Features/Auth/AccountEndpoints.cs` |
+| contul nou, confirmarea lui, contul de probă, ștergerea | `api/MacroMate.Api/Features/Auth/SignupEndpoints.cs`, `AccountService.cs` |
 | trimiterea emailurilor | `api/MacroMate.Api/Features/Email/EmailSender.cs` |
 | textele emailurilor și ale erorilor | `api/MacroMate.Api/Resources/Messages.resx`, `Messages.en.resx` |
 | „Contul tău” din Profil | `web/src/components/app/account-section.tsx` |
-| paginile din linkuri | `web/src/routes/forgot-password.tsx`, `reset-password.tsx`, `confirm-email.tsx` |
-| testele | `api/MacroMate.Api.Tests/AccountTests.cs` |
+| paginile din linkuri | `web/src/routes/forgot-password.tsx`, `reset-password.tsx`, `confirm-email.tsx`, `confirm-account.tsx` |
+| pagina de cont nou | `web/src/routes/register.tsx` |
+| testele | `api/MacroMate.Api.Tests/AccountTests.cs`, `AccountsAndRolesTests.cs` |

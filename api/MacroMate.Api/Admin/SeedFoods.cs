@@ -68,5 +68,5 @@ public static class SeedFoods
         return missing.Count;
     }
 
-    static Guid IdFor(string name) => new(MD5.HashData(Encoding.UTF8.GetBytes($"macromate-seed:{name}")));
+    public static Guid IdFor(string name) => new(MD5.HashData(Encoding.UTF8.GetBytes($"macromate-seed:{name}")));
 }

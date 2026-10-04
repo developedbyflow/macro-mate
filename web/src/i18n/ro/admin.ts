@@ -1,0 +1,35 @@
+export const admin = {
+  title: 'Administrare',
+  link: 'Administrare',
+  linkText: 'Baza generală, rapoartele și rolurile.',
+  offline: 'Ai nevoie de internet pentru administrare.',
+  loading: 'Se încarcă…',
+  tabs: {
+    demand: 'Cerere',
+    reports: 'Rapoarte',
+    users: 'Utilizatori',
+  },
+  demand: {
+    intro: 'Alimentele pe care utilizatorii le-au adăugat în bucătăriile lor, de la cele mai cerute. Pune-le în baza generală ca să le vadă toți.',
+    kitchens_one: 'în {{count}} bucătărie',
+    kitchens_few: 'în {{count}} bucătării',
+    kitchens_other: 'în {{count}} de bucătării',
+    inBase: 'deja în bază',
+    promote: 'Pune în bază',
+    promoted: '{{name}} e acum în baza generală.',
+    empty: 'Utilizatorii n-au adăugat încă alimente în bucătăriile lor.',
+  },
+  reports: {
+    intro: 'Greșeli raportate de utilizatori la alimentele din baza generală. Corectezi alimentul, apoi apeși „Rezolvat”.',
+    from: 'de la {{name}}, {{date}}',
+    open: 'Deschide alimentul',
+    resolve: 'Rezolvat',
+    empty: 'Niciun raport deschis.',
+  },
+  users: {
+    intro: 'Adminii modifică baza generală de alimente și dau roluri.',
+    admin: 'Admin',
+    unconfirmed: 'neconfirmat',
+    you: '(tu)',
+  },
+}

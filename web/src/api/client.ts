@@ -1,6 +1,10 @@
 import i18n, { currentLanguage } from '@/i18n'
 import type {
+  AdminUser,
   AiStatus,
+  FoodDemand,
+  OpenReport,
+  PromotedFood,
   BarcodeProduct,
   FoodEnrichRequest,
   FoodEnrichResponse,
@@ -76,6 +80,20 @@ export const api = {
   changeName: (displayName: string) => request<MeResponse>('PUT', '/api/auth/me/name', { displayName }),
   changePassword: (currentPassword: string, newPassword: string) => request<void>('POST', '/api/auth/me/password', { currentPassword, newPassword }),
   changeEmail: (newEmail: string, currentPassword: string) => request<void>('POST', '/api/auth/me/email', { newEmail, currentPassword }),
+  signUp: (email: string, displayName: string, password: string) => request<void>('POST', '/api/auth/register', { email, displayName, password }),
+  confirmAccount: (userId: string, token: string) => request<MeResponse>('POST', '/api/auth/confirm-account', { userId, token }),
+  resendConfirmation: (email: string) => request<void>('POST', '/api/auth/resend-confirmation', { email }),
+  startDemo: () => request<MeResponse>('POST', '/api/auth/demo'),
+  deleteAccount: (password: string | null) => request<void>('POST', '/api/auth/me/delete', { password }),
+
+  reportFood: (foodId: string, message: string) => request<void>('POST', `/api/foods/${foodId}/reports`, { message }),
+
+  adminUsers: () => request<AdminUser[]>('GET', '/api/admin/users'),
+  setAdmin: (userId: string, admin: boolean) => request<AdminUser>('PUT', `/api/admin/users/${userId}/role`, { admin }),
+  foodDemand: () => request<FoodDemand[]>('GET', '/api/admin/food-demand'),
+  promoteFood: (foodId: string) => request<PromotedFood>('POST', `/api/admin/food-demand/${foodId}/promote`),
+  openReports: () => request<OpenReport[]>('GET', '/api/admin/reports'),
+  resolveReport: (reportId: string) => request<void>('POST', `/api/admin/reports/${reportId}/resolve`),
 
   kitchen: () => request<KitchenInfo>('GET', '/api/kitchen'),
   createInvite: () => request<InviteCreated>('POST', '/api/kitchen/invites'),

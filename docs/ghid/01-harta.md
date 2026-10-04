@@ -5,7 +5,7 @@ MacroMate are trei piese care rulează în locuri diferite:
 - **API-ul**: un program .NET pe server;
 - **Postgres**: baza de date comună, tot pe server.
 
-Pe lângă ele, API-ul vorbește cu trei servicii din afară: Open Food Facts (produse după cod de bare), DeepSeek (AI-ul) și Resend (emailurile pentru parolă și schimbarea adresei).
+Pe lângă ele, API-ul vorbește cu trei servicii din afară: Open Food Facts (produse după cod de bare), DeepSeek (AI-ul) și Resend (emailurile pentru parolă, schimbarea adresei și confirmarea unui cont nou).
 
 ```mermaid
 flowchart LR
@@ -33,7 +33,7 @@ flowchart LR
 
 | Piesa | Ce e | Unde e codul |
 |---|---|---|
-| Ecranele React | Paginile pe care le vezi: Azi, Planuri, Rețete, Alimente, Cumpărături, Progres, Profil | `web/src/routes/` |
+| Ecranele React | Paginile pe care le vezi: Azi, Planuri, Rețete, Alimente, Cumpărături, Progres, Profil, plus Administrare pentru admini | `web/src/routes/` |
 | Dexie | O bibliotecă peste IndexedDB, adică peste baza de date pe care o are fiecare browser. Ține în telefon o copie a datelor tale și coada de modificări netrimise. | `web/src/db/` |
 | Service worker | Un script pe care browserul îl ține instalat după prima vizită. Dă fișierele aplicației din cache, deci aplicația se deschide și fără internet. | generat din `web/vite.config.ts` |
 | Caddy | Serverul web din fața API-ului. Pune singur certificatul HTTPS, dă fișierele aplicației și trimite tot ce începe cu `/api` la API. | `deploy/Caddyfile` |
@@ -46,11 +46,13 @@ Datele stau pe trei niveluri:
 
 | Nivel | Ce e în el | Cine îl vede |
 |---|---|---|
-| baza generală | alimentele | toate conturile |
-| **bucătăria** | cămara, rețetele, planurile, listele de cumpărături | membrii bucătăriei |
+| baza generală | alimentele de start și cele puse de admini | toate conturile; le modifică doar adminii |
+| **bucătăria** | alimentele adăugate de membri, cămara, rețetele, planurile, listele de cumpărături | membrii bucătăriei |
 | personal | jurnalul, planul zilei, greutatea, profilul | doar tu |
 
-**Bucătăria** e grupul de conturi care împart cămara, rețetele, planurile și listele. Tu și prietena ta sunteți în aceeași bucătărie: intră în ea cu un link de invitație din Profil. Totul e explicat în capitolul despre bucătărie.
+**Bucătăria** e grupul de conturi care împart alimentele adăugate de ei, cămara, rețetele, planurile și listele. Tu și prietena ta sunteți în aceeași bucătărie: intră în ea cu un link de invitație din Profil. Totul e explicat în capitolul despre bucătărie.
+
+Un cont poate avea rolul de **admin**: modifică baza generală și vede pagina Administrare. Rolurile, contul nou și contul de probă sunt în [capitolul 15](15-conturi-si-roluri.md).
 
 ## Regula de bază: ecranele citesc doar din telefon
 
@@ -72,7 +74,8 @@ flowchart LR
 - **Sincronizarea**: `web/src/db/sync.ts` trimite coada la API și aduce ce s-a schimbat pe server. Rulează în fundal: la deschiderea aplicației, când revii în ea, când revine internetul, la fiecare minut și la scurt timp după fiecare salvare.
 
 Câteva lucruri merg direct la API și au nevoie de internet:
-- login-ul și „Contul tău” (nume, email, parolă, „Am uitat parola”);
+- login-ul, contul nou, contul de probă și „Contul tău” (nume, email, parolă, „Am uitat parola”, ștergerea contului);
+- pagina Administrare și „Raportează o greșeală”;
 - secțiunea Bucătăria din Profil și pagina de invitație;
 - căutarea după codul de bare;
 - DeepSeek: completarea unui aliment, rețeta generată, scanarea farfuriei.
@@ -88,23 +91,26 @@ MacroMate/
 ├── api/
 │   ├── MacroMate.Api/
 │   │   ├── Program.cs              pornirea: servicii, login, limbi, limite, endpoint-uri
-│   │   ├── Data/                   tabelele (clase C#) și migrările
+│   │   ├── Data/                   tabelele (clase C#), rolul admin (AppRoles.cs) și migrările
 │   │   ├── Features/
-│   │   │   ├── Auth/               login, logout, „cine sunt”, contul (nume, email, parolă)
+│   │   │   ├── Auth/               login, contul nou și confirmarea lui, contul (nume, email, parolă),
+│   │   │   │                       ștergerea contului, contul de probă și ștergerea lui automată
+│   │   │   ├── Admin/              pagina Administrare: cererea de alimente, rapoartele, rolurile
 │   │   │   ├── Email/              trimiterea emailurilor (Resend sau consola)
 │   │   │   ├── Kitchens/           bucătăria: invitații, intrare, plecare, arhivă
 │   │   │   ├── Sync/               sincronizarea: citire, scriere, validare
-│   │   │   ├── Foods/              căutarea după cod de bare (Open Food Facts)
-│   │   │   ├── Ai/                 DeepSeek: alimente, rețete generate, scanarea farfuriei
+│   │   │   ├── Foods/              căutarea după cod de bare (Open Food Facts), „Raportează o greșeală”
+│   │   │   ├── Ai/                 DeepSeek: alimente, rețete generate, scanarea farfuriei, limita zilnică
 │   │   │   ├── Photos/             urcarea și descărcarea pozelor
 │   │   │   └── Security/           limitarea numărului de cereri
 │   │   ├── Resources/              mesajele API-ului în română și engleză (.resx)
-│   │   ├── Admin/                  comenzile create-user și seed-foods
+│   │   ├── Admin/                  comenzile create-user, seed-foods și set-role
 │   │   └── Seed/foods.json         cele 75 de alimente de start, cu nume în engleză
 │   └── MacroMate.Api.Tests/        testele API-ului, pe un Postgres real
 ├── web/
 │   └── src/
-│       ├── routes/                 un fișier pe ecran (TanStack Router), plus invite, forgot/reset-password, confirm-email
+│       ├── routes/                 un fișier pe ecran (TanStack Router), plus invite, register, confirm-account,
+│       │                           forgot/reset-password, confirm-email și _app/admin
 │       ├── components/app/         bucăți refolosite: alegerea alimentelor, scannerul, bucătăria, contul, scanarea farfuriei
 │       ├── components/ui/          componentele shadcn
 │       ├── db/                     Dexie, coada, sincronizarea, sesiunea, bucătăria
@@ -128,7 +134,10 @@ MacroMate/
 | schimbi cum se aleg alternativele | `alternativesFor` din `web/src/lib/nutrition.ts` |
 | schimbi un text din aplicație | aceeași cheie în `web/src/i18n/ro/` și în `web/src/i18n/en/` |
 | schimbi un mesaj al API-ului sau textul unui email | `api/MacroMate.Api/Resources/Messages.resx` și `Messages.en.resx` |
-| schimbi limitele de cereri | `Features/Security/RateLimiting.cs`, sau setările `RateLimits__AuthPerMinute` și `RateLimits__AiPerTenMinutes` |
+| schimbi limitele de cereri | `Features/Security/RateLimiting.cs`, sau setările `RateLimits__AuthPerMinute`, `RateLimits__AiPerTenMinutes`, `RateLimits__AiPerUserPerDay`, `RateLimits__AiPerDemoPerDay`, `RateLimits__AiTotalPerDay`, `RateLimits__DemoMaxActive` |
+| schimbi cine poate modifica un aliment | `FoodTable` din `Features/Sync/SyncTables.cs` și `canEditFood` din `web/src/hooks/use-data.ts` |
+| schimbi ce face pagina Administrare | `Features/Admin/AdminEndpoints.cs` și `web/src/routes/_app/admin.tsx` |
+| schimbi datele contului de probă | `Features/Auth/DemoData.cs` |
 | schimbi regulile bucătăriei | `Features/Kitchens/KitchenService.cs` |
 | schimbi culorile | variabilele din `web/src/index.css` |
 | adaugi un ecran | un fișier nou în `web/src/routes/`; router-ul îl găsește singur |

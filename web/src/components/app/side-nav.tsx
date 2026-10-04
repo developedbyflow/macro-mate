@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { ShieldCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useMe } from '@/hooks/use-data'
 import { sideTabs } from './nav-tabs'
@@ -27,6 +28,14 @@ export function SideNav() {
               </Link>
             </li>
           ))}
+          {me?.isAdmin && (
+            <li>
+              <Link to="/admin" className={linkClass}>
+                <ShieldCheck className="size-5" />
+                {t('nav.admin')}
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
       <div className="flex items-center gap-1 border-t border-border/70 p-3">

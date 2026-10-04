@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Calculator, Heart, LogOut, Plus, RefreshCw, Smartphone, X } from 'lucide-react'
+import { Calculator, ChevronRight, Heart, LogOut, Plus, RefreshCw, ShieldCheck, Smartphone, X } from 'lucide-react'
 import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -42,6 +42,16 @@ function ProfilePage() {
       <main className="mx-auto max-w-2xl space-y-6 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0 lg:px-8">
         {profile && <TargetsSection key={profile.id + profile.updatedAt} profile={profile} />}
         <div className="space-y-6">
+          {me?.isAdmin && (
+            <Link to="/admin" className="flex items-center gap-3 rounded-2xl border bg-card p-4 text-sm transition-colors hover:bg-muted">
+              <ShieldCheck className="size-5 text-primary" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">{t('admin.link')}</span>
+                <span className="block text-muted-foreground">{t('admin.linkText')}</span>
+              </span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </Link>
+          )}
           <AccountSection />
           <KitchenSection />
           {profile && <PreferencesSection profile={profile} />}

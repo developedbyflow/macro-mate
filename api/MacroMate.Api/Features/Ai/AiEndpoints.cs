@@ -59,9 +59,9 @@ public static class AiEndpoints
     {
         var group = app.MapGroup("/api/ai").RequireAuthorization().RequireRateLimiting(RateLimiting.Ai);
         group.MapGet("/status", (DeepSeekClient ai) => new AiStatus(ai.IsConfigured)).DisableRateLimiting();
-        group.MapPost("/foods/enrich", EnrichFood).Produces<FoodEnrichResponse>();
-        group.MapPost("/recipes/generate", GenerateRecipe).Produces<RecipeDraft>();
-        group.MapPost("/meals/scan", ScanMeal).Produces<MealScanResult>();
+        group.MapPost("/foods/enrich", EnrichFood).AddEndpointFilter<AiQuotaFilter>().Produces<FoodEnrichResponse>();
+        group.MapPost("/recipes/generate", GenerateRecipe).AddEndpointFilter<AiQuotaFilter>().Produces<RecipeDraft>();
+        group.MapPost("/meals/scan", ScanMeal).AddEndpointFilter<AiQuotaFilter>().Produces<MealScanResult>();
     }
 
     sealed record EnrichAnswer(
@@ -170,7 +170,7 @@ public static class AiEndpoints
         var pantry = (await db.PantryItems.Where(p => p.KitchenId == kitchenId && p.DeletedAt == null).Select(p => p.FoodId).ToListAsync(ct)).ToHashSet();
 
         var foods = await db.Foods.AsNoTracking()
-            .Where(f => f.DeletedAt == null)
+            .Where(f => f.DeletedAt == null && (f.KitchenId == null || f.KitchenId == kitchenId))
             .OrderBy(f => f.Category).ThenBy(f => f.Name)
             .ToListAsync(ct);
         foods = foods.Where(f => !excludedFoods.Contains(f.Id) && !excludedCategories.Contains(f.Category)).ToList();
@@ -221,14 +221,15 @@ public static class AiEndpoints
 
     sealed record ScanAnswerItem(int? Food, string? Name, double? Grams, double? ServedGrams, double? Kcal, double? ProteinG, double? CarbsG, double? FatG, double? FiberG, double? SodiumMg);
 
-    static async Task<IResult> ScanMeal(MealScanRequest request, DeepSeekClient ai, AppDbContext db, IStringLocalizer<Messages> messages, CancellationToken ct)
+    static async Task<IResult> ScanMeal(MealScanRequest request, DeepSeekClient ai, AppDbContext db, CurrentUser me, IStringLocalizer<Messages> messages, CancellationToken ct)
     {
         var language = AiPrompts.LanguageOf(CultureInfo.CurrentUICulture);
         if (string.IsNullOrWhiteSpace(request.ImageDataUrl) || !request.ImageDataUrl.StartsWith("data:image/") || request.ImageDataUrl.Length > 8_000_000)
             return Results.Problem(messages["LabelPhotoInvalid"], statusCode: StatusCodes.Status400BadRequest);
 
+        var kitchenId = await db.Users.Where(u => u.Id == me.Id).Select(u => u.KitchenId).SingleAsync(ct);
         var foods = await db.Foods.AsNoTracking()
-            .Where(f => f.DeletedAt == null)
+            .Where(f => f.DeletedAt == null && (f.KitchenId == null || f.KitchenId == kitchenId))
             .OrderBy(f => f.Category).ThenBy(f => f.Name)
             .ToListAsync(ct);
 

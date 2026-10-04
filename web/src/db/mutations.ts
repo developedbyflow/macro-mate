@@ -9,7 +9,12 @@ export function newId() {
   return crypto.randomUUID()
 }
 
-export async function saveRow<T extends TableName>(table: T, row: NewRow<T>, ownerId: string) {
+async function foodKitchenId(existing: Record<string, unknown> | undefined, base: boolean) {
+  if (existing && 'kitchenId' in existing) return existing.kitchenId as string | null
+  return base ? null : ((await getMeta('kitchenId')) ?? null)
+}
+
+export async function saveRow<T extends TableName>(table: T, row: NewRow<T>, ownerId: string, options: { base?: boolean } = {}) {
   const now = new Date().toISOString()
   const existing = (await db.table(table).get(row.id)) as Record<string, unknown> | undefined
   const full = {
@@ -23,6 +28,7 @@ export async function saveRow<T extends TableName>(table: T, row: NewRow<T>, own
       ? { userId: (existing?.userId as string | undefined) ?? ownerId }
       : { createdBy: (existing?.createdBy as string | undefined) ?? ownerId }),
     ...(kitchenTables.includes(table) ? { kitchenId: (existing?.kitchenId as string | undefined) ?? (await getMeta('kitchenId')) ?? '' } : {}),
+    ...(table === 'foods' ? { kitchenId: await foodKitchenId(existing, options.base ?? false) } : {}),
   }
 
   await db.transaction('rw', [db.table(table), db.outbox], async () => {

@@ -1,5 +1,6 @@
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Ban, Heart, Pencil, Refrigerator, Trash2, type LucideIcon } from 'lucide-react'
+import { Ban, Flag, Heart, Pencil, Refrigerator, Trash2, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -10,9 +11,14 @@ import { NutrientTable } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
 import { Photo } from '@/components/app/photo'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { api } from '@/api/client'
+import { useOnline } from '@/hooks/use-online'
+import { errorText } from '@/lib/errors'
 import { deleteRow } from '@/db/mutations'
 import type { Food } from '@/api/types'
-import { useFood, usePantryFoodIds, useProfile, useUsersById } from '@/hooks/use-data'
+import { useCanEditFood, useFood, usePantryFoodIds, useProfile, useUsersById } from '@/hooks/use-data'
 import { useOwnerId } from '@/hooks/use-owner'
 import { categoryLabel } from '@/lib/categories'
 import { num, units } from '@/lib/format'
@@ -46,6 +52,8 @@ function FoodPage() {
   const users = useUsersById()
   const pantry = usePantryFoodIds()
   const ownerId = useOwnerId()
+  const canEdit = useCanEditFood(food)
+  const [reporting, setReporting] = useState(false)
 
   if (!food) return <PageHeader title={t('fallback.food')} back />
   if (food.deletedAt) {
@@ -70,9 +78,11 @@ function FoodPage() {
         subtitle={[food.brand, categoryLabel(food.category)].filter(Boolean).join(' · ')}
         back
         actions={
-          <Button variant="ghost" size="icon" aria-label={t('foods.edit.action')} nativeButton={false} render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
-            <Pencil className="size-5" />
-          </Button>
+          canEdit && (
+            <Button variant="ghost" size="icon" aria-label={t('foods.edit.action')} nativeButton={false} render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
+              <Pencil className="size-5" />
+            </Button>
+          )
         }
       />
       <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:px-8">
@@ -125,11 +135,21 @@ function FoodPage() {
           <PortionNutrients food={food} />
 
           <p className="text-center text-xs text-muted-foreground">
-            {t('foods.detail.addedBy', { name: users.get(food.createdBy) ?? '—' })} · {source ? t(source) : food.source}
+            {food.kitchenId == null ? t('foods.origin.base') : t('foods.origin.kitchen', { name: users.get(food.createdBy) ?? '—' })} · {source ? t(source) : food.source}
             {food.barcode && ` · ${t('foods.detail.barcode', { code: food.barcode })}`}
           </p>
 
-          <ConfirmDelete
+          {food.kitchenId == null && !canEdit && (
+            <div className="space-y-2 rounded-2xl border bg-card p-4 text-sm">
+              <p className="text-muted-foreground">{t('foods.detail.readOnly')}</p>
+              <Button variant="outline" className="w-full" onClick={() => setReporting(true)}>
+                <Flag className="size-4" /> {t('foods.report.action')}
+              </Button>
+            </div>
+          )}
+          <ReportDialog foodId={food.id} name={foodName(food)} open={reporting} onOpenChange={setReporting} />
+
+          {canEdit && <ConfirmDelete
             title={t('foods.detail.deleteTitle', { name: foodName(food) })}
             description={t('foods.detail.deleteDescription')}
             onConfirm={async () => {
@@ -141,10 +161,43 @@ function FoodPage() {
                 <Trash2 className="size-4" /> {t('foods.detail.deleteFood')}
               </Button>
             }
-          />
+          />}
         </div>
       </main>
     </>
+  )
+}
+
+function ReportDialog({ foodId, name, open, onOpenChange }: { foodId: string; name: string; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { t } = useTranslation()
+  const online = useOnline()
+  const [message, setMessage] = useState('')
+  const send = useMutation({
+    mutationFn: () => api.reportFood(foodId, message.trim()),
+    onSuccess: () => {
+      toast.success(t('foods.report.sent'))
+      setMessage('')
+      onOpenChange(false)
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('foods.report.title', { name })}</DialogTitle>
+          <DialogDescription>{t('foods.report.description')}</DialogDescription>
+        </DialogHeader>
+        <Textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={4} placeholder={t('foods.report.placeholder')} aria-label={t('foods.report.title', { name })} />
+        {!online && <p className="text-sm text-destructive">{t('foods.report.needsInternet')}</p>}
+        {send.error && <p className="text-sm text-destructive">{errorText(send.error)}</p>}
+        <DialogFooter>
+          <Button disabled={!online || send.isPending || message.trim().length < 3} onClick={() => send.mutate()}>
+            {t('foods.report.send')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

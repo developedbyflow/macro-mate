@@ -98,7 +98,7 @@ public static class AccountEndpoints
 
         if (users.GetUserId(http.User) == user.Id.ToString())
             await signIn.RefreshSignInAsync(user);
-        return Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName));
+        return Results.Ok(await AuthEndpoints.MeAsync(users, user));
     }
 
     static async Task<IResult> ChangeName(ChangeNameRequest request, CurrentUser me, UserManager<AppUser> users, IStringLocalizer<Messages> messages)
@@ -113,14 +113,16 @@ public static class AccountEndpoints
 
         user.DisplayName = name;
         var result = await users.UpdateAsync(user);
-        return result.Succeeded ? Results.Ok(new MeResponse(user.Id, user.Email!, user.DisplayName)) : Problem(result);
+        return result.Succeeded ? Results.Ok(await AuthEndpoints.MeAsync(users, user)) : Problem(result);
     }
 
-    static async Task<IResult> ChangePassword(ChangePasswordRequest request, CurrentUser me, UserManager<AppUser> users, SignInManager<AppUser> signIn)
+    static async Task<IResult> ChangePassword(ChangePasswordRequest request, CurrentUser me, UserManager<AppUser> users, SignInManager<AppUser> signIn, IStringLocalizer<Messages> messages)
     {
         var user = await users.FindByIdAsync(me.Id.ToString());
         if (user is null)
             return Results.Unauthorized();
+        if (user.IsDemo)
+            return Results.Problem(messages["DemoNotAllowed"], statusCode: StatusCodes.Status403Forbidden);
 
         var result = await users.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (!result.Succeeded)
@@ -145,6 +147,8 @@ public static class AccountEndpoints
         var user = await users.FindByIdAsync(me.Id.ToString());
         if (user is null)
             return Results.Unauthorized();
+        if (user.IsDemo)
+            return Results.Problem(messages["DemoNotAllowed"], statusCode: StatusCodes.Status403Forbidden);
 
         var check = await signIn.CheckPasswordSignInAsync(user, request.CurrentPassword, lockoutOnFailure: true);
         if (check.IsLockedOut)
@@ -169,12 +173,12 @@ public static class AccountEndpoints
         return Results.Accepted();
     }
 
-    static IResult Problem(IdentityResult result) =>
+    internal static IResult Problem(IdentityResult result) =>
         Results.Problem(string.Join(" ", result.Errors.Select(e => e.Description).Distinct()), statusCode: StatusCodes.Status400BadRequest);
 
-    static string Encode(string token) => WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+    internal static string Encode(string token) => WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-    static string? Decode(string token)
+    internal static string? Decode(string token)
     {
         try
         {
@@ -186,7 +190,7 @@ public static class AccountEndpoints
         }
     }
 
-    static string? Link(HttpContext http, IOptions<EmailOptions> options, IHostEnvironment env, string path, params (string Key, string Value)[] query)
+    internal static string? Link(HttpContext http, IOptions<EmailOptions> options, IHostEnvironment env, string path, params (string Key, string Value)[] query)
     {
         var origin = !string.IsNullOrWhiteSpace(options.Value.PublicUrl)
             ? options.Value.PublicUrl.TrimEnd('/')
