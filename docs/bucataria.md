@@ -1,6 +1,8 @@
 # Bucătăria: alimente comune, cămară și partajare
 
-Specificația pentru schimbarea de model de date de după deploy. Stabilită cu Florin pe 2026-10-04. Încă nu e construită.
+> **Construită pe 2026-10-04.** Codul: `api/MacroMate.Api/Features/Kitchens/`, `api/MacroMate.Api/Data/Kitchen.cs`, `web/src/components/app/kitchen-section.tsx`, `web/src/routes/invite.$token.tsx`, `web/src/db/kitchen.ts`. Cum funcționează: `docs/ghid/10-bucataria.md`. Față de textul de mai jos, s-a construit altfel: arhiva se aduce înapoi toată odată („Adu tot înapoi”), nu câte un lucru; partajarea în afara bucătăriei („Salvează la mine”) și înregistrarea din pagina de login nu sunt construite (contul nou se face doar din invitație sau cu `create-user`).
+
+Specificația pentru schimbarea de model de date de după deploy. Stabilită cu Florin pe 2026-10-04.
 
 ## Ce se schimbă, pe scurt
 

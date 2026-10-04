@@ -2,6 +2,8 @@
 
 **Sincronizarea** e codul care ține la fel datele din telefonul tău, din telefonul ei și din Postgres. Capitolul o urmărește pe un caz concret: ești în magazin și bifezi „Ou întreg” pe lista de cumpărături. Prietena ta are aceeași listă deschisă pe telefonul ei.
 
+Lista e a **bucătăriei** voastre: grupul de conturi care împart cămara, rețetele, planurile și listele. Ea vede lista pentru că e în aceeași bucătărie cu tine.
+
 ## Tot drumul, într-un desen
 
 ```mermaid
@@ -108,9 +110,17 @@ flowchart TD
   N -->|da| U[actualizează, păstrează câmpurile serverului]
 ```
 
-- **„Al altcuiva”** contează doar la datele personale: jurnalul, planul zilei, profilul. Rețetele, alimentele, planurile și listele sunt comune.
+- **„Al altcuiva”** depinde de felul tabelului. Fiecare fel are clasa lui în `SyncTables.cs`:
+
+  | Tabelul | Clasa | Rândul e al tău dacă… |
+  |---|---|---|
+  | jurnal, planul zilei, greutate, profil | `PersonalTable` | `user_id` e al tău |
+  | rețete, variante, planuri, liste, cămară | `KitchenTable` | `kitchen_id` e bucătăria ta |
+  | alimente | `FoodTable` | l-ai adăugat tu sau cineva din bucătăria ta |
+
+  Lista de cumpărături din exemplu e în bucătăria voastră, deci bifa ta trece.
 - **Regulile** sunt în `SyncRules.cs`. De exemplu: un aliment are nume, categorie din listă și calorii între 0 și 900 la 100 g. Un rând care nu trece e respins cu motivul, iar celelalte rânduri din cerere merg mai departe.
-- **Câmpurile serverului** sunt `createdBy`, `userId`, `createdAt`, `version` și `deletedAt`. Ce trimite telefonul în ele se ignoră. Un telefon nu poate pretinde că o rețetă e a altcuiva și nu-și poate da singur un `version`. Testul `Server_fields_sent_by_the_client_are_ignored` verifică exact asta.
+- **Câmpurile serverului** sunt `createdBy`, `userId`, `kitchenId`, `createdAt`, `version` și `deletedAt`. Ce trimite telefonul în ele se ignoră. Un telefon nu poate pretinde că o rețetă e a altcuiva, nu o poate muta în altă bucătărie și nu-și poate da singur un `version`. Testul `Server_fields_sent_by_the_client_are_ignored` verifică exact asta.
 
 ## Pasul 5. Telefonul ei află de bifă
 
@@ -128,6 +138,13 @@ Un exemplu de tabel `shopping_lists` în Postgres:
 | f9 | Cumpărături 4 oct. | **42** |
 
 Cu `since=41`, vine doar rândul `f9`, iar cursorul ei devine 42. Pentru 2 rânduri n-ar conta, dar cu 2.000 de alimente contează: fiecare telefon primește doar ce s-a schimbat, nu toată baza.
+
+`Pull` din `SyncEndpoints.cs` filtrează după cine cere:
+- alimentele vin toate;
+- rețetele, variantele, planurile, listele și cămara vin doar din bucătăria ei;
+- jurnalul, planul zilei, greutatea și profilul vin doar ale ei.
+
+Răspunsul conține și `kitchenId`, bucătăria ei de acum. Dacă diferă de cea ținută în Dexie (a intrat în altă bucătărie sau a ieșit), telefonul golește tabelele de bucătărie și cere tot de la `since=0`.
 
 `applyPull` din `sync.ts` pune rândurile primite în Dexie-ul ei. Lista ei se redesenează, cu bifa ta.
 
@@ -151,7 +168,7 @@ Pentru doi oameni lacătul nu se simte: o scriere durează câteva milisecunde.
 
 **Câștigă ultima salvare care ajunge la server**, pe tot rândul. Dacă tu schimbi numele unei rețete, iar ea, offline, schimbă timpul aceleiași rețete, rămâne varianta celui care sincronizează ultimul.
 
-Pentru doi oameni regula e suficientă. Alternativa ar fi îmbinarea pe câmpuri, care e mult mai complicată.
+Pentru o bucătărie de câțiva oameni regula e suficientă. Alternativa ar fi îmbinarea pe câmpuri, care e mult mai complicată.
 
 **Ștergerea e definitivă.** Un rând șters primește `deleted_at` și nu mai poate fi modificat. Rândul nu dispare din bază: rămâne ca semn pentru celălalt telefon („ăsta a fost șters”). Dacă ar dispărea pur și simplu, telefonul ei n-ar avea de unde afla.
 
@@ -177,6 +194,6 @@ O atingere pe iconiță pornește sincronizarea imediat.
 | tabelele din telefon | `web/src/db/database.ts` |
 | endpoint-urile | `api/MacroMate.Api/Features/Sync/SyncEndpoints.cs` |
 | lacătul și numărul `version` | `api/MacroMate.Api/Features/Sync/SyncWriter.cs` |
-| ce face fiecare tabel cu o modificare | `api/MacroMate.Api/Features/Sync/SyncTables.cs` |
+| ce face fiecare tabel cu o modificare (`PersonalTable`, `KitchenTable`, `FoodTable`) | `api/MacroMate.Api/Features/Sync/SyncTables.cs` |
 | regulile | `api/MacroMate.Api/Features/Sync/SyncRules.cs` |
 | testele | `api/MacroMate.Api.Tests/SyncTests.cs` |

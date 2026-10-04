@@ -21,10 +21,10 @@ public static class AiPrompts
            - "B": glycemic load 11 to 19.
            - "C": glycemic load 20 or more.
            Exceptions: milk and whey protein raise insulin more than their glycemic index suggests, so they get at least "B". Sugar, honey and syrups get "C" whatever the portion; other sweets and sauces with added sugar get at least "B".
-        5. "reason": one short sentence in {{language}} explaining the glycemic grade.
+        5. "reason": one short sentence in Romanian explaining the glycemic grade, and "reasonEn": the same sentence in English.
 
         JSON shape:
-        {"name": string, "nameEn": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "glycemicGrade": "A"|"B"|"C", "reason": string}
+        {"name": string, "nameEn": string, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number, "fromLabel": string[], "category": string, "glycemicGrade": "A"|"B"|"C", "reason": string, "reasonEn": string}
 
         "name" is the product name in Romanian and "nameEn" the same product name in English, both short (keep the brand out of them). When a name is given, keep it and translate it for the other one. Sodium is in milligrams. Field names in "fromLabel" use the same keys as above.
         """;

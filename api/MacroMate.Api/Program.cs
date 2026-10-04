@@ -9,6 +9,7 @@ using MacroMate.Api.Features.Kitchens;
 using MacroMate.Api.Features.Photos;
 using MacroMate.Api.Features.Sync;
 using MacroMate.Api.Features.Email;
+using MacroMate.Api.Features.Security;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -86,6 +87,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
     o.KnownProxies.Clear();
 });
 
+builder.Services.AddAppRateLimiting(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddProblemDetails();
@@ -135,6 +137,7 @@ app.UseRequestLocalization(o =>
 });
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();

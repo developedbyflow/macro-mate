@@ -144,4 +144,7 @@ You asked to use this address for your MacroMate account. Open the link below wi
 
 If it wasn’t you, ignore this email.</value>
   </data>
+  <data name="TooManyRequests" xml:space="preserve">
+    <value>Too many requests. Try again in {0} min.</value>
+  </data>
 </root>

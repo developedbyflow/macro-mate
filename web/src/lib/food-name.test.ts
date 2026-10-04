@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import i18n from '@/i18n'
-import { foodName, foodSearchText } from './food-name'
+import { foodName, foodReason, foodSearchText } from './food-name'
 
 const blueberries = { name: 'Afine', nameEn: 'Blueberries', brand: null }
 const telemea = { name: 'Telemea', nameEn: null, brand: 'Napolact' }
@@ -21,5 +21,13 @@ describe('foodName', () => {
   it('searches in both names and the brand', () => {
     expect(foodSearchText(blueberries)).toBe('Afine Blueberries')
     expect(foodSearchText(telemea)).toBe('Telemea Napolact')
+  })
+
+  it('shows the glycemic reason in the current language when there is one', async () => {
+    const food = { gradesReason: 'Puțin zahăr.', gradesReasonEn: 'Little sugar.' }
+    expect(foodReason(food)).toBe('Puțin zahăr.')
+    await i18n.changeLanguage('en')
+    expect(foodReason(food)).toBe('Little sugar.')
+    expect(foodReason({ gradesReason: 'Puțin zahăr.', gradesReasonEn: null })).toBe('Puțin zahăr.')
   })
 })

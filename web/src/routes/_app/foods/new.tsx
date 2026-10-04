@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Camera, Keyboard, Loader2, ScanBarcode } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api, ApiError, OfflineError } from '@/api/client'
@@ -141,14 +141,21 @@ function NewFoodPage() {
 }
 
 function BigChoice({ icon: Icon, title, text, onClick }: { icon: typeof Camera; title: string; text: string; onClick: () => void }) {
+  const descriptionId = useId()
   return (
-    <button type="button" onClick={onClick} className="flex w-full items-start gap-4 rounded-2xl border bg-card p-4 text-left shadow-xs transition-colors hover:bg-muted active:bg-muted">
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={title}
+      aria-describedby={descriptionId}
+      className="flex w-full items-start gap-4 rounded-2xl border bg-card p-4 text-left shadow-xs transition-colors hover:bg-muted active:bg-muted"
+    >
       <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
         <Icon className="size-5" />
       </span>
       <span>
         <span className="block font-semibold">{title}</span>
-        <span className="block text-sm text-muted-foreground">{text}</span>
+        <span id={descriptionId} className="block text-sm text-muted-foreground">{text}</span>
       </span>
     </button>
   )

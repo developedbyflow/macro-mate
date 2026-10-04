@@ -53,7 +53,7 @@ function ConfirmEmailPage() {
         ) : (
           <p className="text-muted-foreground">{t('auth.confirmEmail.working')}</p>
         )}
-        <Button variant="secondary" className="h-11 w-full" render={<Link to="/" />}>
+        <Button variant="secondary" className="h-11 w-full" nativeButton={false} render={<Link to="/" />}>
           {t('auth.confirmEmail.goToApp')}
         </Button>
       </div>

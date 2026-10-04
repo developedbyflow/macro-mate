@@ -31,7 +31,7 @@ export function PageHeader({ title, subtitle, back, actions }: Props) {
         {!back && (
           <div className="flex items-center gap-2 lg:hidden">
             <SyncIndicator />
-            <Button variant="ghost" size="icon" aria-label={t('common.profile')} render={<Link to="/profile" />}>
+            <Button variant="ghost" size="icon" aria-label={t('common.profile')} nativeButton={false} render={<Link to="/profile" />}>
               <UserRound className="size-5" />
             </Button>
           </div>

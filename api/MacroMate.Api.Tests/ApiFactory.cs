@@ -33,6 +33,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         Environment.SetEnvironmentVariable("ConnectionStrings__Default", ConnectionString);
         Environment.SetEnvironmentVariable("Storage__Path", Path.Combine(Path.GetTempPath(), "macromate-tests"));
+        Environment.SetEnvironmentVariable("RateLimits__AuthPerMinute", "200");
     }
 
     public TestOutbox Outbox { get; } = new();

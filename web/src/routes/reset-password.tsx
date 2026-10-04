@@ -51,7 +51,7 @@ function ResetPasswordPage() {
       {!email || !token ? (
         <div className="space-y-4 rounded-2xl border bg-card p-5 text-sm">
           <p>{t('auth.reset.invalid')}</p>
-          <Button variant="secondary" className="h-11 w-full" render={<Link to="/forgot-password" />}>
+          <Button variant="secondary" className="h-11 w-full" nativeButton={false} render={<Link to="/forgot-password" />}>
             {t('auth.reset.askAgain')}
           </Button>
         </div>

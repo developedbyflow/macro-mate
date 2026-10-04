@@ -48,7 +48,7 @@ function InvitePage() {
         ) : invite.isError ? (
           <div className="space-y-4 rounded-2xl border bg-card p-5 text-center text-sm">
             <p>{errorText(invite.error)}</p>
-            <Button render={<Link to="/" />} variant="secondary" className="w-full">
+            <Button nativeButton={false} render={<Link to="/" />} variant="secondary" className="w-full">
               {t('auth.invite.goToApp')}
             </Button>
           </div>

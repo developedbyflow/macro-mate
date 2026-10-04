@@ -20,7 +20,7 @@ import { foodGrades, forGrams } from '@/lib/nutrition'
 import { togglePantry } from '@/lib/pantry'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
-import { foodName } from '@/lib/food-name'
+import { foodName, foodReason } from '@/lib/food-name'
 
 export const Route = createFileRoute('/_app/foods/$foodId/')({
   component: FoodPage,
@@ -70,7 +70,7 @@ function FoodPage() {
         subtitle={[food.brand, categoryLabel(food.category)].filter(Boolean).join(' · ')}
         back
         actions={
-          <Button variant="ghost" size="icon" aria-label={t('foods.edit.action')} render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
+          <Button variant="ghost" size="icon" aria-label={t('foods.edit.action')} nativeButton={false} render={<Link to="/foods/$foodId/edit" params={{ foodId }} />}>
             <Pencil className="size-5" />
           </Button>
         }
@@ -92,8 +92,8 @@ function FoodPage() {
                 {t('grades.volume.label')} <VolumeBadge grade={grades.volume} />
               </span>
             </div>
-            {food.gradesReason ? (
-              <p className="text-sm text-muted-foreground">{food.gradesReason}</p>
+            {foodReason(food) ? (
+              <p className="text-sm text-muted-foreground">{foodReason(food)}</p>
             ) : (
               <p className="text-sm text-muted-foreground">{t('foods.detail.noGlycemicGrade')}</p>
             )}

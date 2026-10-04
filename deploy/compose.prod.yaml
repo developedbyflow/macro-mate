@@ -19,6 +19,9 @@ services:
     environment:
       ConnectionStrings__Default: Host=db;Database=macromate;Username=macromate;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
       DeepSeek__ApiKey: ${DEEPSEEK_API_KEY:-}
+      Email__PublicUrl: https://${DOMAIN}
+      Email__From: ${EMAIL_FROM:-}
+      Email__ResendApiKey: ${RESEND_API_KEY:-}
       OpenFoodFacts__UserAgent: MacroMate/1.0 (${DOMAIN})
     volumes:
       - app-data:/data

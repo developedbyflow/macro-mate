@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using MacroMate.Api.Data;
 using MacroMate.Api.Features.Email;
+using MacroMate.Api.Features.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Localization;
@@ -26,12 +27,12 @@ public static class AccountEndpoints
     public static void MapAccountEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth");
-        group.MapPost("/forgot-password", ForgotPassword);
-        group.MapPost("/reset-password", ResetPassword);
-        group.MapPost("/confirm-email", ConfirmEmail).Produces<MeResponse>();
+        group.MapPost("/forgot-password", ForgotPassword).RequireRateLimiting(RateLimiting.Auth);
+        group.MapPost("/reset-password", ResetPassword).RequireRateLimiting(RateLimiting.Auth);
+        group.MapPost("/confirm-email", ConfirmEmail).RequireRateLimiting(RateLimiting.Auth).Produces<MeResponse>();
         group.MapPut("/me/name", ChangeName).RequireAuthorization().Produces<MeResponse>();
-        group.MapPost("/me/password", ChangePassword).RequireAuthorization();
-        group.MapPost("/me/email", ChangeEmail).RequireAuthorization();
+        group.MapPost("/me/password", ChangePassword).RequireAuthorization().RequireRateLimiting(RateLimiting.Auth);
+        group.MapPost("/me/email", ChangeEmail).RequireAuthorization().RequireRateLimiting(RateLimiting.Auth);
     }
 
     static async Task<IResult> ForgotPassword(

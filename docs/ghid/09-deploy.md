@@ -1,220 +1,549 @@
-# 9. Deploy pe VPS
+# 9. Deploy pe VPS (OVH)
 
-**Deploy-ul** e mutarea aplicației pe un server care e pornit tot timpul și are o adresă publică, ca s-o deschideți de pe telefoane de oriunde. Pe server rulează trei containere Docker, pornite împreună de Docker Compose:
+**Deploy-ul** e mutarea aplicației pe un server pornit tot timpul, cu adresă publică, ca s-o deschideți de pe telefoane de oriunde.
+
+Serverul e un **VPS** (virtual private server): o mașină virtuală închiriată, cu Linux, pe care ai drepturi depline. Aici e **OVH VPS-1**:
+- centrul de date din Varșovia;
+- Ubuntu 24.04;
+- fără angajament;
+- cam 4,49 € + TVA pe lună.
+
+Pe server rulează trei containere Docker, pornite împreună de Docker Compose:
 
 ```mermaid
 flowchart LR
-  T[Telefoane] -->|HTTPS 443| C[web: Caddy + aplicația]
+  T[Telefoane] -->|HTTPS 443| C[web: Caddy]
   C -->|/api| A[api: .NET]
   A --> D[(db: Postgres)]
-  A --> V[(volum: poze, chei)]
-  D --> VD[(volum: baza)]
+  A --> V[(app-data: chei, poze)]
+  D --> VD[(db-data: baza)]
+  A --> R[Resend: emailuri]
+  A --> DS[DeepSeek]
 ```
 
 - **web**: Caddy, cu fișierele aplicației înăuntru. E singurul container deschis spre internet, pe porturile 80 și 443.
 - **api**: API-ul .NET. Nu are port deschis în afară; primește cereri doar de la Caddy.
 - **db**: Postgres. Nici el nu are port deschis în afară.
 
-Datele stau pe **volume** Docker: foldere de pe disc care rămân și când containerele se refac la un deploy.
+Datele stau pe **volume** Docker: foldere de pe disc care rămân și când containerele se refac la un deploy. Sunt patru: `db-data` (baza), `app-data` (cheile și pozele), `caddy-data` și `caddy-config` (certificatele HTTPS).
 
 Fișierele sunt în `deploy/`:
-- `compose.prod.yaml`: cele trei containere;
+- `compose.prod.yaml`: cele trei containere și volumele;
 - `Caddyfile`: HTTPS, fișierele aplicației, trimiterea spre API;
 - `web.Dockerfile`: construiește aplicația și o pune în imaginea Caddy;
 - `../api/Dockerfile`: construiește API-ul;
+- `.env.example`: modelul pentru setări;
 - `backup.sh`: copia de rezervă a bazei.
 
-Tot stack-ul a fost pornit și testat local, cu `DOMAIN=localhost`, înainte de ghidul ăsta: HTTPS, rutele aplicației, login-ul cu cookie `secure`, crearea contului, alimentele de start.
+**Înainte să începi** îți trebuie:
+- VPS-ul comandat la OVH, cu cheia ta SSH pusă la comandă;
+- domeniul din Namecheap;
+- cheia DeepSeek;
+- un cont Resend (îl faci la pasul 7).
 
-## 1. Domeniul
+Peste tot mai jos, `macromate.exemplu.com` e adresa ta și `IP_SERVER` e adresa IPv4 a VPS-ului, din emailul OVH sau din panoul OVH. Le înlocuiești cu ale tale.
 
-Cumperi un domeniu, de exemplu `macromate.ro` sau un subdomeniu al unui domeniu pe care îl ai deja, de la orice registrar: ROTLD prin un partener, Namecheap, Cloudflare. Cam 10 €/an.
+## 1. Prima intrare pe server
 
-## 2. Serverul
+**SSH** e programul cu care deschizi un terminal pe alt calculator, prin internet. Te recunoaște după **cheia SSH**: o pereche de fișiere de pe laptop. Partea publică (`~/.ssh/id_ed25519.pub`) ai pus-o la comanda OVH. Partea privată rămâne doar pe laptop.
 
-În Hetzner Cloud (console.hetzner.cloud):
-1. **Create Server**.
-2. **Location**: Germania sau Finlanda.
-3. **Image**: Ubuntu, ultima versiune LTS.
-4. **Type**: cel mai ieftin din „Shared vCPU”, cu 2 vCPU și 4 GB RAM. Ajunge cu mult.
-5. **SSH key**: adaugi cheia publică de pe laptop (`cat ~/.ssh/id_ed25519.pub`). Fără cheie, faci una cu `ssh-keygen -t ed25519`.
-6. **Backups**: le bifezi. Costă cam 20% din prețul serverului și fac o copie a întregului server în fiecare zi, cu tot cu pozele.
-7. **Firewall**: faci unul nou, cu reguli de intrare pentru TCP 22, TCP 80, TCP 443 și UDP 443.
+Dacă nu ai cheie, o faci pe laptop cu `ssh-keygen -t ed25519`, apoi o adaugi în panoul OVH.
 
-Firewall-ul îl pui din consola Hetzner, nu cu `ufw` pe server. Docker ocolește regulile `ufw` pentru porturile pe care le deschide.
+De pe laptop:
 
-Când e gata, notezi adresa IP a serverului.
+```bash
+ssh ubuntu@IP_SERVER
+```
 
-## 3. DNS
+Caută: prima dată, SSH întreabă `Are you sure you want to continue connecting (yes/no/[fingerprint])?`. Scrii `yes`. Apoi vezi un prompt de felul `ubuntu@vps-…:~$`.
 
-La registrar, în setările DNS ale domeniului, adaugi o înregistrare:
+Utilizatorul de la OVH e **`ubuntu`**, nu `root`. Comenzile de administrare le scrii cu **`sudo`** în față: `sudo` rulează comanda ca `root`, adică cu drepturi depline.
 
-| Tip | Nume | Valoare |
-|---|---|---|
-| A | `@` (sau subdomeniul, ex. `macromate`) | IP-ul serverului |
+Aduci la zi pachetele instalate:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+Caută: la final, niciun rând care începe cu `E:` (eroare).
+
+Verifici dacă actualizările cer repornire:
+
+```bash
+ls /var/run/reboot-required
+```
+
+Caută: dacă vezi `/var/run/reboot-required`, repornești cu `sudo reboot`, aștepți un minut și intri iar cu `ssh`. Dacă vezi `No such file or directory`, nu e nevoie.
+
+### Actualizările de securitate automate
+
+**unattended-upgrades** e un serviciu din Ubuntu care instalează singur, zilnic, actualizările de securitate. Pe imaginea OVH poate fi deja instalat; comanda de mai jos îl instalează, dacă lipsește, și îl pornește:
+
+```bash
+sudo apt install -y unattended-upgrades && sudo dpkg-reconfigure -plow unattended-upgrades
+```
+
+Caută: o fereastră albastră cu întrebarea `Automatically download and install stable updates?`. Alegi **Yes** și apeși Enter.
+
+Verifici:
+
+```bash
+cat /etc/apt/apt.conf.d/20auto-upgrades
+```
+
+Caută: rândul `APT::Periodic::Unattended-Upgrade "1";`.
+
+Serviciul nu repornește serverul singur. O dată pe lună, rulezi comanda cu `reboot-required` de mai sus.
+
+## 2. Firewall-ul
+
+**ufw** (uncomplicated firewall) e programul din Ubuntu care alege pe ce porturi primește serverul conexiuni din afară. Un **port** e un număr care spune cărui program îi e destinată o conexiune.
+
+Lași deschise doar patru:
+
+| Port | Pentru ce |
+|---|---|
+| 22 TCP | SSH, ca să intri tu pe server |
+| 80 TCP | HTTP: Let's Encrypt verifică domeniul pe el, iar Caddy trimite de aici spre HTTPS |
+| 443 TCP | HTTPS: aplicația |
+| 443 UDP | HTTP/3, varianta mai nouă de HTTPS, pe care Caddy o oferă singur |
+
+Ordinea contează: întâi permiți portul 22, apoi pornești firewall-ul. Invers, conexiunea ta SSH se taie.
+
+```bash
+sudo ufw allow 22/tcp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp && sudo ufw allow 443/udp && sudo ufw enable
+```
+
+Caută: întrebarea `Command may disrupt existing ssh connections. Proceed with operation (y|n)?`. Scrii `y`. Apoi `Firewall is active and enabled on system startup`.
+
+```bash
+sudo ufw status verbose
+```
+
+Caută: `Status: active`, `Default: deny (incoming)` și câte un rând `ALLOW IN` pentru `22/tcp`, `80/tcp`, `443/tcp`, `443/udp` (plus aceleași cu `(v6)`).
+
+**Docker și ufw.** Docker scrie reguli de rețea proprii pentru porturile pe care le publică un container, iar regulile astea trec pe lângă ufw. În `compose.prod.yaml`, doar `web` publică porturi, 80 și 443, adică exact cele deschise oricum. `api` și `db` nu au `ports:`, deci nu se pot atinge din afară, cu sau fără ufw. Regula de ținut minte: nu adaugi `ports:` la `api` sau la `db`.
+
+**Firewall-ul OVH.** În panoul OVH, la adresa IP a serverului, există și un firewall de rețea opțional (Edge Network Firewall). Filtrează conexiunile înainte să ajungă la server. E oprit implicit. Dacă îl pornești, adaugi și acolo reguli care lasă TCP 22, 80, 443 și UDP 443. Dacă blochează 80 sau 443, Let's Encrypt nu poate da certificatul, iar site-ul nu se deschide.
+
+Dacă te-ai blocat afară (ai pornit ufw fără portul 22), intri din panoul OVH cu consola KVM: un terminal al serverului, deschis în browser. Acolo rulezi `sudo ufw allow 22/tcp`.
+
+## 3. Docker
+
+**Docker Engine** e programul care rulează containerele. **Pluginul compose** adaugă comanda `docker compose`, care pornește mai multe containere descrise într-un fișier.
+
+Le instalezi din depozitul oficial Docker pentru Ubuntu. Întâi adaugi cheia cu care Docker își semnează pachetele:
+
+```bash
+sudo apt-get update && sudo apt-get install -y ca-certificates curl && sudo install -m 0755 -d /etc/apt/keyrings && sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && sudo chmod a+r /etc/apt/keyrings/docker.asc
+```
+
+Caută: fără rânduri cu `E:` sau `curl: (`.
+
+Adaugi depozitul în lista de surse a lui `apt`:
+
+```bash
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+Caută: comanda nu afișează nimic. `cat /etc/apt/sources.list.d/docker.list` arată un rând care se termină cu `noble stable` (`noble` e numele lui Ubuntu 24.04).
+
+Instalezi Docker și pluginul compose:
+
+```bash
+sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Caută la final, cu `docker --version` și `docker compose version`: `Docker version 2…` și `Docker Compose version v2…`.
+
+Pui utilizatorul `ubuntu` în grupul **`docker`**. Cine e în grupul ăsta folosește Docker fără `sudo`. Asta înseamnă practic drepturi de `root`, deci nu pui alți utilizatori în el.
+
+```bash
+sudo usermod -aG docker ubuntu
+```
+
+Grupul nou se aplică doar la o intrare nouă. Ieși cu `exit`, intri iar cu `ssh ubuntu@IP_SERVER`, apoi:
+
+```bash
+docker run --rm hello-world
+```
+
+Caută: `Hello from Docker!`.
+
+## 4. DNS în Namecheap
+
+**DNS** e sistemul care traduce un nume (`macromate.exemplu.com`) într-o adresă IP. O **înregistrare A** leagă un nume de o adresă IPv4. O **înregistrare AAAA** leagă un nume de o adresă IPv6.
+
+În Namecheap: **Domain List** → **Manage** la domeniul tău → **Advanced DNS** → **Add New Record**:
+
+| Type | Host | Value | TTL |
+|---|---|---|---|
+| A Record | `macromate` | `IP_SERVER` | Automatic |
+
+La **Host** scrii doar partea dinaintea domeniului. Namecheap adaugă singur restul, deci `macromate` devine `macromate.exemplu.com`.
+
+**AAAA, doar dacă IPv6 merge pe server.** VPS-ul OVH are și o adresă IPv6. Verifici pe server dacă iese pe internet prin ea:
+
+```bash
+ping -6 -c 3 one.one.one.one
+```
+
+Caută: `3 packets transmitted, 3 received`. Dacă da, adresa o vezi cu `ip -6 addr show scope global` (rândul `inet6 2001:…`) și adaugi o înregistrare **AAAA Record** cu același Host, `macromate`. Dacă ping-ul nu merge, nu pui AAAA: Let's Encrypt ar încerca adresa IPv6 și certificatul n-ar ieși.
 
 Verifici de pe laptop:
 
 ```bash
-dig +short macromate.ro
+dig +short A macromate.exemplu.com
 ```
 
-Caută: IP-ul serverului. Dacă nu apare, mai aștepți: o schimbare DNS poate dura de la câteva minute la câteva ore.
+Caută: `IP_SERVER`. Dacă nu apare nimic, mai aștepți: o schimbare DNS poate dura de la câteva minute la câteva ore. Pentru AAAA, aceeași comandă cu `AAAA` în loc de `A`.
 
-## 4. Docker pe server
-
-Intri pe server:
-
-```bash
-ssh root@IP_SERVER
-```
-
-Instalezi Docker cu scriptul oficial:
-
-```bash
-curl -fsSL https://get.docker.com | sh
-```
-
-Caută la final: `docker version` arată și `Client`, și `Server`.
+Nu pornești aplicația (pasul 8) până nu vezi IP-ul aici. Caddy reîncearcă singur, dar Let's Encrypt limitează încercările eșuate pentru același nume (cam 5 pe oră).
 
 ## 5. Codul pe server
 
-De pe laptop, din folderul `TechProducts/`, copiezi proiectul fără fișierele generate:
+`/opt` e folderul din Linux pentru programele instalate de mână. Faci în el folderul aplicației, al utilizatorului `ubuntu`, și clonezi repo-ul. Repo-ul e public, deci `git` nu cere parolă.
 
 ```bash
-rsync -av --delete --exclude node_modules --exclude bin --exclude obj --exclude dist --exclude .DS_Store --exclude api/MacroMate.Api/storage --exclude deploy/.env --exclude deploy/backups MacroMate/ root@IP_SERVER:/opt/macromate/
+sudo apt install -y git && sudo mkdir -p /opt/macromate && sudo chown ubuntu:ubuntu /opt/macromate && git clone https://github.com/developedbyflow/macro-mate.git /opt/macromate
 ```
 
-Dacă ții codul pe GitHub, poți face `git clone` pe server în loc de `rsync`.
+Caută: `Cloning into '/opt/macromate'...` și niciun rând cu `fatal:`. `ls /opt/macromate` arată `api`, `deploy`, `docs`, `web`.
 
-## 6. Setările
+## 6. Setările (`.env`)
 
-Pe server:
+**`.env`** e un fișier cu variabile pe care Docker Compose le citește la pornire și le pune în `compose.prod.yaml`, acolo unde scrie `${NUME}`. Rămâne doar pe server: e în `.gitignore`.
+
+Îl faci din model:
 
 ```bash
-cd /opt/macromate/deploy && cp .env.example .env && nano .env
+cd /opt/macromate/deploy && cp .env.example .env && chmod 600 .env && ls -l .env
 ```
 
-Completezi trei rânduri:
+Caută: `-rw-------`. `chmod 600` face ca doar `ubuntu` să poată citi fișierul.
 
-```
-DOMAIN=macromate.ro
-POSTGRES_PASSWORD=...
-DEEPSEEK_API_KEY=...
-```
-
-Pentru parola bazei, generezi una lungă:
+Generezi parola bazei:
 
 ```bash
 openssl rand -base64 32
 ```
 
-Fișierul `.env` rămâne doar pe server. E în `.gitignore`, iar `rsync` de mai sus nu-l suprascrie.
+Caută: un rând lung, de 44 de caractere. Îl copiezi.
 
-## 7. Pornirea
+Deschizi fișierul cu `nano .env` și completezi cinci rânduri:
+
+```
+DOMAIN=macromate.exemplu.com
+POSTGRES_PASSWORD=parola-generata-mai-sus
+DEEPSEEK_API_KEY=sk-...
+EMAIL_FROM=MacroMate <noreply@macromate.exemplu.com>
+RESEND_API_KEY=re_...
+```
+
+| Variabila | Ce pui |
+|---|---|
+| `DOMAIN` | adresa aplicației, fără `https://` |
+| `POSTGRES_PASSWORD` | parola generată mai sus |
+| `DEEPSEEK_API_KEY` | cheia de la DeepSeek |
+| `EMAIL_FROM` | expeditorul emailurilor. Adresa de după `@` trebuie să fie pe domeniul verificat în Resend |
+| `RESEND_API_KEY` | cheia Resend; o iei la pasul 7 și revii aici |
+
+Salvezi cu `Ctrl+O`, Enter, și ieși cu `Ctrl+X`.
+
+**Ce se calculează singur.** În `compose.prod.yaml`, containerul `api` primește variabilele așa:
+
+```yaml
+environment:
+  ConnectionStrings__Default: Host=db;Database=macromate;Username=macromate;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+  DeepSeek__ApiKey: ${DEEPSEEK_API_KEY:-}
+  Email__PublicUrl: https://${DOMAIN}
+  Email__From: ${EMAIL_FROM:-}
+  Email__ResendApiKey: ${RESEND_API_KEY:-}
+```
+
+În .NET, setările vin din `appsettings.json` și din variabile de mediu. `__` (două liniuțe jos) desparte secțiunile: variabila `Email__PublicUrl` e setarea `Email:PublicUrl` din `appsettings.json`. **`Email__PublicUrl`** e adresa pusă în linkurile din emailuri. Se face din `DOMAIN`, deci n-o mai scrii tu.
+
+**Parola bazei se scrie o singură dată.** Postgres folosește `POSTGRES_PASSWORD` doar când creează baza, la prima pornire. Dacă o schimbi mai târziu în `.env`, baza păstrează parola veche, iar API-ul nu se mai poate conecta.
+
+## 7. Resend: emailurile
+
+**Resend** e un serviciu care trimite emailuri la o cerere HTTP. API-ul îl cheamă la „Am uitat parola” și la schimbarea emailului. Planul gratuit ajunge pentru câteva conturi.
+
+Resend trimite doar de pe un domeniu pe care dovedești că îl ai. Dovada sunt câteva înregistrări DNS pe care ți le dă el:
+- **SPF** (TXT): lista serverelor care au voie să trimită emailuri în numele domeniului;
+- **DKIM** (TXT): o cheie publică cu care serverele care primesc emailul verifică semnătura lui;
+- **MX**: unde se întorc răspunsurile automate (emailuri care n-au ajuns).
+
+Pașii:
+1. Pe resend.com îți faci cont.
+2. **Domains** → **Add Domain** → scrii `macromate.exemplu.com`. Dacă te întreabă regiunea, o alegi pe cea din Europa.
+3. Resend arată o listă de înregistrări: un MX și un TXT pe `send.macromate…` și un TXT pe `resend._domainkey.macromate…`. Le lași deschise.
+4. În Namecheap, **Advanced DNS**:
+   - TXT-urile le adaugi la **Host Records** → **Add New Record** → **TXT Record**;
+   - MX-ul îl adaugi jos, la **Mail Settings**: alegi **Custom MX**, apoi adaugi rândul.
+   - La Host scrii doar partea dinaintea domeniului tău: dacă Resend arată `resend._domainkey.macromate.exemplu.com`, scrii `resend._domainkey.macromate`.
+   - Valorile le copiezi exact cum le arată Resend.
+5. Înapoi în Resend, apeși **Verify DNS Records**.
+6. **API Keys** → **Create API Key**, cu permisiunea **Sending access**. Cheia începe cu `re_` și apare o singură dată. O pui în `.env`, la `RESEND_API_KEY`.
+
+Caută în Resend, la domeniu: starea **Verified**. Poate dura de la câteva minute la câteva ore, ca orice schimbare DNS.
+
+Dacă folosești redirecționarea de email de la Namecheap pe domeniul principal, trecerea pe **Custom MX** o oprește. Atunci te uiți întâi ce înregistrări de email ai și le treci și pe ele la Custom MX.
+
+**Fără cheie Resend** aplicația merge, dar emailurile nu pleacă. API-ul folosește atunci `LogEmailSender`, care scrie emailul în logurile lui. Linkul îl vezi cu `docker compose -f compose.prod.yaml logs api | grep -A6 "Email to"`.
+
+## 8. Pornirea
 
 ```bash
 cd /opt/macromate/deploy && docker compose -f compose.prod.yaml up -d --build
 ```
 
-Prima dată durează câteva minute, pentru că se construiesc imaginile. Apoi urmărești Caddy:
+Prima dată durează câteva minute: se construiesc imaginile, adică se compilează API-ul și aplicația.
+
+Caută la final: `Container deploy-db-1 Healthy`, `Container deploy-api-1 Started`, `Container deploy-web-1 Started`. `deploy` din nume vine de la folderul în care e `compose.prod.yaml`.
+
+```bash
+docker compose -f compose.prod.yaml ps
+```
+
+Caută: trei rânduri, `db`, `api`, `web`, toate cu `Up`; la `db` scrie și `(healthy)`.
+
+Urmărești Caddy:
 
 ```bash
 docker compose -f compose.prod.yaml logs -f web
 ```
 
-Caută: `certificate obtained successfully`. Caddy a luat certificatul HTTPS de la Let's Encrypt. Ieși cu `Ctrl+C`.
+Caută: `certificate obtained successfully`, cu domeniul tău. Ieși cu `Ctrl+C`.
 
-Deschizi `https://macromate.ro` și vezi ecranul de login.
+Cum ia Caddy certificatul, pas cu pas:
+1. Caddy citește din `Caddyfile` numele `{$DOMAIN}`.
+2. Caddy cere un certificat de la Let's Encrypt, o autoritate gratuită de certificate.
+3. Let's Encrypt se conectează la `macromate.exemplu.com` pe portul 80 sau 443 și verifică un răspuns pe care doar serverul tău îl poate da. Așa află că domeniul arată spre serverul tău.
+4. Let's Encrypt dă certificatul, valabil 90 de zile. Caddy îl ține pe volumul `caddy-data` și îl reînnoiește singur.
 
-## 8. Conturile și alimentele de start
-
-Creezi contul tău. Comanda îți cere parola ascuns, cu minim 10 caractere:
-
-```bash
-docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll create-user --email adresa-ta@exemplu.ro --name Florin
-```
-
-Caută: `Contul ... a fost creat.`
-
-Repeți comanda cu email-ul și numele ei. Apoi pui cele 75 de alimente de start, cu tine ca autor:
+Te uiți la API:
 
 ```bash
-docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll seed-foods --as adresa-ta@exemplu.ro
+docker compose -f compose.prod.yaml logs api --tail 50
 ```
 
-Caută: `Am adăugat 75 alimente.`
+Caută: `Now listening on: http://[::]:8080` și niciun rând cu `fail:`. La pornire, API-ul a rulat și migrările bazei.
 
-## 9. Copia de rezervă a bazei
+Verifici tot drumul, de pe laptop:
 
-Pe lângă backup-ul Hetzner, `backup.sh` face în fiecare noapte un `pg_dump`, adică un fișier SQL cu toată baza, și păstrează ultimele 14. Îl încerci o dată de mână:
+```bash
+curl -s https://macromate.exemplu.com/api/health
+```
+
+Caută: `{"status":"ok"}`. Cererea a trecut prin DNS, prin Caddy cu HTTPS și a ajuns la API.
+
+## 9. Primele conturi
+
+Aplicația nu are înregistrare publică. Contul se face în două feluri:
+- cu comanda `create-user`, pe server: doar pentru primul cont, al tău;
+- dintr-un link de invitație în bucătărie: pentru restul.
+
+Creezi contul tău:
+
+```bash
+docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll create-user --email adresa-ta@exemplu.com --name Florin
+```
+
+Caută: `Parola (minim 10 caractere):`. Tastezi parola (pe ecran nu apare nimic), Enter, apoi `Contul adresa-ta@exemplu.com a fost creat.`
+
+Ce face comanda, pas cu pas:
+1. `docker compose exec api` pornește o comandă nouă în containerul `api`, care rulează deja.
+2. Comanda e chiar programul API-ului, cu `create-user` ca prim argument.
+3. Programul rulează migrările, apoi vede argumentul și nu mai pornește serverul web:
+   ```csharp
+   if (AdminCommands.IsCommand(args))
+       return await AdminCommands.RunAsync(app, args);
+   ```
+4. `AdminCommands.cs` citește parola fără s-o afișeze și cheamă `KitchenService.CreateUserAsync`. Contul primește o bucătărie nouă, iar tu ești proprietarul ei.
+
+Pui cele 75 de alimente de start, cu tine ca autor:
+
+```bash
+docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll seed-foods --as adresa-ta@exemplu.com
+```
+
+Caută: `Am adăugat 75 alimente.` Dacă o rulezi din nou, scrie `Am adăugat 0 alimente.`: id-ul fiecărui aliment de start se calculează din numele lui, deci comanda vede ce există deja. Alimentele intră în baza generală, pe care o văd toate conturile. Cămara ta pornește goală.
+
+**Prietena ta intră printr-o invitație:**
+1. Te loghezi pe `https://macromate.exemplu.com`.
+2. **Profil** → **Bucătăria** → **Invită în bucătărie** → **Trimite**.
+3. Linkul arată așa: `https://macromate.exemplu.com/invite/<token>`. Merge o singură dată, 7 zile.
+4. Ea îl deschide și completează numele, emailul și o parolă de minim 10 caractere → **Creează contul și intră**.
+5. Contul ei se creează direct în bucătăria ta.
+
+Emailul ei trebuie să fie real: pe el primește linkul de la „Am uitat parola”.
+
+## 10. Copia de rezervă a bazei
+
+**`pg_dump`** e programul din Postgres care scrie toată baza într-un fișier SQL. Din fișierul ăsta baza se poate reface oricând.
+
+`deploy/backup.sh` face trei lucruri:
+
+```bash
+docker compose -f compose.prod.yaml exec -T db pg_dump -U macromate macromate | gzip > "backups/macromate-$(date +%F).sql.gz"
+ls -1t backups/macromate-*.sql.gz | tail -n +15 | xargs -r rm --
+```
+
+1. rulează `pg_dump` în containerul `db`;
+2. comprimă rezultatul cu `gzip` în `deploy/backups/macromate-AAAA-LL-ZZ.sql.gz`;
+3. păstrează cele mai noi 14 fișiere și le șterge pe celelalte.
+
+Îl încerci o dată de mână:
 
 ```bash
 /opt/macromate/deploy/backup.sh && ls -lh /opt/macromate/deploy/backups
 ```
 
-Caută: un fișier `macromate-AAAA-LL-ZZ.sql.gz`.
+Caută: un fișier `macromate-AAAA-LL-ZZ.sql.gz` cu data de azi și o mărime mai mare de zero.
 
-Îl programezi zilnic la 3 noaptea:
+**cron** e serviciul din Linux care rulează comenzi la ore fixe. **crontab** e lista lui de comenzi, câte una pentru fiecare utilizator. Programezi copia zilnic la 3 noaptea, ca `ubuntu` (fără `sudo`, pentru că `ubuntu` e în grupul `docker`):
 
 ```bash
-(crontab -l 2>/dev/null; echo "0 3 * * * /opt/macromate/deploy/backup.sh") | crontab -
+(crontab -l 2>/dev/null; echo "0 3 * * * /opt/macromate/deploy/backup.sh >> /home/ubuntu/backup.log 2>&1") | crontab - && crontab -l
 ```
 
-Dacă vreodată ai nevoie să refaci baza dintr-o copie, din `/opt/macromate/deploy`:
+Caută: rândul `0 3 * * * /opt/macromate/deploy/backup.sh >> /home/ubuntu/backup.log 2>&1`. `0 3 * * *` înseamnă minutul 0, ora 3, în fiecare zi. Erorile ajung în `/home/ubuntu/backup.log`.
+
+Ora e cea a serverului. `timedatectl` arată de obicei `Time zone: Etc/UTC`, deci 3:00 pe server e 6:00 vara în România și 5:00 iarna.
+
+A doua zi verifici:
+
+```bash
+ls -lh /opt/macromate/deploy/backups && cat /home/ubuntu/backup.log
+```
+
+Caută: fișierul cu data de azi; `backup.log` gol sau fără erori.
+
+**Copiile ies și de pe server.** Dacă se strică discul VPS-ului, se pierd și copiile de pe el. O dată pe săptămână, le copiezi pe laptop:
+
+```bash
+rsync -av ubuntu@IP_SERVER:/opt/macromate/deploy/backups/ ~/MacroMate-backups/
+```
+
+Caută: lista fișierelor `macromate-…sql.gz` copiate, apoi `total size is …`. OVH vinde și un backup automat al întregului VPS, ca opțiune plătită; acela prinde și pozele.
+
+### Refaci baza dintr-o copie
+
+Din `/opt/macromate/deploy`:
 1. Oprești API-ul:
    ```bash
    docker compose -f compose.prod.yaml stop api
    ```
+   Caută: `Container deploy-api-1 Stopped`.
 2. Ștergi baza și o creezi goală:
    ```bash
    docker compose -f compose.prod.yaml exec db dropdb -U macromate macromate && docker compose -f compose.prod.yaml exec db createdb -U macromate macromate
    ```
+   Caută: nicio eroare. Dacă scrie `is being accessed by other users`, API-ul nu e oprit.
 3. Încarci copia (pui data fișierului):
    ```bash
    gunzip -c backups/macromate-AAAA-LL-ZZ.sql.gz | docker compose -f compose.prod.yaml exec -T db psql -U macromate macromate
    ```
+   Caută: multe rânduri `CREATE TABLE`, `COPY …`, `ALTER TABLE` și niciun `ERROR:`.
 4. Pornești API-ul:
    ```bash
    docker compose -f compose.prod.yaml start api
    ```
+   Caută: `Container deploy-api-1 Started`.
 
-## 10. Pe telefoane
+Telefoanele își păstrează copia lor locală. La următoarea sincronizare primesc ce e mai nou decât cursorul lor.
 
-Deschizi `https://macromate.ro` și te loghezi, apoi pui aplicația pe ecran:
-- **iPhone**: Safari → Share → „Add to Home Screen”;
-- **Android**: meniul Chrome → „Instalează aplicația”.
+## 11. Volumul `app-data`
 
-## Actualizările
+Containerul `api` ține pe volumul `app-data`, montat la `/data`, două foldere:
+- **`/data/keys`**: cheile **Data Protection**, adică cheile cu care .NET criptează cookie-ul de login și semnează linkurile de resetare a parolei și de confirmare a emailului;
+- **`/data/photos`**: pozele alimentelor și ale rețetelor.
 
-Când schimbi codul, de pe laptop trimiți din nou fișierele, cu aceeași comandă `rsync` de la pasul 5. Apoi, pe server, reconstruiești și repornești:
+Volumul trebuie să rămână de la un deploy la altul. Dacă se pierde:
+- toți sunt delogați, pentru că cookie-urile vechi nu mai pot fi citite;
+- linkurile de resetare și de confirmare trimise deja nu mai merg;
+- pozele dispar, iar alimentele și rețetele arată fără poză.
 
-```bash
-cd /opt/macromate/deploy && docker compose -f compose.prod.yaml up -d --build
-```
-
-Migrările bazei rulează singure la pornirea API-ului. Pe telefoane apare „Există o versiune nouă” → **Actualizează**.
-
-Dacă ai schimbat doar cheia DeepSeek în `.env`, repornești doar API-ul:
+Volumele le vezi cu:
 
 ```bash
-docker compose -f compose.prod.yaml up -d api
+docker volume ls
 ```
+
+Caută: `deploy_app-data`, `deploy_db-data`, `deploy_caddy-data`, `deploy_caddy-config`.
+
+**Nu rulezi niciodată `docker compose down -v`.** `-v` șterge volumele, adică baza, pozele, cheile și certificatele. `docker compose down`, fără `-v`, doar oprește și șterge containerele; datele rămân.
+
+`backup.sh` salvează doar baza. Pozele și cheile le salvezi cu o arhivă a volumului:
+
+```bash
+docker run --rm -v deploy_app-data:/data -v /opt/macromate/deploy/backups:/backup alpine tar czf /backup/app-data-$(date +%F).tar.gz -C /data .
+```
+
+Caută: `ls -lh /opt/macromate/deploy/backups` arată `app-data-AAAA-LL-ZZ.tar.gz`. Comanda pornește un container mic (`alpine`), care vede volumul la `/data` și folderul de copii la `/backup`, face arhiva și se șterge. Arhivele astea `backup.sh` nu le șterge; le ștergi tu pe cele vechi.
+
+## 12. Actualizările
+
+Când ai cod nou pe GitHub:
+
+```bash
+cd /opt/macromate && git pull && cd deploy && docker compose -f compose.prod.yaml up -d --build
+```
+
+Caută: la `git pull`, `Fast-forward` sau `Already up to date.`; la compose, `Started` sau `Running` pentru toate trei.
+
+Migrările bazei rulează singure la pornirea API-ului (`Database.MigrateAsync()` din `Program.cs`). Pe telefoane apare „Există o versiune nouă a aplicației” → **Actualizează**.
+
+Fiecare build lasă pe disc imagini vechi. Le ștergi din când în când:
+
+```bash
+docker image prune -f
+```
+
+Caută: `Total reclaimed space: …`.
+
+Dacă ai schimbat doar `.env` (de exemplu cheia DeepSeek):
+
+```bash
+docker compose -f compose.prod.yaml up -d
+```
+
+Caută: `Container deploy-api-1 Recreated` sau `Started`. Compose reface doar containerele ale căror setări s-au schimbat.
 
 ## Când ceva nu merge
 
-| Simptom | Te uiți la | Caută |
-|---|---|---|
-| site-ul nu se deschide | `docker compose -f compose.prod.yaml ps` | toate trei au `Up` |
-| eroare de certificat | `docker compose -f compose.prod.yaml logs web` | erori despre DNS: domeniul nu arată încă spre server |
-| login-ul sau sincronizarea dau eroare | `docker compose -f compose.prod.yaml logs api --tail 100` | rânduri cu `fail:` |
-| AI-ul spune „cheia nu e setată” | `deploy/.env` | `DEEPSEEK_API_KEY` completat, apoi `up -d api` |
+| Simptom | Te uiți la | Caută | Ce faci |
+|---|---|---|---|
+| certificatul nu se emite | `docker compose -f compose.prod.yaml logs web` | `challenge failed`, `NXDOMAIN`, `timeout` | DNS-ul nu arată încă spre server (`dig +short A …`) sau un firewall blochează 80/443 (`sudo ufw status`, firewall-ul OVH). După ce repari: `docker compose -f compose.prod.yaml restart web` |
+| browserul arată 502 | `docker compose -f compose.prod.yaml ps` și `logs api --tail 100` | `api` oprit sau repornind; rânduri cu `fail:` | 502 vine de la Caddy: el merge, dar API-ul nu răspunde. Des: parola din `.env` schimbată după prima pornire |
+| site-ul nu se deschide deloc | `docker compose -f compose.prod.yaml ps` | toate trei cu `Up` | `up -d`; apoi logurile containerului oprit |
+| emailurile nu ajung | panoul Resend, la **Emails** | `Delivered`, `Bounced` sau nimic | Nimic în Resend: cheia lipsește (`logs api` arată `Email to …`), `EMAIL_FROM` nu e pe domeniul verificat sau domeniul nu e `Verified`. `Delivered`: folderul de spam |
+| linkurile din email lipsesc | `docker compose -f compose.prod.yaml exec api printenv Email__PublicUrl` | `https://macromate.exemplu.com` | Fără ea, API-ul scrie în log `Email:PublicUrl is not set` și nu trimite linkul |
+| AI-ul spune „lipsește cheia DeepSeek” | `deploy/.env` | `DEEPSEEK_API_KEY` completat | `docker compose -f compose.prod.yaml up -d` |
+| „Prea multe cereri” (429) | — | — | limita de cereri: aștepți cel mult un minut la login și cel mult zece minute la AI |
+
+## Lista de verificare
+
+- [ ] SSH ca `ubuntu`, cu cheie; pachetele la zi; `unattended-upgrades` pornit.
+- [ ] ufw activ, cu 22/tcp, 80/tcp, 443/tcp, 443/udp. Firewall-ul OVH oprit sau cu aceleași porturi.
+- [ ] Docker și `docker compose` instalate; `ubuntu` în grupul `docker`.
+- [ ] DNS: A `macromate` → IPv4-ul serverului. AAAA doar dacă IPv6 merge.
+- [ ] Resend: domeniul `Verified`, cheie cu Sending access.
+- [ ] `deploy/.env` cu `DOMAIN`, `POSTGRES_PASSWORD`, `DEEPSEEK_API_KEY`, `EMAIL_FROM`, `RESEND_API_KEY`; `chmod 600`.
+- [ ] `Email__PublicUrl` = `https://` + `DOMAIN`, pus automat de `compose.prod.yaml`.
+- [ ] Limitele de cereri: implicit 10 pe minut pe adresă IP la login și cont, 30 la 10 minute pe cont la AI. Le schimbi cu `RateLimits__AuthPerMinute` și `RateLimits__AiPerTenMinutes`, adăugate în `compose.prod.yaml` la `api` → `environment`.
+- [ ] Mediul .NET e `Production` (implicit în container): fără conturile de test, fără `/openapi`.
+- [ ] Trei containere `Up`, certificat emis, `/api/health` răspunde `ok`.
+- [ ] Contul tău (`create-user`), alimentele (`seed-foods`), invitația pentru ea.
+- [ ] Copia zilnică în cron, copia săptămânală pe laptop, arhiva `app-data`.
+- [ ] Niciodată `docker compose down -v`.
 
 ## Costuri
 
 | Ce | Cât |
 |---|---|
-| server | 4–6 € pe lună |
-| backup Hetzner | ~1 € pe lună |
-| domeniu | ~10 € pe an |
+| OVH VPS-1 | 4,49 € + TVA pe lună, fără angajament |
+| domeniu Namecheap | plătit pe an, la Namecheap |
+| Resend | planul gratuit |
 | DeepSeek | din tokenii pe care îi ai |

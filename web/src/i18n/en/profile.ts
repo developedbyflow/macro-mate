@@ -16,6 +16,12 @@ export const profile = {
     offline: 'You need internet to change your account details.',
   },
   targets: {
+    macroMode: 'Macros in',
+    modeGrams: 'grams',
+    modePercent: 'percent',
+    gramsHint: '{{grams}} g',
+    ofKcal: '{{percent}}% of calories',
+    macroTotal: 'Protein, carbs and fat add up to {{percent}}% of calories. Adjust them to reach 100%.',
     title: 'Daily targets',
     saved: 'Targets saved.',
     sex: 'Sex',

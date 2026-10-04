@@ -16,6 +16,7 @@ public class Food : SharedEntity
     public double? UnitWeightG { get; set; }
     public string? GlycemicGrade { get; set; }
     public string? GradesReason { get; set; }
+    public string? GradesReasonEn { get; set; }
     public List<string> EstimatedFields { get; set; } = [];
     public string Source { get; set; } = "manual";
     public Guid? PhotoId { get; set; }

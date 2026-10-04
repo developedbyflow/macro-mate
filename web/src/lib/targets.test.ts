@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { basalMetabolicRate, computeTargets, energyPlan, projectedWeight } from './targets'
+import { basalMetabolicRate, computeTargets, energyPlan, gramsFromShare, projectedWeight, shareOfKcal } from './targets'
 
 describe('computeTargets', () => {
   const inputs = { sex: 'male', birthYear: 1996, heightCm: 180, weightKg: 85, activityLevel: 'moderate', goal: 'lose' } as const
@@ -44,5 +44,26 @@ describe('projectedWeight', () => {
     expect(projectedWeight(80, 1800, 2570)).toBeCloseTo(77.2)
     expect(projectedWeight(80, 2570, 2570)).toBe(80)
     expect(projectedWeight(80, 2845, 2570)).toBeCloseTo(81)
+  })
+})
+
+describe('shareOfKcal', () => {
+  it('turns grams into a share of the calories', () => {
+    expect(shareOfKcal(170, 'proteinG', 2010)).toBe(34)
+    expect(shareOfKcal(180, 'carbsG', 2010)).toBe(36)
+    expect(shareOfKcal(68, 'fatG', 2010)).toBe(30)
+  })
+
+  it('has no share without calories or grams', () => {
+    expect(shareOfKcal(170, 'proteinG', 0)).toBeNull()
+    expect(shareOfKcal(Number.NaN, 'proteinG', 2010)).toBeNull()
+  })
+})
+
+describe('gramsFromShare', () => {
+  it('turns a share of the calories back into grams', () => {
+    expect(gramsFromShare(34, 'proteinG', 2010)).toBe(171)
+    expect(gramsFromShare(30, 'fatG', 2010)).toBe(67)
+    expect(gramsFromShare(30, 'fatG', 0)).toBeNull()
   })
 })

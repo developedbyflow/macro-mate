@@ -908,6 +908,7 @@
           "unitWeightG",
           "glycemicGrade",
           "gradesReason",
+          "gradesReasonEn",
           "estimatedFields",
           "source",
           "photoId",
@@ -982,6 +983,12 @@
             ]
           },
           "gradesReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gradesReasonEn": {
             "type": [
               "null",
               "string"
@@ -1084,7 +1091,8 @@
           "estimatedFields",
           "category",
           "glycemicGrade",
-          "reason"
+          "reason",
+          "reasonEn"
         ],
         "type": "object",
         "properties": {
@@ -1131,6 +1139,9 @@
             "type": "string"
           },
           "reason": {
+            "type": "string"
+          },
+          "reasonEn": {
             "type": "string"
           }
         }

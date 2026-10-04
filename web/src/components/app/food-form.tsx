@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import { EstimatedBadge, GlycemicBadge, ProteinBadge, VolumeBadge } from './badges'
 import { NativeSelect } from './native-select'
 import { PhotoInput } from './photo'
-import { primaryNameField } from '@/lib/food-name'
+import { foodReason, primaryNameField } from '@/lib/food-name'
 
 type Props = {
   initial: FoodDraft
@@ -172,7 +172,7 @@ export function FoodForm({ initial, submitLabel, onSubmit }: Props) {
               <div className="flex items-center gap-1.5 text-sm">
                 {t('foods.glycemic')} <GlycemicBadge grade={draft.glycemicGrade} />
               </div>
-              {draft.gradesReason && <p className="text-sm text-muted-foreground">{draft.gradesReason}</p>}
+              {foodReason(draft) && <p className="text-sm text-muted-foreground">{foodReason(draft)}</p>}
               <NativeSelect aria-label={t('foods.form.glycemicGrade')} value={draft.glycemicGrade} onChange={(e) => set('glycemicGrade', e.target.value || null)}>
                 {['A', 'B', 'C'].map((g) => (
                   <option key={g} value={g}>

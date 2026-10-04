@@ -1,4 +1,5 @@
 using MacroMate.Api.Data;
+using MacroMate.Api.Features.Security;
 using MacroMate.Api.Features.Sync;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ public static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth");
-        group.MapPost("/login", Login).Produces<MeResponse>();
+        group.MapPost("/login", Login).RequireRateLimiting(RateLimiting.Auth).Produces<MeResponse>();
         group.MapPost("/logout", Logout).RequireAuthorization();
         group.MapGet("/me", Me).RequireAuthorization().Produces<MeResponse>();
     }

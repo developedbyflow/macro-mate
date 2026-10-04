@@ -3,6 +3,7 @@ using System.Text;
 using MacroMate.Api.Data;
 using MacroMate.Api.Features.Auth;
 using MacroMate.Api.Features.Foods;
+using MacroMate.Api.Features.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -22,7 +23,8 @@ public sealed record FoodEnrichResponse(
     List<string> EstimatedFields,
     string Category,
     string GlycemicGrade,
-    string Reason);
+    string Reason,
+    string ReasonEn);
 
 public sealed record AiStatus(bool Configured);
 
@@ -55,8 +57,8 @@ public static class AiEndpoints
 {
     public static void MapAiEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/ai").RequireAuthorization();
-        group.MapGet("/status", (DeepSeekClient ai) => new AiStatus(ai.IsConfigured));
+        var group = app.MapGroup("/api/ai").RequireAuthorization().RequireRateLimiting(RateLimiting.Ai);
+        group.MapGet("/status", (DeepSeekClient ai) => new AiStatus(ai.IsConfigured)).DisableRateLimiting();
         group.MapPost("/foods/enrich", EnrichFood).Produces<FoodEnrichResponse>();
         group.MapPost("/recipes/generate", GenerateRecipe).Produces<RecipeDraft>();
         group.MapPost("/meals/scan", ScanMeal).Produces<MealScanResult>();
@@ -74,7 +76,8 @@ public static class AiEndpoints
         List<string>? FromLabel,
         string? Category,
         string? GlycemicGrade,
-        string? Reason);
+        string? Reason,
+        string? ReasonEn);
 
     static async Task<IResult> EnrichFood(FoodEnrichRequest request, DeepSeekClient ai, IStringLocalizer<Messages> messages, CancellationToken ct)
     {
@@ -121,7 +124,8 @@ public static class AiEndpoints
                 EstimatedFields: estimated,
                 Category: answer.Category is { } c && FoodCategories.IsValid(c) ? c : "",
                 GlycemicGrade: Grade(answer.GlycemicGrade),
-                Reason: answer.Reason?.Trim() ?? "");
+                Reason: answer.Reason?.Trim() ?? "",
+                ReasonEn: answer.ReasonEn?.Trim() ?? "");
 
             return Results.Ok(response);
         });

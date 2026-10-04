@@ -144,4 +144,7 @@ Ai cerut ca aceasta să fie adresa contului tău MacroMate. Deschide linkul de m
 
 Dacă n-ai cerut tu, ignoră emailul.</value>
   </data>
+  <data name="TooManyRequests" xml:space="preserve">
+    <value>Prea multe cereri. Încearcă din nou peste {0} min.</value>
+  </data>
 </root>

@@ -16,6 +16,7 @@ export function food(overrides: Partial<Food> & Pick<Food, 'name' | 'category' |
     unitWeightG: null,
     glycemicGrade: null,
     gradesReason: null,
+    gradesReasonEn: null,
     estimatedFields: [],
     source: 'manual',
     photoId: null,

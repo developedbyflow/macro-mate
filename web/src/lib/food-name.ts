@@ -10,6 +10,10 @@ export function foodName(food: Named | null | undefined) {
   return currentLanguage() === 'en' && food.nameEn ? food.nameEn : food.name
 }
 
+export function foodReason(food: Pick<Food, 'gradesReason' | 'gradesReasonEn'>) {
+  return currentLanguage() === 'en' && food.gradesReasonEn ? food.gradesReasonEn : food.gradesReason
+}
+
 export function foodSearchText(food: Named & Pick<Food, 'brand'>) {
   return [food.name, food.nameEn, food.brand].filter(Boolean).join(' ')
 }

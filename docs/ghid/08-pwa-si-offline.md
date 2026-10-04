@@ -59,6 +59,18 @@ Codul e `UpdatePrompt` din `web/src/routes/__root.tsx`. `registerType: 'prompt'`
 
 Pe iPhone, Safari poate șterge datele unei aplicații web nefolosite mai multe zile. Nu e grav: toate datele sunt și pe server, iar dacă telefonul pierde copia locală, următoarea sincronizare o aduce înapoi. S-ar pierde doar ce era în coadă și netrimis, iar coada se golește la câteva secunde după fiecare salvare făcută cu internet.
 
+## Ce merge offline și ce nu
+
+| Merge offline | Cere internet |
+|---|---|
+| Azi, jurnalul, copierea dintr-o zi, ziua completă | login-ul și „Contul tău” |
+| alimente, cămara, rețete, planuri, cumpărături | secțiunea Bucătăria și pagina de invitație |
+| căutarea și scannerul de coduri pentru alimente din telefon | căutarea unui cod nou în Open Food Facts |
+| Progresul și greutatea | DeepSeek: alimentul completat, rețeta generată, scanarea farfuriei |
+| schimbarea limbii | „Am uitat parola” și linkurile din email |
+
+Ce faci offline intră în coadă și pleacă la server când revine internetul. Ce cere internet merge direct la API, fără coadă, iar butoanele lui sunt dezactivate sau arată un mesaj când ești offline.
+
 ## De ce e nevoie de HTTPS
 
 Și camera, și service worker-ul merg doar pe HTTPS. Excepția e `localhost`, pentru dezvoltare. Așa că serverul are nevoie de un domeniu: Caddy cere singur certificatul de la Let's Encrypt pentru el.

@@ -52,7 +52,7 @@ function RecipesPage() {
       <PageHeader
         title={t('nav.recipes')}
         actions={
-          <Button size="sm" variant="secondary" render={<Link to="/recipes/generate" />}>
+          <Button size="sm" variant="secondary" nativeButton={false} render={<Link to="/recipes/generate" />}>
             <Sparkles className="size-4" /> {t('recipes.list.generate')}
           </Button>
         }
@@ -71,7 +71,7 @@ function RecipesPage() {
         >
           <Star className={cn('size-4', onlyFavorites && 'fill-carbs')} />
         </Button>
-        <Button className="h-10" render={<Link to="/recipes/new" />}>
+        <Button className="h-10" nativeButton={false} render={<Link to="/recipes/new" />}>
           <Plus className="size-4" /> {t('recipes.list.new')}
         </Button>
       </div>

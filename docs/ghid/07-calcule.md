@@ -58,8 +58,9 @@ La butonul de schimbare de lângă spanac, aplicația propune:
 Pașii din `alternativesFor`:
 1. **Aceeași categorie.** Spanacul e „legume”, deci se caută doar printre legume. Căpșunile sunt „fructe de pădure”, deci roșiile nu au cum să apară.
 2. **Fără ce ai exclus tu.**
-3. **Cele mai apropiate ca fel de calorii.** Pentru fiecare aliment, aplicația calculează ce parte din calorii vine din proteine, din carbohidrați și din grăsimi. Spanacul are cam jumătate din calorii din proteine. Ciupercile au tot cam jumătate, deci sunt aproape. La distanță se adună puțin și diferența de calorii la 100 g.
-4. **Aceleași calorii.** Gramajul se ajustează: 100 g spanac au 23 kcal; ciupercile au 22 kcal la 100 g, deci 100 × 23 / 22 = 105 g.
+3. **Întâi ce e în cămară.** Alimentele din cămara bucătăriei tale vin înaintea celorlalte. Între ele, ordinea o dă pasul următor.
+4. **Cele mai apropiate ca fel de calorii.** Pentru fiecare aliment, aplicația calculează ce parte din calorii vine din proteine, din carbohidrați și din grăsimi. Spanacul are cam jumătate din calorii din proteine. Ciupercile au tot cam jumătate, deci sunt aproape. La distanță se adună puțin și diferența de calorii la 100 g.
+5. **Aceleași calorii.** Gramajul se ajustează: 100 g spanac au 23 kcal; ciupercile au 22 kcal la 100 g, deci 100 × 23 / 22 = 105 g.
 
 ## Țintele zilnice
 
@@ -77,6 +78,39 @@ Exemplu: bărbat, 30 de ani, 180 cm, 85 kg, ușor activ, slăbire cu 0,5 kg pe s
 | Sodiu (limită) | | **2300 mg** |
 
 Un kilogram de grăsime are cam 7.700 kcal, deci 0,5 kg pe săptămână înseamnă 3.850 kcal pe săptămână, adică 550 pe zi. Dacă ritmul ar coborî ținta sub metabolismul bazal (1830 aici), ținta rămâne la metabolismul bazal. Proteinele și carbohidrații au 4 kcal pe gram, grăsimile 9. Funcțiile sunt `energyPlan` și `computeTargets` din `targets.ts`. După calcul, poți schimba orice număr de mână, în Profil.
+
+### Grame sau procente
+
+Deasupra câmpurilor din Profil e un comutator: **Macro în: grame / procente**.
+
+**Procentul din calorii** al unui macro e partea din caloriile zilei care vine din el: gramele înmulțite cu caloriile pe gram, împărțite la caloriile țintă.
+
+| Macro | Grame | Calcul | Din calorii |
+|---|---|---|---|
+| Proteine | 170 g | 170 × 4 / 2010 | 34% |
+| Carbohidrați | 180 g | 180 × 4 / 2010 | 36% |
+| Grăsimi | 68 g | 68 × 9 / 2010 | 30% |
+
+- **Pe grame** scrii gramele, iar lângă etichetă apare procentul, de exemplu „34% din calorii”.
+- **Pe procente** scrii procentele, iar gramele se calculează invers: calorii × procent / 100 / calorii pe gram. La 40% proteine din 2010 kcal ies 2010 × 40 / 100 / 4 = 201 g, iar lângă etichetă apare „201 g”.
+- Dacă schimbi caloriile pe procente, procentele rămân și gramele se recalculează: la 2500 kcal, 40% proteine înseamnă 250 g.
+- Dacă cele trei procente nu adună între 95 și 105%, sub câmpuri apare cât adună.
+
+Se salvează tot în grame, deci restul aplicației (inelul din Azi, barele, Progresul) nu se schimbă. Comutatorul e doar o altă cale de a scrie aceleași numere. Alegerea se ține în telefon, în localStorage, la cheia `macromate.macroMode`.
+
+Calculele sunt `shareOfKcal` (grame → procent) și `gramsFromShare` (procent → grame) din `web/src/lib/targets.ts`:
+
+```ts
+export function shareOfKcal(grams: number, nutrient: keyof typeof kcalPerGram, kcal: number) {
+  if (!(kcal > 0) || !(grams >= 0)) return null
+  return Math.round(((grams * kcalPerGram[nutrient]) / kcal) * 100)
+}
+
+export function gramsFromShare(percent: number, nutrient: keyof typeof kcalPerGram, kcal: number) {
+  if (!(kcal > 0) || !(percent >= 0)) return null
+  return Math.round((kcal * percent) / 100 / kcalPerGram[nutrient])
+}
+```
 
 ## Obiectivul: cât mai ai și când ajungi
 
@@ -101,6 +135,28 @@ Fiecare intrare din jurnal **își copiază valorile** în momentul în care o n
 
 Copia contează: dacă mâine schimbi varianta omletei, ce ai notat ieri rămâne cum era. Dacă schimbi cantitatea unei intrări, valorile se recalculează din aliment.
 
+O intrare venită din scanarea farfuriei, pentru un aliment care nu e în bază, n-are aliment din care să se recalculeze. Are doar valorile estimate pentru gramele ei. Dacă îi schimbi gramele pe ecranul de verificare, valorile se scalează: 120 g dintr-o estimare de 200 g cu 300 kcal dau 300 × 120 / 200 = 180 kcal.
+
+## Ziua completă: unde ajungi în 4 săptămâni
+
+Când apeși „Ziua e completă”, Azi arată greutatea la care ai ajunge dacă fiecare zi ar fi ca asta. Același om ca la ținte: 85 kg, menținere 2516 kcal, iar azi a mâncat 1970 kcal.
+
+| Pas | Calcul | Rezultat |
+|---|---|---|
+| greutatea de azi | media pe 7 zile a cântăririlor (sau greutatea din profil) | 85 kg |
+| menținerea | metabolism bazal × activitate, fără ritm | 2516 kcal |
+| diferența pe zi | 1970 − 2516 | −546 kcal |
+| în 28 de zile | −546 × 28 / 7700 | −2,0 kg |
+| greutatea estimată | 85 − 2,0 | **83,0 kg** |
+
+```ts
+export function projectedWeight(weightKg: number, dayKcal: number, maintenance: number, days = 28) {
+  return weightKg + ((dayKcal - maintenance) * days) / kcalPerKg
+}
+```
+
+Funcțiile sunt `maintenanceKcal` și `projectedWeight` din `targets.ts`. Ziua completă se ține în `day_plans.completed_at`.
+
 ## Lista de cumpărături
 
 „Plan B × 5 zile”, unde Plan B are la micul dejun 1 porție de omletă și o banană de 120 g:
@@ -123,7 +179,8 @@ Regulile din `shopping.ts`:
 - „branza” găsește „Brânză de vaci”: diacriticele se scot din ambele texte înainte de comparare;
 - „bnana” găsește „Banană”: la cuvintele de minim 4 litere, se acceptă o literă greșită, lipsă sau în plus;
 - „piept curcan” găsește doar ce conține ambele cuvinte;
-- rezultatele în care un cuvânt **începe** cu ce ai scris apar primele.
+- rezultatele în care un cuvânt **începe** cu ce ai scris apar primele;
+- caută în numele în română, în numele în engleză și în marcă, puse împreună de `foodSearchText` din `food-name.ts`. „blueberries” găsește „Afine”, oricare ar fi limba aplicației.
 
 ## Testele
 
@@ -131,4 +188,6 @@ Regulile din `shopping.ts`:
 pnpm --dir web test
 ```
 
-Fiecare regulă de mai sus are un test cu nume care spune regula. De exemplu: `weighs the weight-loss score by calories, so a little oil still counts` sau `stays in the same category`.
+Caută: `Tests  … passed`, fără `failed`.
+
+Fiecare regulă de mai sus are un test cu nume care spune regula. De exemplu: `grades a recipe on its totals, so a little oil still counts`, `puts the foods from the pantry first`, `moves the weight by the daily difference over 4 weeks` sau `searches in both names and the brand`.

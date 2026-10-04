@@ -1,5 +1,6 @@
 using MacroMate.Api.Data;
 using MacroMate.Api.Features.Auth;
+using MacroMate.Api.Features.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -31,7 +32,7 @@ public static class KitchenEndpoints
         kitchen.MapPost("/archive/restore", RestoreArchive).Produces<KitchenInfo>();
         kitchen.MapPost("/members/{memberId:guid}/remove", RemoveMember).Produces<KitchenInfo>();
 
-        var invites = app.MapGroup("/api/invites");
+        var invites = app.MapGroup("/api/invites").RequireRateLimiting(RateLimiting.Auth);
         invites.MapGet("/{token}", Describe).Produces<InviteInfo>();
         invites.MapPost("/{token}/accept", Accept).RequireAuthorization().Produces<KitchenInfo>();
         invites.MapPost("/{token}/register", Register).Produces<MeResponse>();

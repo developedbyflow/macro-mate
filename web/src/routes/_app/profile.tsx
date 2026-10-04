@@ -22,7 +22,7 @@ import { locale } from '@/i18n'
 import { categoryCodes, categoryLabel } from '@/lib/categories'
 import { today } from '@/lib/dates'
 import { decimal, kcal } from '@/lib/format'
-import { activityLevels, computeTargets, energyPlan, goals, type ActivityLevel, type Goal, type Sex } from '@/lib/targets'
+import { type ActivityLevel, activityLevels, computeTargets, energyPlan, type Goal, goals, gramsFromShare, type Sex, shareOfKcal } from '@/lib/targets'
 import { toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
 import { foodName } from '@/lib/food-name'
@@ -63,6 +63,48 @@ const targetFields = [
 
 type TargetKey = (typeof targetFields)[number]['key']
 
+type MacroKey = 'targetProteinG' | 'targetCarbsG' | 'targetFatG'
+type MacroMode = 'grams' | 'percent'
+
+const macroNutrients = { targetProteinG: 'proteinG', targetCarbsG: 'carbsG', targetFatG: 'fatG' } as const
+const macroModeKey = 'macromate.macroMode'
+
+function isMacroKey(key: TargetKey): key is MacroKey {
+  return key in macroNutrients
+}
+
+function readMacroMode(): MacroMode {
+  try {
+    return localStorage.getItem(macroModeKey) === 'percent' ? 'percent' : 'grams'
+  } catch {
+    return 'grams'
+  }
+}
+
+function parseInput(value: string) {
+  return Number.parseFloat(value.replace(',', '.'))
+}
+
+function gramsText(percent: string, key: MacroKey, kcal: string) {
+  const grams = gramsFromShare(parseInput(percent), macroNutrients[key], parseInput(kcal))
+  return grams == null ? '' : String(grams)
+}
+
+function percentsFrom(targets: Record<TargetKey, string>): Record<MacroKey, string> {
+  const kcal = parseInput(targets.targetKcal)
+  const share = (key: MacroKey) => shareOfKcal(parseInput(targets[key]), macroNutrients[key], kcal)
+  return {
+    targetProteinG: share('targetProteinG')?.toString() ?? '',
+    targetCarbsG: share('targetCarbsG')?.toString() ?? '',
+    targetFatG: share('targetFatG')?.toString() ?? '',
+  }
+}
+
+function totalOf(percents: Record<MacroKey, string>) {
+  const values = Object.values(percents).map(parseInput)
+  return values.every(Number.isFinite) ? Math.round(values.reduce((a, b) => a + b, 0)) : null
+}
+
 function TargetsSection({ profile }: { profile: UserProfile }) {
   const { t } = useTranslation()
   const [inputs, setInputs] = useState({
@@ -79,6 +121,37 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
   const [targets, setTargets] = useState<Record<TargetKey, string>>(
     Object.fromEntries(targetFields.map((f) => [f.key, profile[f.key]?.toString() ?? ''])) as Record<TargetKey, string>,
   )
+  const [mode, setMode] = useState<MacroMode>(readMacroMode)
+  const [percents, setPercents] = useState<Record<MacroKey, string>>(() => percentsFrom(targets))
+
+  function chooseMode(next: MacroMode) {
+    if (next === 'percent') setPercents(percentsFrom(targets))
+    setMode(next)
+    try {
+      localStorage.setItem(macroModeKey, next)
+    } catch {
+      return
+    }
+  }
+
+  function changeTarget(key: TargetKey, value: string) {
+    if (mode === 'percent' && isMacroKey(key)) {
+      setPercents((current) => ({ ...current, [key]: value }))
+      setTargets((current) => ({ ...current, [key]: gramsText(value, key, current.targetKcal) }))
+      return
+    }
+    if (mode === 'percent' && key === 'targetKcal') {
+      setTargets((current) => ({
+        ...current,
+        targetKcal: value,
+        targetProteinG: gramsText(percents.targetProteinG, 'targetProteinG', value),
+        targetCarbsG: gramsText(percents.targetCarbsG, 'targetCarbsG', value),
+        targetFatG: gramsText(percents.targetFatG, 'targetFatG', value),
+      }))
+      return
+    }
+    setTargets((current) => ({ ...current, [key]: value }))
+  }
 
   const birthYear = Number(inputs.birthYear)
   const heightCm = Number(inputs.heightCm.replace(',', '.'))
@@ -87,6 +160,15 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
   const goalWeight = inputs.goal === 'maintain' ? null : Number.parseFloat(inputs.goalWeightKg.replace(',', '.')) || null
   const wrongDirection =
     goalWeight != null && weightKg > 0 && ((inputs.goal === 'lose' && goalWeight >= weightKg) || (inputs.goal === 'gain' && goalWeight <= weightKg))
+
+  const shares = percentsFrom(targets)
+  const macroTotal = totalOf(mode === 'percent' ? percents : shares)
+
+  function hintFor(key: TargetKey) {
+    if (!isMacroKey(key)) return undefined
+    if (mode === 'percent') return targets[key] ? t('profile.targets.gramsHint', { grams: targets[key] }) : undefined
+    return shares[key] ? t('profile.targets.ofKcal', { percent: shares[key] }) : undefined
+  }
 
   function chooseGoal(goal: Goal) {
     setInputs((s) => ({ ...s, goal, weeklyRateKg: goals[goal].defaultRate }))
@@ -98,14 +180,16 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
     const planInputs = { sex: inputs.sex as Sex, birthYear, heightCm, weightKg, activityLevel: inputs.activityLevel, goal: inputs.goal, weeklyRateKg: inputs.weeklyRateKg }
     setPlan(energyPlan(planInputs))
     const computed = computeTargets(planInputs)
-    setTargets({
+    const next = {
       targetKcal: String(computed.kcal),
       targetProteinG: String(computed.proteinG),
       targetCarbsG: String(computed.carbsG),
       targetFatG: String(computed.fatG),
       targetFiberG: String(computed.fiberG),
       targetSodiumMg: String(computed.sodiumMg),
-    })
+    }
+    setTargets(next)
+    setPercents(percentsFrom(next))
   }
 
   async function save() {
@@ -241,20 +325,38 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 rounded-2xl border bg-card p-4">
+        <div className="col-span-2 flex items-center justify-between gap-3">
+          <span className="text-sm font-medium">{t('profile.targets.macroMode')}</span>
+          <div role="radiogroup" aria-label={t('profile.targets.macroMode')} className="grid h-8 w-48 grid-cols-2 overflow-hidden rounded-lg border">
+            {(['grams', 'percent'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                aria-checked={mode === option}
+                onClick={() => chooseMode(option)}
+                className={cn('text-sm font-medium transition-colors', mode === option ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
+              >
+                {option === 'grams' ? t('profile.targets.modeGrams') : t('profile.targets.modePercent')}
+              </button>
+            ))}
+          </div>
+        </div>
         {targetFields.map((field) => (
-          <Field key={field.key} label={t(field.label)}>
+          <Field key={field.key} label={t(field.label)} hint={hintFor(field.key)}>
             <div className="relative">
               <Input
                 inputMode="decimal"
-                value={targets[field.key]}
-                onChange={(e) => setTargets((s) => ({ ...s, [field.key]: e.target.value }))}
+                value={mode === 'percent' && isMacroKey(field.key) ? percents[field.key] : targets[field.key]}
+                onChange={(e) => changeTarget(field.key, e.target.value)}
                 className="h-10 pr-12 tabular-nums"
                 placeholder="—"
               />
-              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground">{field.unit}</span>
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground">{mode === 'percent' && isMacroKey(field.key) ? '%' : field.unit}</span>
             </div>
           </Field>
         ))}
+        {macroTotal != null && Math.abs(macroTotal - 100) > 5 && <p className="col-span-2 text-xs text-kcal">{t('profile.targets.macroTotal', { percent: macroTotal })}</p>}
         <Button className="col-span-2 h-11" onClick={() => void save()}>
           {t('profile.targets.save')}
         </Button>
@@ -437,10 +539,13 @@ function AppSection() {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-sm font-medium">{label}</span>
+      <span className="flex items-baseline justify-between gap-2">
+        <span className="text-sm font-medium">{label}</span>
+        {hint && <span className="text-xs text-muted-foreground tabular-nums">{hint}</span>}
+      </span>
       {children}
     </label>
   )

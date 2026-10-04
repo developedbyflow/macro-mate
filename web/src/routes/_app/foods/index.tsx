@@ -57,7 +57,7 @@ function FoodsPage() {
         title={t('nav.foods')}
         subtitle={t('foods.list.shownOfTotal', { shown: visible.length, total: foods.length })}
         actions={
-          <Button size="sm" render={<Link to="/foods/new" />}>
+          <Button size="sm" nativeButton={false} render={<Link to="/foods/new" />}>
             <Plus className="size-4" /> {t('common.add')}
           </Button>
         }

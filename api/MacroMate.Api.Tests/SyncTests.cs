@@ -23,12 +23,13 @@ public sealed class SyncTests(ApiFactory factory)
         var cursor = (await PullAsync(second, 0)).Cursor;
 
         var foodId = Guid.NewGuid();
-        await PushAsync(florin, Upsert("foods", foodId, new { name = "Iaurt", nameEn = "Yogurt", category = "dairy", kcal = 60 }));
+        await PushAsync(florin, Upsert("foods", foodId, new { name = "Iaurt", nameEn = "Yogurt", category = "dairy", kcal = 60, gradesReason = "Puțin zahăr.", gradesReasonEn = "Little sugar." }));
 
         var pulled = await PullAsync(second, cursor);
         var food = Assert.Single(pulled.Foods, f => f.Id == foodId);
         Assert.Equal("Iaurt", food.Name);
         Assert.Equal("Yogurt", food.NameEn);
+        Assert.Equal("Little sugar.", food.GradesReasonEn);
         Assert.True(pulled.Cursor > cursor);
     }
 

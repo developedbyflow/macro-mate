@@ -1,7 +1,7 @@
 # MacroMate — specificație v1
 
 PWA pentru Florin și prietena lui. Se instalează pe telefon, merge offline și folosește camera.
-Baza de date e comună, fiecare are contul lui.
+Fiecare are contul lui. Alimentele sunt comune tuturor; cămara, rețetele, planurile și listele sunt comune în bucătărie. Interfața e în română și în engleză.
 
 ---
 
@@ -48,7 +48,7 @@ flowchart LR
 | Acces la bază din cod | EF Core, cu providerul Npgsql pentru Postgres | propus |
 | Login | ASP.NET Core Identity (pachetul de user management din .NET), cu cookie | propus |
 | Tipurile din frontend | generate automat din descrierea OpenAPI a API-ului (openapi-typescript) | propus |
-| Server | un VPS (ex. Hetzner), cu Docker Compose: API + Postgres + Caddy | Florin (VPS), propus (restul) |
+| Server | un VPS (OVH VPS-1, Varșovia), cu Docker Compose: API + Postgres + Caddy | Florin (VPS), propus (restul) |
 | HTTPS și frontend | Caddy: pune singur certificatul HTTPS, servește fișierele frontend-ului și trimite `/api` la API. Totul pe același domeniu, deci fără CORS | propus |
 | Poze | pe discul VPS-ului, servite de API (doar celor logați) | propus |
 | Copii de rezervă | backup-ul automat al VPS-ului (o copie pe zi) + `pg_dump` zilnic | propus |
@@ -72,10 +72,11 @@ Cheia DeepSeek stă doar pe server, nu ajunge niciodată în telefon.
 
 ## 3. Conturi
 
-- Două conturi, al tău și al ei. Înregistrarea e închisă: conturile le creăm noi, cu un script.
-- Login cu email și parolă. Sesiunea ține mult, ca să nu te loghezi des de pe telefon.
-- **Comune**: alimentele, rețetele, variantele, meal plan-urile și listele de cumpărături.
-- **Ale fiecăruia**: țintele, jurnalul, favoritele, excluderile și ce îi place.
+- Nu există înregistrare publică. Primul cont se face cu comanda `create-user` pe server; restul, din linkul de invitație în bucătărie.
+- Login cu email și parolă. Sesiunea ține mult, ca să nu te loghezi des de pe telefon. Numele, emailul (cu link de confirmare pe adresa nouă) și parola se schimbă din Profil; parola uitată se resetează dintr-un link pe email.
+- **Comune tuturor conturilor**: alimentele.
+- **Comune în bucătărie**: cămara, rețetele, variantele, meal plan-urile și listele de cumpărături ([bucataria.md](bucataria.md)).
+- **Ale fiecăruia**: țintele, jurnalul, greutatea, excluderile și ce îi place.
 - Tot ce se adaugă are câmpul **„adăugat de”**.
 
 ---
@@ -111,7 +112,7 @@ Reguli pentru toate tabelele sincronizate:
 | `shopping_lists` | comun | nume, planurile cu zile (`jsonb`), ce s-a bifat (`text[]`) |
 | `day_plans` | al fiecăruia | ziua și planul ales pentru ea |
 | `journal_entries` | al fiecăruia | ziua, masa, ce s-a mâncat, cantitatea și valorile copiate în momentul notării |
-| `user_profiles` | al fiecăruia | datele din calculator, țintele, favoritele, excluderile, „îmi place” |
+| `user_profiles` | al fiecăruia | datele din calculator, țintele, obiectivul, excluderile, „îmi place” |
 | `weight_entries` | al fiecăruia | ziua și greutatea; o cântărire pe zi |
 | `users`, `roles`, `user_*` | — | tabelele de login ale ASP.NET Core Identity |
 
@@ -129,14 +130,14 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - Sus: ținta, cât ai mâncat și cât mai ai, pentru kcal, proteine, carbohidrați, grăsimi, fibre și sodiu.
    - Jurnalul e grupat pe mesele planului zilei, cu etichetele lor.
    - **O atingere** pe o masă din plan o trece în jurnal cu tot ce are. Poți și să bifezi doar un element din ea.
-   - **„Adaugă”** la o masă deschide o căutare cu ce ai mâncat recent și favoritele sus. Butonul de scanare e chiar acolo.
+   - **„Adaugă”** la o masă deschide o căutare cu tab-urile Recente, Cămara, Toate și Rețete. Butonul de scanare e chiar acolo.
    - **Cantitatea** se schimbă cu butoane de + și − (sau în bucăți, unde alimentul are `unit_weight_g`), fără tastatură.
    - **„Copiază de ieri”** pe o masă sau pe toată ziua (meniul ⋯ din antet; butonul apare și când ziua e goală).
    - **Scanarea** din antet deschide camera pentru masa de acum (după oră). Un cod necunoscut deschide „Aliment nou” cu codul deja căutat.
    - Cercul cu calorii și cardul de sub el duc la **Progres**.
    - Fără reclame și fără duplicate: baza e doar a voastră, fiecare aliment apare o singură dată.
 2. **Alimente**
-   - Listă cu căutare și filtre: categorie, notă glicemică, de proteină și de volum, favorite.
+   - Listă cu căutare (după numele în română sau în engleză) și filtre: categorie, notă glicemică, de proteină și de volum, cămara.
    - Fișa alimentului arată valorile (la 100 g, pe o bucată sau la orice gramaj), notele, motivul notelor și cine l-a adăugat.
    - Un aliment nou se adaugă scanând codul, cu o poză la etichetă sau manual (§6).
 3. **Rețete**
@@ -161,7 +162,7 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
 7. **Profil**
    - Calculatorul și țintele (modificabile), cu obiectivul: greutatea țintă și ritmul.
    - Excluderi și „îmi place”.
-   - Favorite și ieșirea din cont.
+   - Contul (nume, email, parolă), bucătăria, limba și ieșirea din cont.
 
 Peste tot unde apare o listă de rețete sau alimente, ce ai exclus nu apare.
 
@@ -267,7 +268,19 @@ Construit pe 2026-10-04, toți cei 7 pași:
 
 Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele A–C (glicemic de la DeepSeek, proteină și volum calculate din valori), ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri, valorile pe porție și obiectivele (greutate țintă și ritm, cu progresul și data estimată în Progres).
 
+Adăugat apoi, tot pe 2026-10-04:
+- **Bucătăria comună** ([bucataria.md](bucataria.md)): cămara în locul favoritelor; invitație prin link (`/invite/<token>`, o dată, 7 zile), cu cont nou sau cu „Aduci și ce ai tu?” (Da = aduci tot, Nu = arhivă); plecarea cu o copie a tot; arhiva adusă înapoi din Profil; proprietarul (`kitchens.owner_id`), singurul care scoate membri, iar la plecarea lui rolul trece la un membru rămas. Alimentele rămân ale tuturor conturilor.
+- **Română și engleză**: aplicația (react-i18next, limba din browser, comutator în Profil și pe login), mesajele API-ului (`Accept-Language`, `Messages.resx`), numele alimentelor și motivul notei glicemice în ambele limbi (`foods.name_en`, `foods.grades_reason_en`), răspunsurile DeepSeek în limba cererii.
+- **Contul tău**, în Profil: nume, email cu link de confirmare pe adresa nouă, parolă cu parola actuală. „Am uitat parola” cu link pe email, valabil 2 ore. Emailurile pleacă prin Resend.
+- **Limitarea cererilor**: 10 pe minut de la o adresă IP la login, cont și invitații; 30 la 10 minute pe cont la AI (fără verificarea stării AI-ului); peste limită, 429 cu `Retry-After` și mesajul „Încearcă din nou peste N min.”.
+- **Scanarea farfuriei**: poză → DeepSeek recunoaște alimentele din bază și gramele (în starea din bază: orez uscat, carne crudă) și estimează ce nu e în bază → verifici → intră în jurnal; cele estimate fără `foodId`, marcate „estimat”.
+- **Azi**: pe toată lățimea pe desktop, banda de sus (inel, 5 bare, Progres), mesele în grilă, cu macro-urile fiecăreia; fără plan, ziua pornește goală și „Adaugă o masă” cere numele mesei; „Copiază dintr-o zi…” (toată ziua sau o masă); „Ziua e completă”, cu greutatea estimată peste 4 săptămâni.
+- **Meniul din stânga**: numele utilizatorului, cu un cerc cu inițiala, în locul lui „Profil”.
+- **Rețetele generate**: pașii fără numere duble.
+- **Țintele în Profil**: procentul din calorii lângă proteine, carbohidrați și grăsimi, plus comutatorul „Macro în: grame / procente” (se salvează tot în grame).
+
 Ce mai e de făcut:
-- **Deploy-ul pe VPS**: îl faci tu, după `docs/ghid/09-deploy.md`.
-- **Cheia DeepSeek**: până o pui, butoanele de AI arată „cheia nu e setată”.
-- **Bucătăria, cămara și partajarea**, după deploy: specificația e în [bucataria.md](bucataria.md). Până atunci toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora.
+- **Deploy-ul pe OVH VPS-1**: după confirmarea plății și primirea IP-ului, îl faci tu, după `docs/ghid/09-deploy.md`, cu DNS-ul în Namecheap și domeniul verificat în Resend.
+- **Partajarea în afara bucătăriei** (rețetă sau plan trimis ca link, „Salvează la mine”): nu e construită.
+- **Înregistrarea**: doar din invitația în bucătărie; primul cont se face cu `create-user`.
+- **Netestat cu o poză reală**: scanarea a fost verificată cu farfurii desenate (inclusiv ramura „estimat”, cu o pizza); o poză adevărată încă nu.

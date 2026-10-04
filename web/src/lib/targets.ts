@@ -40,6 +40,18 @@ export const goals: Record<Goal, { label: string; rates: number[]; defaultRate: 
 
 export const kcalPerKg = 7700
 
+export const kcalPerGram = { proteinG: 4, carbsG: 4, fatG: 9 } as const
+
+export function gramsFromShare(percent: number, nutrient: keyof typeof kcalPerGram, kcal: number) {
+  if (!(kcal > 0) || !(percent >= 0)) return null
+  return Math.round((kcal * percent) / 100 / kcalPerGram[nutrient])
+}
+
+export function shareOfKcal(grams: number, nutrient: keyof typeof kcalPerGram, kcal: number) {
+  if (!(kcal > 0) || !(grams >= 0)) return null
+  return Math.round(((grams * kcalPerGram[nutrient]) / kcal) * 100)
+}
+
 export type TargetInputs = {
   sex: Sex
   birthYear: number

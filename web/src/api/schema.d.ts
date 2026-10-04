@@ -1060,6 +1060,7 @@ export interface components {
             unitWeightG: null | number;
             glycemicGrade: null | string;
             gradesReason: null | string;
+            gradesReasonEn: null | string;
             estimatedFields: string[];
             source: string;
             /** Format: uuid */
@@ -1103,6 +1104,7 @@ export interface components {
             category: string;
             glycemicGrade: string;
             reason: string;
+            reasonEn: string;
         };
         ForgotPasswordRequest: {
             email: string;

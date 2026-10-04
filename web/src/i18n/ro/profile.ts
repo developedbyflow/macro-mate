@@ -16,6 +16,12 @@ export const profile = {
     offline: 'Ai nevoie de internet ca să schimbi datele contului.',
   },
   targets: {
+    macroMode: 'Macro în',
+    modeGrams: 'grame',
+    modePercent: 'procente',
+    gramsHint: '{{grams}} g',
+    ofKcal: '{{percent}}% din calorii',
+    macroTotal: 'Proteinele, carbohidrații și grăsimile adună {{percent}}% din calorii. Ajustează-le ca să ajungi la 100%.',
     title: 'Ținte zilnice',
     saved: 'Țintele sunt salvate.',
     sex: 'Sex',

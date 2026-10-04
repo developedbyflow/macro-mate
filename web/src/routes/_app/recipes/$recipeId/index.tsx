@@ -55,7 +55,7 @@ function RecipePage() {
             <Button variant="ghost" size="icon" aria-label={favorite ? t('recipes.detail.removeFavorite') : t('recipes.detail.addFavorite')} onClick={() => void toggleInProfile(profile, 'favoriteRecipeIds', recipe.id)}>
               <Star className={cn('size-5', favorite && 'fill-carbs text-carbs')} />
             </Button>
-            <Button variant="ghost" size="icon" aria-label={t('recipes.detail.edit')} render={<Link to="/recipes/$recipeId/edit" params={{ recipeId }} />}>
+            <Button variant="ghost" size="icon" aria-label={t('recipes.detail.edit')} nativeButton={false} render={<Link to="/recipes/$recipeId/edit" params={{ recipeId }} />}>
               <Pencil className="size-5" />
             </Button>
           </>
@@ -80,7 +80,7 @@ function RecipePage() {
           <section className="space-y-2">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">{t('recipes.detail.variants')}</h2>
-              <Button size="sm" variant="secondary" render={<Link to="/recipes/$recipeId/variants/$variantId" params={{ recipeId, variantId: 'new' }} />}>
+              <Button size="sm" variant="secondary" nativeButton={false} render={<Link to="/recipes/$recipeId/variants/$variantId" params={{ recipeId, variantId: 'new' }} />}>
                 <Plus className="size-4" /> {t('recipes.detail.addVariant')}
               </Button>
             </div>
