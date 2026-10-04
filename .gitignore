@@ -5,3 +5,4 @@
 api/MacroMate.Api/storage/
 deploy/.env
 deploy/backups/
+handoff.md

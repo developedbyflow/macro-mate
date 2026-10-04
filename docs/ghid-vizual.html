@@ -1,0 +1,679 @@
+
+<title>Ghidul MacroMate</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* O singură coloană de citit, ca la lecții; culorile sunt ale aplicației: verdele din logo și culorile pentru calorii și macro. */
+  :root {
+    --bg: #f5f7f2;
+    --surface: #ffffff;
+    --ink: #1c261f;
+    --muted: #5b695f;
+    --line: #dce3da;
+    --accent: #2c7a4d;
+    --accent-soft: #e3efe6;
+    --code-bg: #edf2eb;
+    --kcal: #c9731f;
+    --prot: #2f63c9;
+    --carb: #a87c0c;
+    --fat: #c2435c;
+    --no: #a3422f;
+    --font-display: "Bricolage Grotesque", "Source Sans 3", system-ui, sans-serif;
+    --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #111612; --surface: #182019; --ink: #e5ece6; --muted: #97a69a; --line: #29332b;
+      --accent: #6cc493; --accent-soft: #1b2b20; --code-bg: #141a15;
+      --kcal: #f0a45c; --prot: #8aaaf3; --carb: #ecc45a; --fat: #f08b9c; --no: #e8988a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #111612; --surface: #182019; --ink: #e5ece6; --muted: #97a69a; --line: #29332b;
+    --accent: #6cc493; --accent-soft: #1b2b20; --code-bg: #141a15;
+    --kcal: #f0a45c; --prot: #8aaaf3; --carb: #ecc45a; --fat: #f08b9c; --no: #e8988a;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 1.05rem; line-height: 1.6; }
+  .wrap { max-width: 54rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2.5rem 5rem; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.5rem); font-weight: 700; margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.5rem; font-weight: 600; margin: 3.5rem 0 0.75rem; scroll-margin-top: 1rem; }
+  h2 .no { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: var(--accent); display: block; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin: 1.6rem 0 0.3rem; }
+  p { max-width: 64ch; margin: 0 0 0.9rem; }
+  a { color: var(--accent); }
+  ul, ol { max-width: 64ch; padding-left: 1.3rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  .eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .lede { color: var(--muted); font-size: 1.12rem; max-width: 62ch; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  .stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+  .stack li { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.2rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); margin: 0; }
+
+  .rail { display: grid; gap: 0.45rem; margin: 1.75rem 0 0; }
+  .row { display: flex; align-items: baseline; gap: 0.9rem; padding: 0.6rem 0.9rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: inherit; text-decoration: none; }
+  .row:hover, .row:focus-visible { border-color: var(--accent); outline: none; }
+  .row .k { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); min-width: 1.4rem; }
+  .row b { font-weight: 600; white-space: nowrap; }
+  .row .d { color: var(--muted); flex: 1; min-width: 0; }
+  .pill { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--accent); color: var(--surface); white-space: nowrap; }
+  @media (max-width: 640px) { .row { flex-wrap: wrap; } .row .d { flex-basis: 100%; } }
+
+  .step { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 0.75rem; margin: 1.4rem 0; }
+  .step .n { font-family: var(--font-display); font-weight: 700; font-size: 1.45rem; color: var(--accent); line-height: 1.2; }
+  .step h3 { margin: 0 0 0.3rem; }
+  .step .b > :last-child { margin-bottom: 0; }
+
+  pre { font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.5; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 0.85rem 1rem; overflow-x: auto; margin: 0.4rem 0 1rem; }
+  code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 0.05em 0.35em; border-radius: 4px; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  :not(pre) > code { overflow-wrap: anywhere; }
+  td code { overflow-wrap: normal; }
+  pre, code { font-variant-ligatures: none; }
+  pre.mermaid { background: var(--surface); text-align: center; }
+  .mermaid-diagram { overflow-x: auto; }
+  .mermaid-diagram svg foreignObject, .mermaid-diagram svg foreignObject div { overflow: visible; }
+  svg[id^="claude-mermaid"] foreignObject > div { max-width: none !important; width: auto !important; white-space: nowrap !important; }
+  svg[id^="claude-mermaid"] p { max-width: none; margin: 0; }
+  details { margin: -0.4rem 0 1.2rem; }
+  summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 0.95rem; }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .tablewrap { overflow-x: auto; margin: 0.4rem 0 1.2rem; }
+  table { border-collapse: collapse; font-size: 0.97rem; min-width: 100%; }
+  th, td { text-align: left; padding: 0.45rem 0.9rem 0.45rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+  td code { white-space: nowrap; }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; margin: 0.4rem 0 1rem; }
+  .two pre { margin: 0; height: calc(100% - 1.6rem); }
+  .cap { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.35rem; }
+  @media (max-width: 720px) { .two { grid-template-columns: minmax(0, 1fr); } .two pre { height: auto; } }
+
+  .note { border-left: 3px solid var(--accent); padding: 0.6rem 1rem; margin: 1.2rem 0; background: var(--surface); border-radius: 0 6px 6px 0; }
+  .note > :last-child { margin-bottom: 0; }
+  .look { font-size: 0.95rem; color: var(--muted); }
+  .look span { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0.05rem 0.35rem; margin-right: 0.3rem; }
+
+  .m { font-family: var(--font-mono); font-weight: 600; font-size: 0.92em; }
+  .m.kcal { color: var(--kcal); } .m.prot { color: var(--prot); } .m.carb { color: var(--carb); } .m.fat { color: var(--fat); }
+  .legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.4rem 0 1rem; font-size: 0.92rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .legend i { width: 0.7rem; height: 0.7rem; border-radius: 50%; display: inline-block; }
+  .grade, .score { display: inline-flex; align-items: center; justify-content: center; min-width: 1.5rem; height: 1.5rem; padding: 0 0.35rem; border-radius: 5px; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; border: 1px solid currentColor; }
+  .score small { font-weight: 400; opacity: 0.7; }
+  .ga, .sa { color: var(--accent); } .gb, .sb { color: var(--carb); } .gc, .sc { color: var(--no); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0 0; }
+  footer { color: var(--muted); font-size: 0.9rem; margin-top: 1rem; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+
+<div class="eyebrow">MacroMate · ghidul aplicației</div>
+<h1>Cum funcționează MacroMate</h1>
+<p class="lede"><strong>Construită pe 2026-10-04.</strong> Pagina te trece prin aplicație: ce piese are, cum circulă o bifă de pe telefonul tău până pe telefonul ei, de unde vin notele, cum merge offline și cum ajunge pe server. Fiecare capitol are desenul mecanismului, codul real din proiect și, sub fiecare desen, codul lui Mermaid. Același conținut e și în <code>docs/ghid/</code>, ca fișiere Markdown.</p>
+<ul class="stack"><li>React + TypeScript</li><li>Dexie</li><li>TanStack Router</li><li>shadcn/ui</li><li>ASP.NET Core 10</li><li>EF Core</li><li>PostgreSQL</li><li>Caddy</li><li>DeepSeek</li></ul>
+<nav class="rail" aria-label="Capitole">
+  <a class="row" href="#harta"><span class="k">1</span><b>Harta aplicației</b><span class="d">piesele, unde rulează fiecare, unde schimbi ce</span><span class="pill">întâi</span></a>
+  <a class="row" href="#pornire"><span class="k">2</span><b>Pornirea pe laptop</b><span class="d">ce face fiecare comandă și ce trebuie să vezi</span></a>
+  <a class="row" href="#sync"><span class="k">3</span><b>Drumul unei modificări</b><span class="d">o bifă din telefon până în Postgres și până la telefonul ei</span><span class="pill">apoi</span></a>
+  <a class="row" href="#baza"><span class="k">4</span><b>Baza de date</b><span class="d">tabelele, cum ies din clasele C#, de ce unele liste stau în jsonb</span></a>
+  <a class="row" href="#login"><span class="k">5</span><b>Login și securitate</b><span class="d">cookie-ul, cine vede ce, ce verifică serverul</span></a>
+  <a class="row" href="#ai"><span class="k">6</span><b>Alimente, scanare și AI</b><span class="d">codul de bare, Open Food Facts, DeepSeek</span></a>
+  <a class="row" href="#calcule"><span class="k">7</span><b>Calculele</b><span class="d">valori, note, alternative, ținte și cumpărături, cu numere reale</span></a>
+  <a class="row" href="#pwa"><span class="k">8</span><b>PWA și offline</b><span class="d">cum se instalează pe telefon și cum merge fără internet</span></a>
+  <a class="row" href="#deploy"><span class="k">9</span><b>Deploy pe VPS</b><span class="d">de la serverul gol la aplicația de pe telefon</span></a>
+</nav>
+
+<h2 id="harta"><span class="no">Capitolul 1</span>Harta aplicației</h2>
+<p>MacroMate are trei piese care rulează în locuri diferite:</p><ul><li><strong>aplicația din telefon</strong>: React, plus o bază de date a browserului;</li><li><strong>API-ul</strong>: un program .NET pe server;</li><li><strong>Postgres</strong>: baza de date comună, tot pe server.</li></ul><p>Pe lângă ele, API-ul vorbește cu două servicii din afară: Open Food Facts (produse după cod de bare) și DeepSeek (AI-ul).</p>
+<pre class="mermaid">flowchart LR
+  subgraph Telefon
+    UI[Ecranele React]
+    DX[(Dexie)]
+    SW[Service worker]
+  end
+  subgraph VPS
+    CA[Caddy]
+    API[API .NET]
+    PG[(Postgres)]
+    FS[Poze pe disc]
+  end
+  SW -.-&gt;|fișierele aplicației| UI
+  UI &lt;--&gt; DX
+  DX &lt;--&gt;|sincronizare| CA
+  CA --&gt; API
+  API --&gt; PG
+  API --&gt; FS
+  API --&gt; OFF[Open Food Facts]
+  API --&gt; DS[DeepSeek]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  subgraph Telefon
+    UI[Ecranele React]
+    DX[(Dexie)]
+    SW[Service worker]
+  end
+  subgraph VPS
+    CA[Caddy]
+    API[API .NET]
+    PG[(Postgres)]
+    FS[Poze pe disc]
+  end
+  SW -.-&gt;|fișierele aplicației| UI
+  UI &lt;--&gt; DX
+  DX &lt;--&gt;|sincronizare| CA
+  CA --&gt; API
+  API --&gt; PG
+  API --&gt; FS
+  API --&gt; OFF[Open Food Facts]
+  API --&gt; DS[DeepSeek]</code></pre></details>
+
+<div class="tablewrap"><table class=""><tr><th>Piesa</th><th>Ce e</th><th>Unde e codul</th></tr><tr><td>Ecranele React</td><td>Paginile pe care le vezi: Azi, Planuri, Rețete, Alimente, Cumpărături, Profil.</td><td><code>web/src/routes/</code></td></tr><tr><td>Dexie</td><td>O bibliotecă peste IndexedDB, adică peste baza de date pe care o are fiecare browser. Ține în telefon o copie a tuturor datelor și coada de modificări netrimise.</td><td><code>web/src/db/</code></td></tr><tr><td>Service worker</td><td>Un script pe care browserul îl ține instalat după prima vizită. Dă fișierele aplicației din cache, deci aplicația se deschide și fără internet.</td><td><code>web/vite.config.ts</code></td></tr><tr><td>Caddy</td><td>Serverul web din fața API-ului. Pune singur certificatul HTTPS, dă fișierele aplicației și trimite tot ce începe cu <code>/api</code> la API.</td><td><code>deploy/Caddyfile</code></td></tr><tr><td>API .NET</td><td>Primește modificările, le verifică și le scrie în Postgres. Tot el vorbește cu DeepSeek și cu Open Food Facts.</td><td><code>api/MacroMate.Api/</code></td></tr><tr><td>Postgres</td><td>Baza de date comună pentru voi doi.</td><td><code>api/MacroMate.Api/Data/</code></td></tr></table></div>
+
+<h3>Regula de bază: ecranele citesc doar din telefon</h3><p>Niciun ecran nu cere date de la API când îl deschizi. Fiecare ecran citește din Dexie, care e în telefon. Asta e o alegere făcută ca aplicația să meargă offline: dacă ecranele ar cere datele de la server, fără internet ar fi goale.</p>
+<pre class="mermaid">flowchart LR
+  E[Ecran] --&gt;|citește| DX[(Dexie)]
+  E --&gt;|salvează| DX
+  DX --&gt;|coada| S[sync.ts]
+  S --&gt;|trimite și primește| API[API]
+  S --&gt;|pune ce a primit| DX</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  E[Ecran] --&gt;|citește| DX[(Dexie)]
+  E --&gt;|salvează| DX
+  DX --&gt;|coada| S[sync.ts]
+  S --&gt;|trimite și primește| API[API]
+  S --&gt;|pune ce a primit| DX</code></pre></details>
+
+<ul><li><strong>Citirea</strong>: ecranul folosește <code>useLiveQuery</code> din Dexie. Când un tabel din telefon se schimbă, Dexie redesenează singur ecranul.</li><li><strong>Scrierea</strong>: ecranul cheamă <code>saveRow</code>. Funcția scrie rândul în telefon și pune o copie în coadă (<code>outbox</code>).</li><li><strong>Sincronizarea</strong>: <code>web/src/db/sync.ts</code> trimite coada la API și aduce ce s-a schimbat pe server, în fundal.</li></ul><p>Doar trei lucruri merg direct la API și au nevoie de internet: login-ul, căutarea după codul de bare și DeepSeek.</p>
+<h3>Folderele</h3>
+<pre><code>MacroMate/
+├── api/
+│   ├── MacroMate.Api/
+│   │   ├── Program.cs              pornirea: servicii, login, endpoint-uri
+│   │   ├── Data/                   tabelele (clase C#) și migrările
+│   │   ├── Features/
+│   │   │   ├── Auth/               login, logout, „cine sunt”
+│   │   │   ├── Sync/               sincronizarea: citire, scriere, validare
+│   │   │   ├── Foods/              căutarea după cod de bare (Open Food Facts)
+│   │   │   ├── Ai/                 DeepSeek: note pentru alimente, rețete generate
+│   │   │   └── Photos/             urcarea și descărcarea pozelor
+│   │   ├── Admin/                  comenzile create-user și seed-foods
+│   │   └── Seed/foods.json         cele 75 de alimente de start
+│   └── MacroMate.Api.Tests/        testele API-ului, pe un Postgres real
+├── web/src/
+│   ├── routes/                     un fișier pe ecran (TanStack Router)
+│   ├── components/app/             alegerea alimentelor, scannerul, câmpul cu + și −
+│   ├── db/                         Dexie, coada, sincronizarea, sesiunea
+│   ├── lib/                        calculele: valori, note, ținte, cumpărături, căutare
+│   ├── hooks/                      citiri din Dexie gata de folosit în ecrane
+│   └── api/                        clientul HTTP și tipurile generate din API
+├── deploy/                         Docker Compose, Caddy, backup
+└── docs/                           specificația și ghidul</code></pre>
+
+<h3>Unde schimbi ce</h3>
+<div class="tablewrap"><table class=""><tr><th>Vrei să…</th><th>Atingi</th></tr><tr><td>adaugi un câmp la aliment</td><td><code>Data/Food.cs</code>, o migrare nouă, <code>Features/Sync/SyncRules.cs</code>, <code>pnpm --dir web gen:api</code>, apoi <code>web/src/lib/food-draft.ts</code> și <code>components/app/food-form.tsx</code></td></tr><tr><td>schimbi criteriile notelor</td><td><code>Features/Ai/AiPrompts.cs</code></td></tr><tr><td>adaugi o categorie</td><td><code>Data/FoodCategories.cs</code> și <code>web/src/lib/categories.ts</code></td></tr><tr><td>schimbi formula țintelor</td><td><code>web/src/lib/targets.ts</code> și testul de lângă</td></tr><tr><td>schimbi cum se aleg alternativele</td><td><code>alternativesFor</code> din <code>web/src/lib/nutrition.ts</code></td></tr><tr><td>schimbi culorile</td><td>variabilele din <code>web/src/index.css</code></td></tr><tr><td>adaugi un ecran</td><td>un fișier nou în <code>web/src/routes/</code>; router-ul îl găsește singur</td></tr><tr><td>adaugi alimente de start</td><td><code>api/MacroMate.Api/Seed/foods.json</code></td></tr></table></div>
+
+<h2 id="pornire"><span class="no">Capitolul 2</span>Pornirea pe laptop</h2>
+<p>Pe laptop rulează aceleași trei piese ca pe server, fiecare pornită cu o comandă. <strong>Vite</strong> e serverul de dezvoltare al frontend-ului: dă fișierele și trimite tot ce începe cu <code>/api</code> la API, ca în producție, unde face asta Caddy.</p>
+<pre class="mermaid">flowchart LR
+  B[Browser :5173] --&gt; V[Vite :5173]
+  V --&gt;|/api| API[dotnet run :5180]
+  API --&gt; PG[(Postgres în Docker :5491)]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  B[Browser :5173] --&gt; V[Vite :5173]
+  V --&gt;|/api| API[dotnet run :5180]
+  API --&gt; PG[(Postgres în Docker :5491)]</code></pre></details>
+
+<div class="step"><div class="n">1</div><div class="b"><h3>Baza de date</h3>
+<pre><code>docker compose up -d</code></pre>
+<p class="look"><span>Caută</span> <code>Container macromate-db-1 Healthy</code> sau <code>Started</code>.</p>
+</div></div>
+
+<div class="step"><div class="n">2</div><div class="b"><h3>API-ul</h3>
+<pre><code>dotnet run --project api/MacroMate.Api</code></pre>
+<p class="look"><span>Caută</span> <code>Now listening on: http://localhost:5180</code>.</p>
+<p>La prima pornire creează tabelele, două conturi de test (din <code>appsettings.Development.json</code>, la <code>DevSeed</code>) și cele 75 de alimente.</p></div></div>
+
+<div class="step"><div class="n">3</div><div class="b"><h3>Frontend-ul</h3>
+<pre><code>pnpm --dir web install
+pnpm --dir web dev</code></pre>
+<p class="look"><span>Caută</span> <code>Local: http://localhost:5173/</code>.</p>
+<p>Intri cu un cont de test. Email-ul și parola sunt în <code>api/MacroMate.Api/appsettings.Development.json</code>.</p></div></div>
+
+<div class="step"><div class="n">4</div><div class="b"><h3>Testele</h3>
+<pre><code>dotnet test api</code></pre>
+<p class="look"><span>Caută</span> <code>Passed! - Failed: 0, Passed: 7</code>.</p>
+<pre><code>pnpm --dir web test</code></pre>
+<p class="look"><span>Caută</span> <code>Tests 17 passed</code>.</p>
+</div></div>
+
+<h3>Te uiți în baze</h3><p>În Postgres, cu <code>docker exec -it macromate-db-1 psql -U macromate</code>:</p><pre><code>select name, kcal, insulin_grade, weight_loss_score from foods order by name limit 10;
+select name, version, deleted_at from recipes order by version desc;
+select name, meals from meal_plans;</code></pre>
+<p class="look"><span>Caută</span> la a doua, rândurile cu <code>version</code> cel mai mare sunt cele modificate cel mai recent; la a treia, coloana <code>meals</code> e JSON.</p>
+<p>În telefon (Chrome): DevTools → <strong>Application → IndexedDB → macromate</strong>. Dacă oprești API-ul și bifezi ceva, rândul apare în <code>outbox</code>; după ce pornești API-ul la loc, coada se golește.</p>
+<h2 id="sync"><span class="no">Capitolul 3</span>Drumul unei modificări</h2>
+<p><strong>Sincronizarea</strong> e codul care ține la fel datele din telefonul tău, din telefonul ei și din Postgres. O urmărim pe un caz concret: ești în magazin și bifezi „Ou întreg” pe lista de cumpărături, iar prietena ta are aceeași listă deschisă pe telefonul ei.</p>
+<pre class="mermaid">sequenceDiagram
+  participant E as Ecranul tău
+  participant D as Dexie (telefonul tău)
+  participant S as sync.ts
+  participant A as API
+  participant P as Postgres
+  participant T as Telefonul ei
+  E-&gt;&gt;D: saveRow: rândul + coada
+  D--&gt;&gt;E: ecranul arată bifa imediat
+  S-&gt;&gt;D: citește coada
+  S-&gt;&gt;A: POST /api/sync
+  A-&gt;&gt;P: scrie rândul cu version 42
+  A--&gt;&gt;S: ok
+  S-&gt;&gt;D: golește coada
+  T-&gt;&gt;A: GET /api/sync?since=41
+  A-&gt;&gt;P: rândurile cu version &gt; 41
+  A--&gt;&gt;T: lista, cu bifa ta
+  T-&gt;&gt;T: pune rândul în Dexie-ul ei</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant E as Ecranul tău
+  participant D as Dexie (telefonul tău)
+  participant S as sync.ts
+  participant A as API
+  participant P as Postgres
+  participant T as Telefonul ei
+  E-&gt;&gt;D: saveRow: rândul + coada
+  D--&gt;&gt;E: ecranul arată bifa imediat
+  S-&gt;&gt;D: citește coada
+  S-&gt;&gt;A: POST /api/sync
+  A-&gt;&gt;P: scrie rândul cu version 42
+  A--&gt;&gt;S: ok
+  S-&gt;&gt;D: golește coada
+  T-&gt;&gt;A: GET /api/sync?since=41
+  A-&gt;&gt;P: rândurile cu version &gt; 41
+  A--&gt;&gt;T: lista, cu bifa ta
+  T-&gt;&gt;T: pune rândul în Dexie-ul ei</code></pre></details>
+
+<div class="step"><div class="n">1</div><div class="b"><h3>Ecranul scrie în telefon</h3>
+<p>Bifa cheamă <code>saveRow</code> din <code>web/src/db/mutations.ts</code>, singurul loc din aplicație care scrie date. Într-o singură tranzacție Dexie se întâmplă două lucruri: rândul nou intră în tabelul <code>shoppingLists</code> din telefon, iar o copie a lui intră în <code>outbox</code>. Tranzacția înseamnă că se fac amândouă sau niciuna.</p><p>Ecranul citește lista cu <code>useLiveQuery</code>, deci bifa apare imediat, fără să aștepte serverul.</p></div></div>
+
+<div class="step"><div class="n">2</div><div class="b"><h3>Coada pleacă spre server</h3>
+<p><code>requestSync()</code> pornește sincronizarea după 800 ms. Dacă mai bifezi ceva între timp, cronometrul o ia de la capăt și bifele pleacă împreună. <code>syncNow</code> urcă pozele făcute offline, trimite coada (<code>POST /api/sync</code>, cel mult 500 de modificări pe cerere), apoi aduce ce s-a schimbat (<code>GET /api/sync?since=…</code>). Fără internet nu face nimic; când revine internetul, pornește singură.</p></div></div>
+
+<div class="step"><div class="n">3</div><div class="b"><h3>API-ul primește modificările</h3>
+<p><code>Push</code> din <code>SyncEndpoints.cs</code> păstrează ultima modificare a fiecărui rând, deschide o tranzacție, ia un lacăt, ia un număr nou din secvența <code>sync_version</code> (de exemplu 42) și aplică fiecare modificare prin tabelul ei.</p><p class="cap">SyncWriter.cs</p><pre><code>await using var tx = await db.Database.BeginTransactionAsync(ct);
+await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock({WriteLockKey})", ct);
+var version = await db.Database
+    .SqlQueryRaw&lt;long&gt;("SELECT nextval('sync_version') AS \"Value\"")
+    .SingleAsync(ct);
+
+await write(version, DateTimeOffset.UtcNow);
+
+await db.SaveChangesAsync(ct);
+await tx.CommitAsync(ct);</code></pre>
+</div></div>
+
+<div class="step"><div class="n">4</div><div class="b"><h3>Un rând trece prin ApplyAsync</h3>
+<p><code>ApplyAsync</code> e mirror-ul C# al lui <code>saveRow</code>: cel din telefon scrie în Dexie, cel de pe server scrie în Postgres, cu mai multe verificări.</p><div class="two">
+<div><p class="cap">TypeScript · mutations.ts</p><pre><code>await db.transaction('rw', [db.table(table), db.outbox], async () =&gt; {
+  await db.table(table).put(full)
+  await db.outbox.add({
+    table, op: 'upsert', rowId: row.id, data: full, createdAt: now,
+  })
+})
+requestSync()</code></pre></div>
+<div><p class="cap">C# · SyncTables.cs (fragment)</p><pre><code>var error = validate(incoming);
+if (error is not null)
+    return error;
+
+incoming.UpdatedAt = now;
+incoming.Version = version;
+
+if (existing is null)
+{
+    incoming.Id = change.Id;
+    incoming.CreatedAt = now;
+    SetOwner(incoming, userId);
+    db.Add(incoming);
+    return null;
+}
+
+incoming.KeepServerFieldsFrom(existing);
+db.Entry(existing).State = EntityState.Detached;
+db.Update(incoming);</code></pre></div>
+</div>
+<pre class="mermaid">flowchart TD
+  A[Modificare primită] --&gt; B{Rândul e al altcuiva?}
+  B --&gt;|da| R1[respins: not-owner]
+  B --&gt;|nu| C{Ștergere?}
+  C --&gt;|da| D[pune deleted_at și version]
+  C --&gt;|nu| V{Trece de reguli?}
+  V --&gt;|nu| R2[respins cu motivul]
+  V --&gt;|da| N{Rândul există?}
+  N --&gt;|nu| I[inserează, cu autorul tău]
+  N --&gt;|da| U[actualizează, păstrează câmpurile serverului]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart TD
+  A[Modificare primită] --&gt; B{Rândul e al altcuiva?}
+  B --&gt;|da| R1[respins: not-owner]
+  B --&gt;|nu| C{Ștergere?}
+  C --&gt;|da| D[pune deleted_at și version]
+  C --&gt;|nu| V{Trece de reguli?}
+  V --&gt;|nu| R2[respins cu motivul]
+  V --&gt;|da| N{Rândul există?}
+  N --&gt;|nu| I[inserează, cu autorul tău]
+  N --&gt;|da| U[actualizează, păstrează câmpurile serverului]</code></pre></details>
+<ul><li><strong>„Al altcuiva”</strong> contează doar la jurnal, planul zilei și profil. Rețetele, alimentele, planurile și listele sunt comune.</li><li><strong>Regulile</strong> sunt în <code>SyncRules.cs</code>. Un rând care nu trece e respins cu motivul; celelalte merg mai departe.</li><li><strong>Câmpurile serverului</strong> (<code>createdBy</code>, <code>userId</code>, <code>createdAt</code>, <code>version</code>, <code>deletedAt</code>) se ignoră când vin de la telefon. Testul <code>Server_fields_sent_by_the_client_are_ignored</code> verifică asta.</li></ul></div></div>
+
+<div class="step"><div class="n">5</div><div class="b"><h3>Telefonul ei află de bifă</h3>
+<p>Telefonul ei ține minte <strong>cursorul</strong>: cel mai mare <code>version</code> primit până acum. La fiecare sincronizare cere doar ce e mai nou.</p><div class="tablewrap"><table class=""><tr><th>id</th><th>name</th><th>version</th></tr><tr><td>a1</td><td>Cumpărături 1 oct.</td><td>12</td></tr><tr><td>f9</td><td>Cumpărături 4 oct.</td><td><strong>42</strong></td></tr></table></div>
+<p>Cu <code>since=41</code> vine doar rândul <code>f9</code>, iar cursorul ei devine 42. Cu 2.000 de alimente contează: fiecare telefon primește doar ce s-a schimbat. <code>applyPull</code> nu suprascrie rândurile care au încă modificări în coada telefonului.</p></div></div>
+
+<h3>De ce e nevoie de lacăt</h3><p>Fără lacăt, două cereri care ajung în același timp pot pierde un rând:</p><ol><li>Telefonul tău ia <code>version 41</code>, iar telefonul ei ia <code>version 42</code>.</li><li>Cererea ei se termină prima: în bază există 42, dar încă nu există 41.</li><li>Un telefon cere <code>since=40</code>, primește 42, iar cursorul lui devine 42.</li><li>Cererea ta se termină: acum apare și 41.</li><li>Telefonul cere de acum <code>since=42</code>. Rândul 41 nu-l mai primește niciodată.</li></ol><p><code>pg_advisory_xact_lock</code> lasă o singură scriere la un moment dat, iar numărul se ia după lacăt. Așa 41 se salvează înainte ca altcineva să poată lua 42. Pentru doi oameni lacătul nu se simte: o scriere durează câteva milisecunde.</p>
+<h3>Când amândoi modificați același lucru</h3><p><strong>Câștigă ultima salvare care ajunge la server</strong>, pe tot rândul. <strong>Ștergerea e definitivă</strong>: rândul primește <code>deleted_at</code> și rămâne în bază ca semn pentru celălalt telefon. Dacă ar dispărea pur și simplu, telefonul ei n-ar avea de unde afla.</p>
+<div class="tablewrap"><table class=""><tr><th>Iconița de nor</th><th>Înseamnă</th></tr><tr><td>verde, cu bifă</td><td>totul e trimis</td></tr><tr><td>cu săgeată și un număr</td><td>atâtea modificări așteaptă în coadă</td></tr><tr><td>tăiată</td><td>ești offline; modificările așteaptă</td></tr><tr><td>cu semn de exclamare</td><td>serverul n-a răspuns; mesajul e în Profil, la „Sincronizare”</td></tr></table></div>
+
+<h2 id="baza"><span class="no">Capitolul 4</span>Baza de date</h2>
+<p>Baza e <strong>PostgreSQL</strong>. Tabelele ies din clase C#, prin <strong>EF Core</strong>, ORM-ul din .NET: biblioteca care traduce între obiecte din cod și rânduri din tabele.</p>
+<div class="two">
+<div><p class="cap">TypeScript · schema.d.ts (generat)</p><pre><code>type Food = {
+  id: string
+  name: string
+  category: string
+  kcal: number
+  insulinGrade: null | string
+}</code></pre></div>
+<div><p class="cap">C# · Data/Food.cs</p><pre><code>public class Food : SharedEntity
+{
+    public string Name { get; set; } = "";
+    public string Category { get; set; } = "";
+    public double Kcal { get; set; }
+    public string? InsulinGrade { get; set; }
+}</code></pre></div>
+</div>
+
+<p><code>string?</code> e echivalentul lui <code>string | null</code>. Din clasă, EF Core scrie o <strong>migrare</strong>: pașii pentru baza de date, rulați la pornirea API-ului. Numele trec în <code>snake_case</code> prin <code>UseSnakeCaseNamingConvention()</code>:</p><p class="cap">SQL generat</p><pre><code>CREATE TABLE foods (
+    id uuid NOT NULL,
+    name character varying(200) NOT NULL,
+    category character varying(40) NOT NULL,
+    kcal double precision NOT NULL,
+    insulin_grade character varying(1),
+    ...
+);</code></pre>
+
+<pre class="mermaid">classDiagram
+  SyncEntity &lt;|-- SharedEntity
+  SyncEntity &lt;|-- PersonalEntity
+  SharedEntity &lt;|-- Food
+  SharedEntity &lt;|-- Recipe
+  SharedEntity &lt;|-- MealPlan
+  PersonalEntity &lt;|-- JournalEntry
+  PersonalEntity &lt;|-- UserProfile
+  class SyncEntity {
+    Id
+    CreatedAt
+    UpdatedAt
+    DeletedAt
+    Version
+  }
+  class SharedEntity {
+    CreatedBy
+  }
+  class PersonalEntity {
+    UserId
+  }</pre>
+<details><summary>Codul Mermaid</summary><pre><code>classDiagram
+  SyncEntity &lt;|-- SharedEntity
+  SyncEntity &lt;|-- PersonalEntity
+  SharedEntity &lt;|-- Food
+  SharedEntity &lt;|-- Recipe
+  SharedEntity &lt;|-- MealPlan
+  PersonalEntity &lt;|-- JournalEntry
+  PersonalEntity &lt;|-- UserProfile
+  class SyncEntity {
+    Id
+    CreatedAt
+    UpdatedAt
+    DeletedAt
+    Version
+  }
+  class SharedEntity {
+    CreatedBy
+  }
+  class PersonalEntity {
+    UserId
+  }</code></pre></details>
+
+<div class="tablewrap"><table class=""><tr><th>Tabel</th><th>Al cui e</th><th>Ce ține</th></tr><tr><td><code>foods</code></td><td>comun</td><td>valori la 100 g, note, categorie, cod de bare, greutatea unei bucăți</td></tr><tr><td><code>recipes</code></td><td>comun</td><td>rețeta main: nume, preparare, timp, dificultate, ingrediente fără cantități (<code>uuid[]</code>)</td></tr><tr><td><code>recipe_variants</code></td><td>comun</td><td>porții și ingrediente cu grame (<code>jsonb</code>)</td></tr><tr><td><code>meal_plans</code></td><td>comun</td><td>o zi: mesele și ce e în fiecare (<code>jsonb</code>)</td></tr><tr><td><code>shopping_lists</code></td><td>comun</td><td>planurile cu zile (<code>jsonb</code>), ce s-a bifat (<code>text[]</code>)</td></tr><tr><td><code>day_plans</code></td><td>al fiecăruia</td><td>ce plan ai ales pentru o zi</td></tr><tr><td><code>journal_entries</code></td><td>al fiecăruia</td><td>ce ai mâncat, cu valorile copiate în momentul notării</td></tr><tr><td><code>user_profiles</code></td><td>al fiecăruia</td><td>ținte, favorite, excluderi, „îmi place”</td></tr></table></div>
+
+<h3>De ce unele liste nu au tabel separat</h3><p>Ingredientele unei variante stau în coloana <code>ingredients</code>, de tip <code>jsonb</code>: JSON salvat de Postgres într-un format pe care îl citește repede.</p><pre><code>select name, ingredients from recipe_variants;
+
+  name    |                   ingredients
+----------+--------------------------------------------------
+ 350 kcal | [{"Grams": 167, "FoodId": "2608…"}, {"Grams": 100, "FoodId": "8c1e…"}]</code></pre>
+<p class="cap">AppDbContext.cs</p><pre><code>b.ComplexCollection(v =&gt; v.Ingredients, c =&gt; c.ToJson());</code></pre>
+<div class="note"><p><strong>Criteriul, cu două întrebări.</strong> Copilul are sens fără părinte? Serverul caută vreodată înăuntrul listei? Un ingredient cu 167 g nu are sens fără varianta lui, iar serverul nu întreabă „ce variante au ou”. Când ambele răspunsuri sunt „nu”, lista stă în părinte și se sincronizează dintr-o bucată. Dacă oricare ar fi „da”, lista primește tabel separat, cu cheie străină, ca în majoritatea proiectelor.</p></div>
+
+<h3>Adaugi un câmp, pas cu pas</h3><ol><li>Adaugi proprietatea în <code>Data/Food.cs</code>, de exemplu <code>public double? SugarG { get; set; }</code>.</li><li>Din <code>api/MacroMate.Api</code>: <code>dotnet ef migrations add AddFoodSugar -o Data/Migrations</code>. În fișierul nou cauți <code>AddColumn&lt;double&gt;(name: "sugar_g", table: "foods", …)</code>.</li><li>Dacă are limite, adaugi regula în <code>SyncRules.cs</code>.</li><li><code>pnpm --dir web gen:api</code> regenerează tipurile TypeScript.</li><li>Pui câmpul în <code>food-draft.ts</code> și <code>food-form.tsx</code>.</li></ol>
+<h2 id="login"><span class="no">Capitolul 5</span>Login și securitate</h2>
+<p>Pentru conturi, .NET are un pachet de user management: <strong>ASP.NET Core Identity</strong>. Are tabelul de utilizatori, parolele salvate ca hash, blocarea după încercări greșite și verificarea parolei. MacroMate îl folosește cu un <strong>cookie</strong>: după login, browserul primește un bilet semnat de server și îl trimite singur la fiecare cerere.</p>
+<pre class="mermaid">sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  T-&gt;&gt;A: POST /api/auth/login (email, parola)
+  A-&gt;&gt;P: caută userul după email
+  A-&gt;&gt;A: verifică parola cu hash-ul
+  A--&gt;&gt;T: Set-Cookie mm_auth
+  A-&gt;&gt;P: creează profilul, dacă lipsește
+  T-&gt;&gt;T: ține „cine sunt” în Dexie
+  T-&gt;&gt;A: GET /api/sync?since=0 (cu cookie)
+  A--&gt;&gt;T: toate datele</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  T-&gt;&gt;A: POST /api/auth/login (email, parola)
+  A-&gt;&gt;P: caută userul după email
+  A-&gt;&gt;A: verifică parola cu hash-ul
+  A--&gt;&gt;T: Set-Cookie mm_auth
+  A-&gt;&gt;P: creează profilul, dacă lipsește
+  T-&gt;&gt;T: ține „cine sunt” în Dexie
+  T-&gt;&gt;A: GET /api/sync?since=0 (cu cookie)
+  A--&gt;&gt;T: toate datele</code></pre></details>
+
+<p class="cap">răspunsul la login, măsurat pe stack-ul de producție</p><pre><code>set-cookie: mm_auth=…; expires=…; path=/; secure; samesite=lax; httponly</code></pre>
+
+<div class="tablewrap"><table class=""><tr><th>Setare</th><th>Ce face</th><th>De ce</th></tr><tr><td><code>httponly</code></td><td>JavaScript-ul din pagină nu poate citi cookie-ul</td><td>un script străin ajuns în pagină nu poate fura sesiunea</td></tr><tr><td><code>secure</code></td><td>cookie-ul pleacă doar pe HTTPS</td><td>nu poate fi citit de pe o rețea Wi-Fi publică</td></tr><tr><td><code>samesite=lax</code></td><td>nu pleacă la cererile POST venite de pe alt site</td><td>un site străin nu poate face modificări în numele tău</td></tr><tr><td>90 de zile, prelungite la folosire</td><td><code>ExpireTimeSpan</code> + <code>SlidingExpiration</code></td><td>nu te loghezi des de pe telefon</td></tr></table></div>
+
+<ul><li><strong>De ce nu e nevoie de token anti-CSRF.</strong> Cu <code>samesite=lax</code>, cookie-ul nu pleacă la un POST venit de pe alt site. În plus, toate scrierile sunt JSON, iar un formular de pe alt site nu poate trimite JSON fără cererea „preflight” de CORS, la care API-ul nu răspunde.</li><li><strong>Cheile cookie-ului</strong> stau în <code>/data/keys</code>, pe volumul serverului. Fără ele, fiecare deploy v-ar deloga.</li><li><strong>Caddy primește HTTPS și trimite HTTP</strong> la API, cu <code>X-Forwarded-Proto: https</code>. <code>UseForwardedHeaders()</code> îl citește, iar API-ul pune <code>secure</code> pe cookie.</li><li><strong>Parola</strong> are minim 10 caractere. După 5 încercări greșite, contul se blochează 5 minute (429). Conturile se fac pe server, cu <code>create-user</code>; din aplicație nu există înregistrare.</li></ul>
+<div class="tablewrap"><table class=""><tr><th>Date</th><th>Cine le vede</th><th>Unde e regula</th></tr><tr><td>alimente, rețete, variante, planuri, liste</td><td>amândoi</td><td><code>SharedTable</code> din <code>SyncTables.cs</code></td></tr><tr><td>jurnal, planul zilei, profil</td><td>doar proprietarul</td><td><code>PersonalTable</code>: <code>IsOwnedBy</code> la scriere, <code>where UserId == …</code> la citire</td></tr><tr><td>pozele</td><td>doar cine e logat</td><td><code>PhotoEndpoints.cs</code>: <code>RequireAuthorization()</code></td></tr></table></div>
+
+<div class="note"><p><strong>Cheia DeepSeek stă doar pe server</strong>: în <code>deploy/.env</code> în producție, în user-secrets pe laptop. Telefonul cere <code>/api/ai/…</code>, iar API-ul cheamă DeepSeek. Dacă cheia ar fi în telefon, oricine deschide DevTools ar putea s-o copieze.</p></div>
+
+<h2 id="ai"><span class="no">Capitolul 6</span>Alimente, scanare și AI</h2>
+<p>Un aliment nou intră pe unul din trei drumuri: scanezi codul de bare, faci o poză la etichetă sau îl scrii de mână. Toate ajung în același formular, unde verifici și salvezi.</p>
+<pre class="mermaid">flowchart TD
+  S[Scanezi codul] --&gt; L{E deja în telefon?}
+  L --&gt;|da| F[Deschide fișa lui]
+  L --&gt;|nu| OFF[API: Open Food Facts]
+  OFF --&gt;|găsit| AI[API: DeepSeek completează]
+  OFF --&gt;|negăsit| FORM[Formularul]
+  P[Poză la etichetă] --&gt; AI
+  M[Scrii manual] --&gt; FORM
+  AI --&gt; FORM
+  FORM --&gt; SAVE[saveRow, ca orice modificare]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart TD
+  S[Scanezi codul] --&gt; L{E deja în telefon?}
+  L --&gt;|da| F[Deschide fișa lui]
+  L --&gt;|nu| OFF[API: Open Food Facts]
+  OFF --&gt;|găsit| AI[API: DeepSeek completează]
+  OFF --&gt;|negăsit| FORM[Formularul]
+  P[Poză la etichetă] --&gt; AI
+  M[Scrii manual] --&gt; FORM
+  AI --&gt; FORM
+  FORM --&gt; SAVE[saveRow, ca orice modificare]</code></pre></details>
+
+<h3>Scannerul</h3><p>Safari de pe iPhone nu are <code>BarcodeDetector</code>, așa că aplicația folosește <strong>zxing</strong>, o bibliotecă de citit coduri compilată în WebAssembly. Fișierul <code>.wasm</code> e servit de aplicația ta, deci scannerul merge offline și nu trimite nimic în afară. Citește EAN-13, EAN-8, UPC și QR. Camera merge doar pe HTTPS sau <code>localhost</code>.</p>
+<h3>Open Food Facts</h3><p>Telefonul cere <code>GET /api/barcode/{cod}</code>, iar <code>OpenFoodFactsClient.cs</code> transformă răspunsul:</p><ul><li><strong>calorii</strong>: <code>energy-kcal_100g</code>, sau kilojoulii împărțiți la 4,184;</li><li><strong>sodiu</strong>: din grame în miligrame (×1000), sau din sare (1 g sare = 400 mg sodiu);</li><li><strong>numele</strong>: întâi cel în română, dacă există.</li></ul>
+<h3>DeepSeek completează alimentul</h3><pre><code>POST /api/ai/foods/enrich
+{ "name": "Iaurt grecesc", "brand": "Olympus",
+  "values": { "kcal": 73, "proteinG": 10, "carbsG": null, ... },
+  "labelImageDataUrl": null }</code></pre>
+<p>Regula după care API-ul combină răspunsul (<code>EnrichFood</code> din <code>AiEndpoints.cs</code>):</p><div class="tablewrap"><table class=""><tr><th>Valoarea vine de la…</th><th>Ce se întâmplă</th></tr><tr><td>tine sau Open Food Facts</td><td>rămâne; AI-ul nu o poate schimba</td></tr><tr><td>eticheta din poză</td><td>e exactă</td></tr><tr><td>AI, fără etichetă</td><td>apare cu un chenar portocaliu, ca „estimat”</td></tr><tr><td>orice de la AI</td><td>e adus în limite: calorii 0–900, macro 0–100 g, nota A/B/C, scorul 1–10; o categorie din afara listei rămâne goală</td></tr></table></div>
+
+<h3>Rețeta generată</h3><pre class="mermaid">sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  participant D as DeepSeek
+  T-&gt;&gt;A: „desert cu mere”, cât mai ai azi
+  A-&gt;&gt;P: alimentele + profilul tău
+  A-&gt;&gt;A: scoate ce ai exclus
+  A-&gt;&gt;D: cererea + lista numerotată de alimente
+  D--&gt;&gt;A: rețeta, cu alimente după număr
+  A-&gt;&gt;A: verifică numerele, le face id-uri
+  A--&gt;&gt;T: ciorna rețetei
+  T-&gt;&gt;T: calculează valorile și notele</pre>
+<details><summary>Codul Mermaid</summary><pre><code>sequenceDiagram
+  participant T as Telefonul
+  participant A as API
+  participant P as Postgres
+  participant D as DeepSeek
+  T-&gt;&gt;A: „desert cu mere”, cât mai ai azi
+  A-&gt;&gt;P: alimentele + profilul tău
+  A-&gt;&gt;A: scoate ce ai exclus
+  A-&gt;&gt;D: cererea + lista numerotată de alimente
+  D--&gt;&gt;A: rețeta, cu alimente după număr
+  A-&gt;&gt;A: verifică numerele, le face id-uri
+  A--&gt;&gt;T: ciorna rețetei
+  T-&gt;&gt;T: calculează valorile și notele</code></pre></details>
+<ul><li><strong>Alimentele pleacă numerotate (0, 1, 2…)</strong>, nu cu id-ul de 36 de caractere: AI-ul greșește mai rar un număr, iar API-ul aruncă numerele care nu există.</li><li><strong>Excluderile se aplică pe server</strong>: ce ai exclus nici nu ajunge la DeepSeek.</li><li><strong>Valorile le calculează aplicația</strong>, din alimentele din bază, nu le ia de la AI.</li></ul>
+<div class="tablewrap"><table class=""><tr><th>Situație</th><th>Ce vezi</th><th>HTTP</th></tr><tr><td>nu e cheie pe server</td><td>„Cheia DeepSeek nu e setată pe server.”</td><td>503</td></tr><tr><td>DeepSeek dă eroare sau JSON greșit</td><td>mesajul de eroare; formularul rămâne cum era</td><td>502</td></tr><tr><td>ești offline</td><td>butoanele de AI sunt dezactivate</td><td>—</td></tr></table></div>
+
+<h2 id="calcule"><span class="no">Capitolul 7</span>Calculele</h2>
+<p>Toate calculele se fac în telefon, în TypeScript, ca să meargă offline: funcții simple din <code>web/src/lib/</code>, fiecare cu teste lângă ea. Exemplele folosesc datele reale din testul aplicației: varianta „Omletă cu spanac · 350 kcal” și „Plan B”.</p>
+<div class="legend"><span><i style="background:var(--kcal)"></i>kcal</span><span><i style="background:var(--prot)"></i>P · proteine</span><span><i style="background:var(--carb)"></i>C · carbohidrați</span><span><i style="background:var(--fat)"></i>G · grăsimi</span></div>
+<h3>Valorile unei variante</h3><div class="tablewrap"><table class=""><tr><th>Ingredient</th><th>Grame</th><th>kcal la 100 g</th><th>kcal în rețetă</th></tr><tr><td>Ou întreg</td><td>167</td><td>143</td><td><span class="m kcal">238,8</span></td></tr><tr><td>Spanac</td><td>100</td><td>23</td><td><span class="m kcal">23</span></td></tr><tr><td>Ulei de măsline</td><td>10</td><td>884</td><td><span class="m kcal">88,4</span></td></tr><tr><td><strong>Total</strong></td><td>277</td><td></td><td><span class="m kcal">350,2</span></td></tr></table></div>
+<p>O porție are <span class="m kcal">350 kcal</span>, <span class="m prot">P 24</span>, <span class="m carb">C 4,8</span>, <span class="m fat">G 26</span>. Cu 2 porții, fiecare ar avea <span class="m kcal">175 kcal</span>.</p><p class="cap">nutrition.ts</p><pre><code>export function forGrams(food: Food, grams: number): Nutrients {
+  return scale(per100(food), grams / 100)
+}</code></pre>
+
+<h3>Scorul de slăbit: media ponderată după calorii</h3><div class="tablewrap"><table class=""><tr><th>Ingredient</th><th>kcal</th><th>Scor</th><th>kcal × scor</th></tr><tr><td>Ou</td><td><span class="m kcal">238,8</span></td><td><span class="score sa">7<small>/10</small></span></td><td>1671,6</td></tr><tr><td>Spanac</td><td><span class="m kcal">23</span></td><td><span class="score sa">10<small>/10</small></span></td><td>230</td></tr><tr><td>Ulei</td><td><span class="m kcal">88,4</span></td><td><span class="score sc">1<small>/10</small></span></td><td>88,4</td></tr><tr><td><strong>Total</strong></td><td><span class="m kcal">350,2</span></td><td></td><td><strong>1990</strong></td></tr></table></div>
+<p>1990 / 350,2 = 5,68, deci scorul variantei e <span class="score sb">6<small>/10</small></span>. După grame, cele 10 g de ulei ar conta aproape deloc, deși aduc un sfert din calorii. Întrebarea e „cât de bune sunt caloriile din farfurie”, deci fiecare ingredient contează după caloriile lui.</p>
+<h3>Nota de insulină: media ponderată după carbohidrați</h3><p>A = 1, B = 2, C = 3; sub 1,5 dă A, sub 2,5 dă B, altfel C. Dacă o porție are sub 5 g de carbohidrați, nota e <span class="grade ga">A</span>: omleta are <span class="m carb">4,8 g</span>.</p><p>Un exemplu cu carbohidrați: 100 g pâine albă (<span class="m carb">49 g</span>, <span class="grade gc">C</span>) și 50 g măr (<span class="m carb">7 g</span>, <span class="grade ga">A</span>) dau (49 × 3 + 7 × 1) / 56 = 2,75, deci <span class="grade gc">C</span>. Pâinea domină.</p>
+<h3>Alternativele unui ingredient</h3><div class="tablewrap"><table class=""><tr><th>În loc de</th><th>Propune</th><th>Calorii</th></tr><tr><td>Spanac · 100 g</td><td>Ciuperci champignon · 105 g</td><td><span class="m kcal">23 kcal</span></td></tr><tr><td>Spanac · 100 g</td><td>Dovlecel · 135 g</td><td><span class="m kcal">23 kcal</span></td></tr></table></div>
+<ol><li><strong>Aceeași categorie</strong>: căpșunile sunt „fructe de pădure”, deci roșiile nu au cum să apară.</li><li><strong>Fără ce ai exclus tu.</strong></li><li><strong>Cele mai apropiate ca fel de calorii</strong>: ce parte vine din proteine, din carbohidrați și din grăsimi. Spanacul și ciupercile au amândouă cam jumătate din calorii din proteine.</li><li><strong>Aceleași calorii</strong>: 100 × 23 / 22 = 105 g de ciuperci.</li></ol><p class="cap">alternativesFor, fragment</p><pre><code>.filter((candidate) =&gt;
+  candidate.id !== food.id &amp;&amp;
+  candidate.category === food.category &amp;&amp;
+  !exclusions.foodIds.has(candidate.id))
+.map((candidate) =&gt; ({ candidate, distance: foodDistance(food, candidate) }))
+.sort((a, b) =&gt; a.distance - b.distance)
+.slice(0, count)</code></pre>
+
+<h3>Țintele zilnice</h3><p>Bărbat, 30 de ani, 180 cm, 85 kg, ușor activ, slăbire:</p><div class="tablewrap"><table class=""><tr><th>Pas</th><th>Calcul</th><th>Rezultat</th></tr><tr><td>Metabolism bazal (Mifflin-St Jeor)</td><td>10 × 85 + 6,25 × 180 − 5 × 30 + 5</td><td>1830 kcal</td></tr><tr><td>× activitate</td><td>1830 × 1,375</td><td>2516 kcal</td></tr><tr><td>× slăbire (−20%)</td><td>2516 × 0,8, rotunjit la zeci</td><td><span class="m kcal">2010 kcal</span></td></tr><tr><td>Proteine, 2 g/kg</td><td>85 × 2</td><td><span class="m prot">170 g</span></td></tr><tr><td>Grăsimi, 0,8 g/kg</td><td>85 × 0,8</td><td><span class="m fat">68 g</span></td></tr><tr><td>Carbohidrați, ce rămâne</td><td>(2010 − 170 × 4 − 68 × 9) / 4</td><td><span class="m carb">180 g</span></td></tr><tr><td>Fibre, 14 g la 1000 kcal</td><td>2010 / 1000 × 14</td><td>28 g</td></tr></table></div>
+<p>Jurnalul copiază valorile fiecărei intrări în momentul notării, iar ecranul Azi doar adună: <span class="m kcal">2010</span> − <span class="m kcal">457</span> (omletă 350 + banană 107) = <span class="m kcal">1553 kcal rămase</span>.</p>
+<h3>Lista de cumpărături</h3><p>„Plan B × 5 zile”, cu 1 porție de omletă și o banană de 120 g la micul dejun:</p><div class="tablewrap"><table class=""><tr><th>Ce</th><th>Calcul</th><th>Pe listă</th></tr><tr><td>Ou întreg</td><td>167 g × 1 porție × 5 zile</td><td><strong>835 g</strong> ≈ 16 buc</td></tr><tr><td>Spanac</td><td>100 × 1 × 5</td><td><strong>500 g</strong></td></tr><tr><td>Ulei de măsline</td><td>10 × 1 × 5</td><td><strong>50 g</strong> ≈ 5 linguri</td></tr><tr><td>Banană (aliment simplu)</td><td>120 × 5</td><td><strong>600 g</strong> ≈ 5 buc</td></tr></table></div>
+<p>Grame pe porție = gramele variantei / porțiile ei. Lista se grupează pe rețete; alimentele simple au grupul lor, la final. „≈ buc” apare doar unde alimentul are greutatea unei bucăți, rotunjit în sus.</p>
+<h3>Căutarea</h3><ul><li>„branza” găsește „Brânză de vaci”: diacriticele se scot din ambele texte;</li><li>„bnana” găsește „Banană”: la cuvinte de minim 4 litere se acceptă o literă greșită, lipsă sau în plus;</li><li>„piept curcan” găsește doar ce conține ambele cuvinte;</li><li>cuvintele care <strong>încep</strong> cu ce ai scris apar primele.</li></ul>
+<h2 id="pwa"><span class="no">Capitolul 8</span>PWA și offline</h2>
+<p><strong>PWA</strong> e un site obișnuit care are în plus <strong>un manifest</strong> (numele, iconițele, felul în care se deschide; cu el, telefonul o pune pe ecran ca pe o aplicație) și <strong>un service worker</strong> (un script pe care browserul îl ține între vizite și care poate răspunde din cache, fără internet).</p>
+<pre class="mermaid">flowchart LR
+  subgraph Fișierele aplicației
+    SW[Service worker] --&gt; C[(Cache)]
+  end
+  subgraph Datele
+    DX[(Dexie / IndexedDB)] --&gt; Q[Coada outbox]
+  end
+  C --&gt;|HTML, JS, CSS, scanner| APP[Aplicația se deschide]
+  DX --&gt;|alimente, rețete, jurnal| APP</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  subgraph Fișierele aplicației
+    SW[Service worker] --&gt; C[(Cache)]
+  end
+  subgraph Datele
+    DX[(Dexie / IndexedDB)] --&gt; Q[Coada outbox]
+  end
+  C --&gt;|HTML, JS, CSS, scanner| APP[Aplicația se deschide]
+  DX --&gt;|alimente, rețete, jurnal| APP</code></pre></details>
+
+<p>Offline are două jumătăți: <strong>fișierele aplicației</strong> le ține service worker-ul, fără de care ai vedea ecranul browserului „No internet”; <strong>datele</strong> le ține Dexie, fără de care aplicația s-ar deschide goală.</p>
+<div class="tablewrap"><table class=""><tr><th>Câmp din manifest</th><th>Valoare</th><th>Ce face</th></tr><tr><td><code>display</code></td><td><code>standalone</code></td><td>se deschide pe tot ecranul, fără bara browserului</td></tr><tr><td><code>icons</code></td><td>64, 192, 512 px + „maskable”</td><td>cea „maskable” are margine, ca Android s-o poată tăia rotund</td></tr><tr><td><code>shortcuts</code></td><td>„Scanează”, „Jurnal”</td><td>apar la apăsare lungă pe iconiță, pe Android</td></tr></table></div>
+
+<ul><li><strong>Precache</strong>: la prima vizită, service worker-ul descarcă toate fișierele aplicației (cam 2 MB, cu scannerul).</li><li><strong>Navigare offline</strong>: orice adresă din aplicație primește <code>index.html</code> din cache, iar router-ul desenează ecranul potrivit.</li><li><strong>Pozele</strong> se țin în cache după prima vedere; o poză nu se schimbă, pentru că una nouă primește id nou.</li><li><strong>Actualizările</strong>: după un deploy apare „Există o versiune nouă a aplicației” cu <strong>Actualizează</strong>. Nu se reîncarcă singură, ca să nu te prindă în mijlocul unei rețete.</li></ul>
+<div class="tablewrap"><table class=""><tr><th>Telefon</th><th>Instalarea</th><th>Scurtături</th></tr><tr><td>iPhone</td><td>Safari → Share → „Add to Home Screen”</td><td>nu există</td></tr><tr><td>Android</td><td>meniul Chrome → „Instalează aplicația”</td><td>ține degetul pe iconiță</td></tr></table></div>
+
+<div class="note"><p><strong>Cum am verificat.</strong> Browserul din aplicația Claude nu acceptă service worker-e, așa că am testat cu Chrome pornit fără interfață, pe build-ul de producție. Prima vizită a instalat service worker-ul și a pus în cache toate fișierele, cu scannerul. Cu Chrome offline, pagina de login s-a deschis din cache. După login, tot offline, s-au deschis Azi, Alimente și Cumpărături, cu datele din Dexie, iar iconița arăta „Offline”.</p></div>
+
+<h2 id="deploy"><span class="no">Capitolul 9</span>Deploy pe VPS</h2>
+<p><strong>Deploy-ul</strong> mută aplicația pe un server pornit tot timpul, cu adresă publică. Pe server rulează trei containere Docker, pornite împreună de Docker Compose. Doar Caddy are porturi deschise spre internet.</p>
+<pre class="mermaid">flowchart LR
+  T[Telefoane] --&gt;|HTTPS 443| C[web: Caddy + aplicația]
+  C --&gt;|/api| A[api: .NET]
+  A --&gt; D[(db: Postgres)]
+  A --&gt; V[(volum: poze, chei)]
+  D --&gt; VD[(volum: baza)]</pre>
+<details><summary>Codul Mermaid</summary><pre><code>flowchart LR
+  T[Telefoane] --&gt;|HTTPS 443| C[web: Caddy + aplicația]
+  C --&gt;|/api| A[api: .NET]
+  A --&gt; D[(db: Postgres)]
+  A --&gt; V[(volum: poze, chei)]
+  D --&gt; VD[(volum: baza)]</code></pre></details>
+
+<p>Stack-ul de producție a fost pornit și testat local, cu <code>DOMAIN=localhost</code>: HTTPS, rutele aplicației, login-ul cu cookie <code>secure</code>, crearea contului, alimentele de start.</p>
+<div class="step"><div class="n">1</div><div class="b"><h3>Domeniul</h3>
+<p>Cumperi un domeniu de la orice registrar, cam 10 €/an.</p></div></div>
+
+<div class="step"><div class="n">2</div><div class="b"><h3>Serverul</h3>
+<p>În Hetzner Cloud: Ubuntu (ultima versiune LTS), cel mai ieftin „Shared vCPU” cu 2 vCPU și 4 GB RAM, cheia ta SSH, <strong>Backups</strong> bifat, și un firewall cu TCP 22, 80, 443 și UDP 443. Firewall-ul îl pui din consolă, nu cu <code>ufw</code>: Docker ocolește regulile <code>ufw</code>.</p></div></div>
+
+<div class="step"><div class="n">3</div><div class="b"><h3>DNS</h3>
+<p>O înregistrare <strong>A</strong> spre IP-ul serverului.</p><pre><code>dig +short macromate.ro</code></pre>
+<p class="look"><span>Caută</span> IP-ul serverului.</p>
+</div></div>
+
+<div class="step"><div class="n">4</div><div class="b"><h3>Docker pe server</h3>
+<pre><code>ssh root@IP_SERVER
+curl -fsSL https://get.docker.com | sh</code></pre>
+</div></div>
+
+<div class="step"><div class="n">5</div><div class="b"><h3>Codul pe server</h3>
+<p>De pe laptop, din <code>TechProducts/</code>:</p><pre><code>rsync -av --delete --exclude node_modules --exclude bin --exclude obj --exclude dist --exclude .DS_Store --exclude api/MacroMate.Api/storage --exclude deploy/.env --exclude deploy/backups MacroMate/ root@IP_SERVER:/opt/macromate/</code></pre>
+</div></div>
+
+<div class="step"><div class="n">6</div><div class="b"><h3>Setările</h3>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; cp .env.example .env &amp;&amp; nano .env</code></pre>
+<pre><code>DOMAIN=macromate.ro
+POSTGRES_PASSWORD=...
+DEEPSEEK_API_KEY=...</code></pre>
+<p>Parola o generezi cu <code>openssl rand -base64 32</code>.</p></div></div>
+
+<div class="step"><div class="n">7</div><div class="b"><h3>Pornirea</h3>
+<pre><code>docker compose -f compose.prod.yaml up -d --build
+docker compose -f compose.prod.yaml logs -f web</code></pre>
+<p class="look"><span>Caută</span> <code>certificate obtained successfully</code>, apoi deschizi <code>https://macromate.ro</code>.</p>
+</div></div>
+
+<div class="step"><div class="n">8</div><div class="b"><h3>Conturile și alimentele</h3>
+<pre><code>docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll create-user --email adresa-ta@exemplu.ro --name Florin
+docker compose -f compose.prod.yaml exec api dotnet MacroMate.Api.dll seed-foods --as adresa-ta@exemplu.ro</code></pre>
+<p class="look"><span>Caută</span> <code>Contul ... a fost creat.</code> și <code>Am adăugat 75 alimente.</code> Parola o tastezi ascuns; repeți <code>create-user</code> pentru ea.</p>
+</div></div>
+
+<div class="step"><div class="n">9</div><div class="b"><h3>Copia de rezervă</h3>
+<pre><code>/opt/macromate/deploy/backup.sh &amp;&amp; ls -lh /opt/macromate/deploy/backups
+(crontab -l 2&gt;/dev/null; echo "0 3 * * * /opt/macromate/deploy/backup.sh") | crontab -</code></pre>
+<p class="look"><span>Caută</span> un fișier <code>macromate-AAAA-LL-ZZ.sql.gz</code>. Se păstrează ultimele 14.</p>
+</div></div>
+
+<div class="step"><div class="n">10</div><div class="b"><h3>Pe telefoane</h3>
+<p>Deschizi adresa, te loghezi și pui aplicația pe ecran.</p></div></div>
+
+<h3>Actualizările</h3><p>Trimiți din nou fișierele cu <code>rsync</code>, apoi pe server <code>docker compose -f compose.prod.yaml up -d --build</code>. Migrările rulează singure, iar pe telefoane apare <strong>Actualizează</strong>.</p>
+<div class="tablewrap"><table class=""><tr><th>Simptom</th><th>Te uiți la</th><th>Caută</th></tr><tr><td>site-ul nu se deschide</td><td><code>docker compose -f compose.prod.yaml ps</code></td><td>toate trei au <code>Up</code></td></tr><tr><td>eroare de certificat</td><td><code>… logs web</code></td><td>erori de DNS: domeniul nu arată încă spre server</td></tr><tr><td>login-ul sau sincronizarea dau eroare</td><td><code>… logs api --tail 100</code></td><td>rânduri cu <code>fail:</code></td></tr><tr><td>AI-ul spune „cheia nu e setată”</td><td><code>deploy/.env</code></td><td><code>DEEPSEEK_API_KEY</code>, apoi <code>up -d api</code></td></tr></table></div>
+
+<div class="tablewrap"><table class=""><tr><th>Cost</th><th>Cât</th></tr><tr><td>server</td><td>4–6 € pe lună</td></tr><tr><td>backup Hetzner</td><td>~1 € pe lună</td></tr><tr><td>domeniu</td><td>~10 € pe an</td></tr><tr><td>DeepSeek</td><td>din tokenii pe care îi ai</td></tr></table></div>
+
+<hr><footer>MacroMate · ghid construit pe 2026-10-04 · sursa în <code>docs/ghid/</code>, specificația în <code>docs/spec.md</code></footer>
+</div>
