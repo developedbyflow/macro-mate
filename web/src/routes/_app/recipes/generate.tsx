@@ -11,7 +11,7 @@ import { useAiStatus } from '@/hooks/use-ai-status'
 import { MacroLine } from '@/components/app/nutrients'
 import { NumberStepper } from '@/components/app/number-stepper'
 import { PageHeader } from '@/components/app/page-header'
-import { difficultyLabel } from '@/lib/recipes'
+import { difficultyLabel, recipeSteps } from '@/lib/recipes'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
@@ -149,7 +149,7 @@ function DraftPreview({ draft, onSave, onRetry, retrying }: { draft: RecipeDraft
   const variant = { id: 'draft', recipeId: 'draft', name: '', servings: draft.servings, ingredients: draft.ingredients } as unknown as RecipeVariant
   const totals = variantTotals(variant, foods)
   const scores = variantGrades(variant, foods)
-  const steps = draft.instructions.split('\n').map((s) => s.trim()).filter(Boolean)
+  const steps = recipeSteps(draft.instructions)
 
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">

@@ -28,6 +28,13 @@ export function difficultyLabel(value: string) {
   return difficulties.find((d) => d.value === value)?.label ?? value
 }
 
+export function recipeSteps(instructions: string) {
+  return instructions
+    .split('\n')
+    .map((step) => step.replace(/^\s*(\d+\s*[.)]|[-•*])\s*/, '').trim())
+    .filter(Boolean)
+}
+
 export function emptyRecipe(): RecipeDraft {
   return { name: '', instructions: '', prepTimeMin: 20, difficulty: 'easy', photoId: null, ingredientFoodIds: [] }
 }

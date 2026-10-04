@@ -37,7 +37,7 @@ public static class AiPrompts
         - If the recipe truly needs something that is not in the list, put it in "missing" with an estimated quantity in grams. Keep "missing" as short as possible.
         - Respect the budget per serving. Prefer combinations with a lot of volume for few calories, enough protein, and slow carbohydrates.
         - Quantities are in grams for the whole recipe; "servings" says how many servings it makes.
-        - Write the name, the instructions and the names in "missing" in {{language}}. Instructions are numbered steps separated by new lines.
+        - Write the name, the instructions and the names in "missing" in {{language}}. Instructions are steps separated by new lines, one step per line, without numbers or bullets.
 
         JSON shape:
         {"name": string, "instructions": string, "prepTimeMin": number, "difficulty": "easy"|"medium"|"hard", "servings": number, "ingredients": [{"food": number, "grams": number}], "missing": [{"name": string, "grams": number}]}

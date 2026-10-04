@@ -7,7 +7,7 @@ import { ConfirmDelete } from '@/components/app/confirm-delete'
 import { MacroLine } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
 import { Photo } from '@/components/app/photo'
-import { difficultyLabel } from '@/lib/recipes'
+import { difficultyLabel, recipeSteps } from '@/lib/recipes'
 import { Button } from '@/components/ui/button'
 import { deleteRow } from '@/db/mutations'
 import { useFoodsById, useProfile, useRecipe, useRecipeVariants, useUsersById } from '@/hooks/use-data'
@@ -43,7 +43,7 @@ function RecipePage() {
 
   const favorite = inProfile(profile, 'favoriteRecipeIds', recipe.id)
   const excluded = inProfile(profile, 'excludedRecipeIds', recipe.id)
-  const steps = recipe.instructions.split('\n').map((s) => s.trim()).filter(Boolean)
+  const steps = recipeSteps(recipe.instructions)
 
   return (
     <>
