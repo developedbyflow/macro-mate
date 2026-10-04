@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppProgressRouteImport } from './routes/_app/progress'
 import { Route as AppFoodsIndexRouteImport } from './routes/_app/foods/index'
 import { Route as AppFoodsNewRouteImport } from './routes/_app/foods/new'
 import { Route as AppPlansIndexRouteImport } from './routes/_app/plans/index'
@@ -45,6 +46,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProgressRoute = AppProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFoodsIndexRoute = AppFoodsIndexRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/profile': typeof AppProfileRoute
+  '/progress': typeof AppProgressRoute
   '/foods/new': typeof AppFoodsNewRoute
   '/plans/$planId': typeof AppPlansPlanIdRoute
   '/recipes/generate': typeof AppRecipesGenerateRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof AppProfileRoute
+  '/progress': typeof AppProgressRoute
   '/': typeof AppIndexRoute
   '/foods/new': typeof AppFoodsNewRoute
   '/plans/$planId': typeof AppPlansPlanIdRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/profile': typeof AppProfileRoute
+  '/_app/progress': typeof AppProgressRoute
   '/_app/': typeof AppIndexRoute
   '/_app/foods/new': typeof AppFoodsNewRoute
   '/_app/plans/$planId': typeof AppPlansPlanIdRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/profile'
+    | '/progress'
     | '/foods/new'
     | '/plans/$planId'
     | '/recipes/generate'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/profile'
+    | '/progress'
     | '/'
     | '/foods/new'
     | '/plans/$planId'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/profile'
+    | '/_app/progress'
     | '/_app/'
     | '/_app/foods/new'
     | '/_app/plans/$planId'
@@ -272,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/progress': {
+      id: '/_app/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof AppProgressRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/foods/': {
@@ -377,6 +396,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppProfileRoute: typeof AppProfileRoute
+  AppProgressRoute: typeof AppProgressRoute
   AppIndexRoute: typeof AppIndexRoute
   AppFoodsNewRoute: typeof AppFoodsNewRoute
   AppPlansPlanIdRoute: typeof AppPlansPlanIdRoute
@@ -396,6 +416,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppProfileRoute: AppProfileRoute,
+  AppProgressRoute: AppProgressRoute,
   AppIndexRoute: AppIndexRoute,
   AppFoodsNewRoute: AppFoodsNewRoute,
   AppPlansPlanIdRoute: AppPlansPlanIdRoute,

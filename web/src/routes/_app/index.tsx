@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Check, ChevronLeft, ChevronRight, Copy, MoreHorizontal, Plus, Target } from 'lucide-react'
+import { ChartLine, Check, ChevronLeft, ChevronRight, Copy, MoreHorizontal, Plus, ScanBarcode, Target } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import type { JournalEntry, Meal, MealItem } from '@/api/types'
@@ -17,18 +17,21 @@ import {
   useDayPlan,
   useFoodsById,
   useJournal,
+  useJournalBetween,
   useMealPlans,
   useMealPlansById,
   useProfile,
   useRecipesById,
   useVariantsById,
+  useWeightEntries,
 } from '@/hooks/use-data'
 import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
 import { addDays, formatDay, today } from '@/lib/dates'
-import { kcal } from '@/lib/format'
+import { kcal, kg } from '@/lib/format'
 import { entryName, entryNutrients, logMealItem, pickedName, pickedToMealItem, updateEntryQuantity } from '@/lib/journal'
 import { mealItemNutrients, sum } from '@/lib/nutrition'
+import { targetFromProfile } from '@/lib/targets'
 import { cn } from '@/lib/utils'
 
 type Search = { date?: string; add?: number }
@@ -61,6 +64,7 @@ function TodayPage() {
   const recipes = useRecipesById()
 
   const [pickerLabel, setPickerLabel] = useState<string | null>(search.add ? 'Extra' : null)
+  const [pickerScan, setPickerScan] = useState(false)
   const [editing, setEditing] = useState<JournalEntry | null>(null)
 
   const plan = dayPlan?.mealPlanId ? plansById.get(dayPlan.mealPlanId) : undefined
@@ -82,16 +86,7 @@ function TodayPage() {
   }, [activePlan, journal])
 
   const eaten = useMemo(() => sum(journal.map(entryNutrients)), [journal])
-  const target = profile?.targetKcal
-    ? {
-        kcal: profile.targetKcal,
-        proteinG: profile.targetProteinG ?? undefined,
-        carbsG: profile.targetCarbsG ?? undefined,
-        fatG: profile.targetFatG ?? undefined,
-        fiberG: profile.targetFiberG ?? undefined,
-        sodiumMg: profile.targetSodiumMg ?? undefined,
-      }
-    : null
+  const target = targetFromProfile(profile)
 
   const recipeName = (id: string) => recipes.get(id)?.name ?? 'Rețetă'
   const nameOf = (item: MealItem) => entryName(item, foods, variants, recipeName)
@@ -117,11 +112,13 @@ function TodayPage() {
     await logMealItem({ date, mealLabel: label, item, foods, variants, name: pickedName(picked), fromPlan: false }, ownerId)
   }
 
-  async function copyFromYesterday(label: string) {
+  async function copyFromYesterday(label?: string) {
     const yesterday = await db.journalEntries.where('date').equals(addDays(date, -1)).toArray()
-    const source = yesterday.filter((e) => e.deletedAt == null && e.mealLabel === label)
+    const source = yesterday
+      .filter((e) => e.deletedAt == null && (label == null || e.mealLabel === label))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     if (source.length === 0) {
-      toast('Ieri nu ai nimic la ' + label + '.')
+      toast(label ? `Ieri nu ai nimic la ${label}.` : 'Ieri nu ai notat nimic.')
       return
     }
     const planItemIds = new Set(activePlan?.meals.flatMap((m) => m.items.map((i) => i.id)) ?? [])
@@ -133,6 +130,13 @@ function TodayPage() {
       )
     }
     toast.success(`Am copiat ${source.length} ${source.length === 1 ? 'element' : 'elemente'} de ieri.`)
+  }
+
+  function scanIntoCurrentMeal() {
+    const hour = new Date().getHours()
+    const index = hour < 11 ? 0 : hour < 16 ? 1 : hour < 21 ? 2 : 3
+    setPickerScan(true)
+    setPickerLabel(groups[Math.min(index, groups.length - 1)]?.label ?? 'Extra')
   }
 
   return (
@@ -149,10 +153,30 @@ function TodayPage() {
             </Button>
           </span>
         }
+        actions={
+          <>
+            <Button variant="ghost" size="icon" aria-label="Scanează și adaugă la masa de acum" onClick={scanIntoCurrentMeal}>
+              <ScanBarcode className="size-5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label="Mai multe pentru ziua asta" />}>
+                <MoreHorizontal className="size-5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => void copyFromYesterday()}>
+                  <Copy className="size-4" /> Copiază toată ziua de ieri
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
       />
       <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 lg:mx-0 lg:grid lg:max-w-6xl lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0 lg:px-8 lg:pb-8">
         <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
-          <DaySummary eaten={eaten} target={target} />
+          <Link to="/progress" aria-label="Vezi progresul pe mai multe zile" className="block rounded-2xl transition-opacity hover:opacity-90">
+            <DaySummary eaten={eaten} target={target} />
+          </Link>
+          <ProgressTeaser />
           {!target && (
             <Link to="/profile" className="flex items-center gap-3 rounded-xl border border-dashed bg-card p-3 text-sm">
               <Target className="size-5 text-primary" />
@@ -172,6 +196,12 @@ function TodayPage() {
               ))}
             </NativeSelect>
           </div>
+
+          {journal.length === 0 && (
+            <Button variant="outline" className="h-10 w-full border-dashed" onClick={() => void copyFromYesterday()}>
+              <Copy className="size-4" /> Copiază ziua de ieri
+            </Button>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -255,13 +285,41 @@ function TodayPage() {
 
       <ItemPicker
         open={pickerLabel !== null}
-        onOpenChange={(open) => !open && setPickerLabel(null)}
+        onOpenChange={(open) => {
+          if (open) return
+          setPickerLabel(null)
+          setPickerScan(false)
+        }}
+        startScanning={pickerScan}
         title={`Adaugă la ${pickerLabel ?? ''}`}
         onPick={(picked) => pickerLabel && void addPicked(pickerLabel, picked)}
       />
 
       <EntryEditor entry={editing} onClose={() => setEditing(null)} onSave={(entry, qty) => updateEntryQuantity(entry, qty, foods, variants, ownerId)} />
     </>
+  )
+}
+
+function ProgressTeaser() {
+  const end = today()
+  const week = useJournalBetween(addDays(end, -6), end)
+  const weights = useWeightEntries()
+  const days = new Set(week.map((e) => e.date)).size
+  const average = days > 0 ? sum(week.map(entryNutrients)).kcal / days : null
+  const lastWeight = weights.at(-1)?.weightKg
+
+  return (
+    <Link to="/progress" className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 text-sm transition-colors hover:bg-muted">
+      <ChartLine className="size-5 shrink-0 text-primary" />
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">Progres</span>
+        <span className="block truncate text-xs text-muted-foreground">
+          {average != null ? `Media pe 7 zile: ${kcal(average)} kcal` : 'Media, zilele în țintă, greutatea'}
+          {lastWeight != null && ` · ${kg(lastWeight)}`}
+        </span>
+      </span>
+      <ChevronRight className="size-4 text-muted-foreground" />
+    </Link>
   )
 }
 

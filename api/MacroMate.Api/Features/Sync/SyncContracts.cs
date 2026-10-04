@@ -25,4 +25,5 @@ public sealed class SyncPullResponse
     public required List<DayPlan> DayPlans { get; init; }
     public required List<JournalEntry> JournalEntries { get; init; }
     public required List<UserProfile> UserProfiles { get; init; }
+    public required List<WeightEntry> WeightEntries { get; init; }
 }

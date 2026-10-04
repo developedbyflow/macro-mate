@@ -1,5 +1,6 @@
 const oneDecimal = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 1 })
 const whole = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
+const fixedOne = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 
 export function kcal(value: number) {
   return whole.format(Math.round(value))
@@ -11,6 +12,10 @@ export function grams(value: number) {
 
 export function num(value: number) {
   return Math.abs(value) >= 10 ? whole.format(value) : oneDecimal.format(value)
+}
+
+export function kg(value: number) {
+  return `${fixedOne.format(value)} kg`
 }
 
 export function mg(value: number) {

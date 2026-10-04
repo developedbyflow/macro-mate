@@ -94,6 +94,24 @@ public sealed class SyncTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Weight_entries_are_personal_and_checked()
+    {
+        var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);
+        var second = await factory.LoginAsync(ApiFactory.SecondEmail);
+
+        var entryId = Guid.NewGuid();
+        var invalidId = Guid.NewGuid();
+        var result = await PushAsync(florin,
+            Upsert("weightEntries", entryId, new { date = "2026-10-04", weightKg = 83.6 }),
+            Upsert("weightEntries", invalidId, new { date = "2026-10-04", weightKg = 8.36 }));
+
+        Assert.Contains(result.Rejected, r => r.Id == invalidId && r.Reason == "invalid-weight");
+        var entry = Assert.Single((await PullAsync(florin, 0)).WeightEntries, w => w.Id == entryId);
+        Assert.Equal(83.6, entry.WeightKg);
+        Assert.DoesNotContain((await PullAsync(second, 0)).WeightEntries, w => w.Id == entryId);
+    }
+
+    [Fact]
     public async Task Invalid_rows_are_rejected_with_a_reason()
     {
         var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);

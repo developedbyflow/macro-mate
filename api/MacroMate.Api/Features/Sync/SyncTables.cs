@@ -103,5 +103,6 @@ public static class SyncTables
         ["dayPlans"] = new PersonalTable<DayPlan>(SyncRules.DayPlan),
         ["journalEntries"] = new PersonalTable<JournalEntry>(SyncRules.JournalEntry),
         ["userProfiles"] = new PersonalTable<UserProfile>(SyncRules.UserProfile, idMustBeUserId: true),
+        ["weightEntries"] = new PersonalTable<WeightEntry>(SyncRules.WeightEntry),
     };
 }

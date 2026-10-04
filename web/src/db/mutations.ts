@@ -1,5 +1,5 @@
 import type { RowOf, TableName } from '@/api/types'
-import { db } from './database'
+import { db, personalTables } from './database'
 import { requestSync } from './sync'
 
 type NewRow<T extends TableName> = Omit<RowOf<T>, 'createdAt' | 'updatedAt' | 'deletedAt' | 'version' | 'createdBy' | 'userId'> &
@@ -19,7 +19,7 @@ export async function saveRow<T extends TableName>(table: T, row: NewRow<T>, own
     updatedAt: now,
     deletedAt: null,
     version: (existing?.version as number | undefined) ?? 0,
-    ...(table === 'dayPlans' || table === 'journalEntries' || table === 'userProfiles'
+    ...(personalTables.includes(table)
       ? { userId: (existing?.userId as string | undefined) ?? ownerId }
       : { createdBy: (existing?.createdBy as string | undefined) ?? ownerId }),
   }

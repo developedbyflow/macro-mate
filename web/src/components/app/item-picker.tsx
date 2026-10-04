@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, ScanBarcode, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -37,12 +38,14 @@ type Props = {
   allowRecipes?: boolean
   confirmLabel?: string
   askQuantity?: boolean
+  startScanning?: boolean
 }
 
 type Tab = 'all' | 'recent' | 'favorites' | 'recipes'
 
-export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = true, confirmLabel = 'Adaugă', askQuantity = true }: Props) {
+export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = true, confirmLabel = 'Adaugă', askQuantity = true, startScanning = false }: Props) {
   const desktop = useDesktop()
+  const navigate = useNavigate()
   const foods = useFoods()
   const foodsById = useFoodsById()
   const recipes = useRecipes()
@@ -55,6 +58,13 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
   const [tab, setTab] = useState<Tab>('recent')
   const [selected, setSelected] = useState<PickedItem | null>(null)
   const [scanning, setScanning] = useState(false)
+  const [autoScanned, setAutoScanned] = useState(false)
+
+  if (open && startScanning && !autoScanned) {
+    setAutoScanned(true)
+    setScanning(true)
+  }
+  if (!open && autoScanned) setAutoScanned(false)
 
   function reset() {
     setQuery('')
@@ -97,7 +107,10 @@ export function ItemPicker({ open, onOpenChange, title, onPick, allowRecipes = t
     setScanning(false)
     const food = foods.find((f) => f.barcode === code)
     if (food) choose({ kind: 'food', food, grams: food.unitWeightG ?? 100 })
-    else toast.error('Produsul nu e încă în bază. Adaugă-l din tabul Alimente.')
+    else
+      toast('Produsul nu e încă în bază.', {
+        action: { label: 'Adaugă-l', onClick: () => void navigate({ to: '/foods/new', search: { barcode: code } }) },
+      })
   }
 
   function confirm(item: PickedItem | null = selected) {

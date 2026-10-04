@@ -11,6 +11,7 @@ import type {
   SyncUser,
   TableName,
   UserProfile,
+  WeightEntry,
 } from '@/api/types'
 
 export type OutboxEntry = {
@@ -43,6 +44,7 @@ export class MacroMateDb extends Dexie {
   dayPlans!: EntityTable<DayPlan, 'id'>
   journalEntries!: EntityTable<JournalEntry, 'id'>
   userProfiles!: EntityTable<UserProfile, 'id'>
+  weightEntries!: EntityTable<WeightEntry, 'id'>
   users!: EntityTable<SyncUser, 'id'>
   outbox!: EntityTable<OutboxEntry, 'seq'>
   photos!: EntityTable<LocalPhoto, 'id'>
@@ -64,6 +66,9 @@ export class MacroMateDb extends Dexie {
       photos: 'id, uploaded',
       meta: 'key',
     })
+    this.version(2).stores({
+      weightEntries: 'id, date',
+    })
   }
 }
 
@@ -78,7 +83,10 @@ export const syncedTables: TableName[] = [
   'dayPlans',
   'journalEntries',
   'userProfiles',
+  'weightEntries',
 ]
+
+export const personalTables: TableName[] = ['dayPlans', 'journalEntries', 'userProfiles', 'weightEntries']
 
 export async function getMeta<K extends MetaEntry['key']>(key: K) {
   const entry = await db.meta.get(key)

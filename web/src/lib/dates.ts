@@ -21,3 +21,8 @@ export function formatDay(isoDate: string) {
   const [y, m, d] = isoDate.split('-').map(Number)
   return new Intl.DateTimeFormat('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(y, m - 1, d))
 }
+
+export function shortDate(isoDate: string) {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  return new Intl.DateTimeFormat('ro-RO', { day: 'numeric', month: 'short' }).format(new Date(y, m - 1, d)).replace('.', '')
+}

@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<DayPlan> DayPlans => Set<DayPlan>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<WeightEntry> WeightEntries => Set<WeightEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -82,6 +83,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             b.HasIndex(j => new { j.UserId, j.Date });
             b.Property(j => j.MealLabel).HasMaxLength(60);
             b.Property(j => j.Name).HasMaxLength(200);
+        });
+
+        builder.Entity<WeightEntry>(b =>
+        {
+            b.HasIndex(w => w.Version);
+            b.HasIndex(w => new { w.UserId, w.Date });
         });
 
         builder.Entity<UserProfile>(b =>

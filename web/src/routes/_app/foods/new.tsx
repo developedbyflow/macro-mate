@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Camera, Keyboard, Loader2, ScanBarcode } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { api, ApiError, OfflineError } from '@/api/client'
 import { FoodForm } from '@/components/app/food-form'
@@ -18,8 +18,9 @@ import { imageToDataUrl } from '@/lib/photos'
 type Mode = 'scan' | 'label' | 'manual'
 
 export const Route = createFileRoute('/_app/foods/new')({
-  validateSearch: (search: Record<string, unknown>): { mode?: Mode } => ({
+  validateSearch: (search: Record<string, unknown>): { mode?: Mode; barcode?: string } => ({
     mode: search.mode === 'scan' || search.mode === 'label' || search.mode === 'manual' ? search.mode : undefined,
+    barcode: /^\d{6,14}$/.test(String(search.barcode ?? '')) ? String(search.barcode) : undefined,
   }),
   component: NewFoodPage,
 })
@@ -27,12 +28,12 @@ export const Route = createFileRoute('/_app/foods/new')({
 type Step = { kind: 'choose' } | { kind: 'scanning' } | { kind: 'label' } | { kind: 'working'; message: string } | { kind: 'form'; draft: FoodDraft }
 
 function NewFoodPage() {
-  const { mode } = Route.useSearch()
+  const { mode, barcode } = Route.useSearch()
   const navigate = useNavigate()
   const ownerId = useOwnerId()
   const ai = useAiStatus()
   const [step, setStep] = useState<Step>(
-    mode === 'scan' ? { kind: 'scanning' } : mode === 'label' ? { kind: 'label' } : mode === 'manual' ? { kind: 'form', draft: emptyDraft() } : { kind: 'choose' },
+    barcode ? { kind: 'working', message: 'Caut produsul…' } : mode === 'scan' ? { kind: 'scanning' } : mode === 'label' ? { kind: 'label' } : mode === 'manual' ? { kind: 'form', draft: emptyDraft() } : { kind: 'choose' },
   )
 
   const withAi = useCallback(
@@ -90,6 +91,13 @@ function NewFoodPage() {
     },
     [navigate, withAi],
   )
+
+  const lookedUp = useRef(false)
+  useEffect(() => {
+    if (!barcode || lookedUp.current) return
+    lookedUp.current = true
+    void onDetected(barcode)
+  }, [barcode, onDetected])
 
   async function save(draft: FoodDraft) {
     const id = newId()

@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo } from 'react'
-import type { DayPlan, Food, JournalEntry, MealPlan, Recipe, RecipeVariant, ShoppingList, UserProfile } from '@/api/types'
+import type { DayPlan, Food, JournalEntry, MealPlan, Recipe, RecipeVariant, ShoppingList, UserProfile, WeightEntry } from '@/api/types'
 import { db } from '@/db/database'
 import type { Exclusions } from '@/lib/nutrition'
 
@@ -116,6 +116,14 @@ export function useJournal(date: string): JournalEntry[] {
     useLiveQuery(async () => alive(await db.journalEntries.where('date').equals(date).toArray()).sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [date]) ??
     empty
   )
+}
+
+export function useJournalBetween(from: string, to: string): JournalEntry[] {
+  return useLiveQuery(async () => alive(await db.journalEntries.where('date').between(from, to, true, true).toArray()), [from, to]) ?? empty
+}
+
+export function useWeightEntries(): WeightEntry[] {
+  return useLiveQuery(async () => alive(await db.weightEntries.orderBy('date').toArray())) ?? empty
 }
 
 export function useRecentFoodIds(): string[] {

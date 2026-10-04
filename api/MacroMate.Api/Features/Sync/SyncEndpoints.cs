@@ -28,10 +28,11 @@ public static class SyncEndpoints
         var dayPlans = await db.DayPlans.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
         var journal = await db.JournalEntries.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
         var profiles = await db.UserProfiles.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
+        var weights = await db.WeightEntries.AsNoTracking().Where(x => x.UserId == userId && x.Version > since).ToListAsync(ct);
 
         await tx.CommitAsync(ct);
 
-        IEnumerable<SyncEntity> all = [.. foods, .. recipes, .. variants, .. mealPlans, .. shoppingLists, .. dayPlans, .. journal, .. profiles];
+        IEnumerable<SyncEntity> all = [.. foods, .. recipes, .. variants, .. mealPlans, .. shoppingLists, .. dayPlans, .. journal, .. profiles, .. weights];
 
         return new SyncPullResponse
         {
@@ -45,6 +46,7 @@ public static class SyncEndpoints
             DayPlans = dayPlans,
             JournalEntries = journal,
             UserProfiles = profiles,
+            WeightEntries = weights,
         };
     }
 

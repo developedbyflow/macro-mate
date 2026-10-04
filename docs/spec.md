@@ -28,6 +28,7 @@ flowchart LR
 - **Meal plan**: o zi cu 1–5 mese, fiecare cu eticheta ei.
 - **Listă de cumpărături**: unul sau mai multe planuri, fiecare cu numărul lui de zile.
 - **Jurnalul zilei**: ce ai mâncat azi. Ecranul principal arată cât mai ai până la țintă.
+- **Progres**: media, ziua cea mai mare și cea mai mică, zilele în țintă, macro, de unde vin carbohidrații și greutatea, pe 7 / 30 / 90 de zile.
 
 ---
 
@@ -86,6 +87,7 @@ erDiagram
   users ||--|| user_profiles : are
   users ||--o{ journal_entries : are
   users ||--o{ day_plans : are
+  users ||--o{ weight_entries : are
   recipes ||--o{ recipe_variants : are
   foods }o--o{ recipes : "în ingredient_food_ids"
   foods }o--o{ recipe_variants : "în ingredients (jsonb)"
@@ -110,6 +112,7 @@ Reguli pentru toate tabelele sincronizate:
 | `day_plans` | al fiecăruia | ziua și planul ales pentru ea |
 | `journal_entries` | al fiecăruia | ziua, masa, ce s-a mâncat, cantitatea și valorile copiate în momentul notării |
 | `user_profiles` | al fiecăruia | datele din calculator, țintele, favoritele, excluderile, „îmi place” |
+| `weight_entries` | al fiecăruia | ziua și greutatea; o cântărire pe zi |
 | `users`, `roles`, `user_*` | — | tabelele de login ale ASP.NET Core Identity |
 
 **De ce unele liste stau în `jsonb` sau în coloane-listă și nu în tabele separate**: o variantă fără ingredientele ei nu are sens, iar serverul nu caută niciodată „toate variantele care conțin oul X”. Așa că varianta se scrie și se sincronizează dintr-o bucată. Conflictul se rezolvă pe tot rândul: câștigă ultima salvare.
@@ -120,7 +123,7 @@ Reguli pentru toate tabelele sincronizate:
 
 ## 5. Ecrane
 
-Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpărături**. Profilul se deschide din colțul de sus.
+Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpărături**. Profilul se deschide din colțul de sus. Pe ecrane de cel puțin 1024 px, bara de jos devine un meniu în stânga, cu **Progres** în plus, iar paginile se întind pe două coloane; alimentele apar ca tabel cu coloane sortabile.
 
 1. **Azi** — jurnalul, în stilul MyFitnessPal, dar cu mai puține atingeri
    - Sus: ținta, cât ai mâncat și cât mai ai, pentru kcal, proteine, carbohidrați, grăsimi, fibre și sodiu.
@@ -128,11 +131,13 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - **O atingere** pe o masă din plan o trece în jurnal cu tot ce are. Poți și să bifezi doar un element din ea.
    - **„Adaugă”** la o masă deschide o căutare cu ce ai mâncat recent și favoritele sus. Butonul de scanare e chiar acolo.
    - **Cantitatea** se schimbă cu butoane de + și − (sau în bucăți, unde alimentul are `unit_weight_g`), fără tastatură.
-   - **„Copiază de ieri”** pe o masă.
+   - **„Copiază de ieri”** pe o masă sau pe toată ziua (meniul ⋯ din antet; butonul apare și când ziua e goală).
+   - **Scanarea** din antet deschide camera pentru masa de acum (după oră). Un cod necunoscut deschide „Aliment nou” cu codul deja căutat.
+   - Cercul cu calorii și cardul de sub el duc la **Progres**.
    - Fără reclame și fără duplicate: baza e doar a voastră, fiecare aliment apare o singură dată.
 2. **Alimente**
    - Listă cu căutare și filtre: categorie, notă glicemică, notă de slăbit, favorite.
-   - Fișa alimentului arată valorile, notele, motivul notelor și cine l-a adăugat.
+   - Fișa alimentului arată valorile (la 100 g, pe o bucată sau la orice gramaj), notele, motivul notelor și cine l-a adăugat.
    - Un aliment nou se adaugă scanând codul, cu o poză la etichetă sau manual (§6).
 3. **Rețete**
    - Listă cu poză, timp, dificultate și note.
@@ -145,7 +150,14 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
 5. **Cumpărături**
    - Alegi planurile și câte zile, ex. „A × 5 zile” + „B × 5 zile”.
    - Lista e grupată pe rețete, iar alimentele simple au grupul lor. Fiecare produs are bifă. Merge offline, în magazin.
-6. **Profil**
+6. **Progres**
+   - Perioada: 7, 30 sau 90 de zile. Zilele fără nimic notat nu intră în medii.
+   - Calorii: media, ziua cea mai mare și cea mai mică, zilele în țintă (±10%), o bară pe zi față de țintă.
+   - Macro: media pe zi față de țintă și în câte zile ai atins proteina.
+   - Carbohidrații: ce parte vine din alimente A, B și C, și ce alimente C au adus cei mai mulți.
+   - Greutatea: cântăririle și media pe 7 zile. Când media se depărtează cu cel puțin 1 kg de greutatea din profil, poți recalcula țintele cu un buton.
+   - Zilele notate la rând și ultimele 30 de zile.
+7. **Profil**
    - Calculatorul și țintele (modificabile).
    - Excluderi și „îmi place”.
    - Favorite și ieșirea din cont.
@@ -245,6 +257,9 @@ Construit pe 2026-10-04, toți cei 7 pași:
 6. **Cumpărături**.
 7. **Excluderi** și **Generează rețetă**.
 
+Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele glicemice și de slăbit A–C, ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri și valorile pe porție.
+
 Ce mai e de făcut:
 - **Deploy-ul pe VPS**: îl faci tu, după `docs/ghid/09-deploy.md`.
 - **Cheia DeepSeek**: până o pui, butoanele de AI arată „cheia nu e setată”.
+- **Gospodăriile și înregistrarea din aplicație**, după deploy: acum toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora înainte de asta.

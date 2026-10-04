@@ -67,6 +67,9 @@ public static class SyncRules
 
     public static string? DayPlan(DayPlan d) => null;
 
+    public static string? WeightEntry(WeightEntry w) =>
+        InRange(w.WeightKg, 20, 400) ? null : "invalid-weight";
+
     public static string? JournalEntry(JournalEntry j)
     {
         if (string.IsNullOrWhiteSpace(j.Name)) return "name-required";

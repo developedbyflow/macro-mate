@@ -109,7 +109,7 @@ export async function applyPull(response: SyncPullResponse) {
   await db.transaction('rw', tables, async () => {
     const pending = new Set((await db.outbox.toArray()).map((e) => `${e.table}:${e.rowId}`))
     for (const table of syncedTables) {
-      const rows = response[table] as { id: string }[]
+      const rows = (response[table] ?? []) as { id: string }[]
       const fresh = rows.filter((row) => !pending.has(`${table}:${row.id}`))
       if (fresh.length > 0) await db.table(table).bulkPut(fresh)
     }

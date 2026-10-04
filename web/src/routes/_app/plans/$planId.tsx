@@ -16,6 +16,7 @@ import { useOwnerId } from '@/hooks/use-owner'
 import { kcal } from '@/lib/format'
 import { entryName, pickedToMealItem } from '@/lib/journal'
 import { mealItemNutrients, planTotals } from '@/lib/nutrition'
+import { targetFromProfile } from '@/lib/targets'
 
 export const Route = createFileRoute('/_app/plans/$planId')({
   component: PlanPage,
@@ -47,16 +48,7 @@ function PlanEditor({ plan }: { plan: MealPlan }) {
   const [pickingFor, setPickingFor] = useState<string | null>(null)
 
   const totals = planTotals(plan, foods, variants)
-  const target = profile?.targetKcal
-    ? {
-        kcal: profile.targetKcal,
-        proteinG: profile.targetProteinG ?? undefined,
-        carbsG: profile.targetCarbsG ?? undefined,
-        fatG: profile.targetFatG ?? undefined,
-        fiberG: profile.targetFiberG ?? undefined,
-        sodiumMg: profile.targetSodiumMg ?? undefined,
-      }
-    : null
+  const target = targetFromProfile(profile)
 
   function save(next: Partial<MealPlan>) {
     return saveRow('mealPlans', { ...plan, ...next }, ownerId)

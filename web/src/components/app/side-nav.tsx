@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { UserRound } from 'lucide-react'
-import { navTabs } from './nav-tabs'
+import { sideTabs } from './nav-tabs'
 import { SyncIndicator } from './sync-indicator'
 
 const linkClass =
@@ -15,7 +15,7 @@ export function SideNav() {
       </Link>
       <nav className="flex-1 overflow-y-auto px-3 py-2">
         <ul className="space-y-1">
-          {navTabs.map(({ to, label, icon: Icon, exact }) => (
+          {sideTabs.map(({ to, label, icon: Icon, exact }) => (
             <li key={to}>
               <Link to={to} activeOptions={{ exact }} className={linkClass}>
                 <Icon className="size-5" />

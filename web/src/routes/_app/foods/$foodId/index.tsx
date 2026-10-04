@@ -1,16 +1,20 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Ban, Heart, Pencil, Star, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { GlycemicBadge, WeightLossBadge } from '@/components/app/badges'
 import { ConfirmDelete } from '@/components/app/confirm-delete'
-import { MacroLine, NutrientTable } from '@/components/app/nutrients'
+import { NumberStepper } from '@/components/app/number-stepper'
+import { NutrientTable } from '@/components/app/nutrients'
 import { PageHeader } from '@/components/app/page-header'
 import { Photo } from '@/components/app/photo'
 import { Button } from '@/components/ui/button'
 import { deleteRow } from '@/db/mutations'
+import type { Food } from '@/api/types'
 import { useFood, useProfile, useUsersById } from '@/hooks/use-data'
 import { categoryLabel } from '@/lib/categories'
-import { forGrams, per100 } from '@/lib/nutrition'
+import { num, units } from '@/lib/format'
+import { forGrams } from '@/lib/nutrition'
 import { inProfile, toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
 
@@ -97,14 +101,7 @@ function FoodPage() {
         </div>
 
         <div className="space-y-4">
-          <NutrientTable n={per100(food)} estimated={food.estimatedFields} caption="La 100 g" />
-
-          {food.unitWeightG && (
-            <div className="rounded-xl border bg-card px-4 py-3">
-              <div className="text-xs text-muted-foreground">O bucată ≈ {Math.round(food.unitWeightG)} g</div>
-              <MacroLine n={forGrams(food, food.unitWeightG)} className="text-sm" />
-            </div>
-          )}
+          <PortionNutrients food={food} />
 
           <p className="text-center text-xs text-muted-foreground">
             Adăugat de {users.get(food.createdBy) ?? '—'} · {sources[food.source] ?? food.source}
@@ -153,5 +150,37 @@ function Toggle({
       <Icon className="size-5" />
       {label}
     </button>
+  )
+}
+
+function PortionNutrients({ food }: { food: Food }) {
+  const unit = food.unitWeightG ? Math.round(food.unitWeightG) : null
+  const [grams, setGrams] = useState(100)
+  const presets = [{ grams: 100, label: '100 g' }, ...(unit ? [{ grams: unit, label: `${units(1, food.category)} · ${unit} g` }] : [])]
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {presets.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            onClick={() => setGrams(preset.grams)}
+            className={cn(
+              'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              grams === preset.grams ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {preset.label}
+          </button>
+        ))}
+        <NumberStepper value={grams} onChange={setGrams} step={10} min={1} max={2000} unit="g" size="sm" className="ml-auto w-32" label="grame" />
+      </div>
+      <NutrientTable
+        n={forGrams(food, grams)}
+        estimated={food.estimatedFields}
+        caption={grams === unit ? `La ${units(1, food.category)} (${num(grams)} g)` : `La ${num(grams)} g`}
+      />
+    </div>
   )
 }

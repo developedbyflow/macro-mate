@@ -1,3 +1,4 @@
+import type { UserProfile } from '@/api/types'
 import type { Nutrients } from './nutrition'
 
 export type Sex = 'male' | 'female'
@@ -39,4 +40,24 @@ export function computeTargets(inputs: TargetInputs, year = new Date().getFullYe
   const carbsG = Math.max(0, Math.round((kcal - proteinG * 4 - fatG * 9) / 4))
   const fiberG = Math.round((kcal / 1000) * 14)
   return { kcal, proteinG, carbsG, fatG, fiberG, sodiumMg: 2300 }
+}
+
+export type Target = Partial<Nutrients> & { kcal: number }
+
+export function targetFromProfile(profile: UserProfile | undefined): Target | null {
+  if (!profile?.targetKcal) return null
+  return {
+    kcal: profile.targetKcal,
+    proteinG: profile.targetProteinG ?? undefined,
+    carbsG: profile.targetCarbsG ?? undefined,
+    fatG: profile.targetFatG ?? undefined,
+    fiberG: profile.targetFiberG ?? undefined,
+    sodiumMg: profile.targetSodiumMg ?? undefined,
+  }
+}
+
+export function targetsForWeight(profile: UserProfile, weightKg: number): Nutrients | null {
+  const { sex, birthYear, heightCm, activityLevel, goal } = profile
+  if (!sex || !birthYear || !heightCm || !activityLevel || !goal) return null
+  return computeTargets({ sex: sex as Sex, birthYear, heightCm, weightKg, activityLevel: activityLevel as ActivityLevel, goal: goal as Goal })
 }

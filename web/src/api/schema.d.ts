@@ -727,6 +727,7 @@ export interface components {
             dayPlans: components["schemas"]["DayPlan"][];
             journalEntries: components["schemas"]["JournalEntry"][];
             userProfiles: components["schemas"]["UserProfile"][];
+            weightEntries: components["schemas"]["WeightEntry"][];
         };
         SyncPushRequest: {
             changes: components["schemas"]["SyncChange"][];
@@ -793,6 +794,24 @@ export interface components {
             foodId: string;
             /** Format: double */
             grams: number;
+        };
+        WeightEntry: {
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            weightKg: number;
+            /** Format: uuid */
+            userId: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number;
         };
     };
     responses: never;
