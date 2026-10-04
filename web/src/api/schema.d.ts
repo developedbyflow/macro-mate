@@ -876,6 +876,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/meals/scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MealScanRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MealScanResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/photos/{id}": {
         parameters: {
             query?: never;
@@ -1187,6 +1226,14 @@ export interface components {
             /** Format: int64 */
             version: number;
         };
+        MealScanRequest: {
+            imageDataUrl: string;
+        };
+        MealScanResult: {
+            foods: components["schemas"]["ScannedFood"][];
+            estimated: components["schemas"]["ScannedItem"][];
+            note: string;
+        };
         MeResponse: {
             /** Format: uuid */
             id: string;
@@ -1303,6 +1350,31 @@ export interface components {
             email: string;
             token: string;
             password: string;
+        };
+        ScannedFood: {
+            /** Format: uuid */
+            foodId: string;
+            /** Format: double */
+            grams: number;
+            /** Format: double */
+            servedGrams: number;
+        };
+        ScannedItem: {
+            name: string;
+            /** Format: double */
+            grams: number;
+            /** Format: double */
+            kcal: number;
+            /** Format: double */
+            proteinG: number;
+            /** Format: double */
+            carbsG: number;
+            /** Format: double */
+            fatG: number;
+            /** Format: double */
+            fiberG: number;
+            /** Format: double */
+            sodiumMg: number;
         };
         ShoppingList: {
             name: string;

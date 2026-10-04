@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { CalendarDays, ChartLine, Check, CircleCheck, ChevronLeft, ChevronRight, Copy, MoreHorizontal, Plus, ScanBarcode, Target } from 'lucide-react'
+import { CalendarDays, Camera, ChartLine, Check, CircleCheck, ChevronLeft, ChevronRight, Copy, MoreHorizontal, Plus, ScanBarcode, Target } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -32,12 +32,14 @@ import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
 import { addDays, formatDay, longDate, today } from '@/lib/dates'
 import { kcal, kg, servings } from '@/lib/format'
-import { entryDisplayName, entryName, entryNutrients, logMealItem, pickedName, pickedToMealItem, updateEntryQuantity } from '@/lib/journal'
+import { entryDisplayName, entryName, entryNutrients, logEstimatedItem, logMealItem, pickedName, pickedToMealItem, updateEntryQuantity } from '@/lib/journal'
 import { defaultMeals, extraMeal, mealLabel, mealRank, sameMeal } from '@/lib/meals'
-import { mealItemNutrients, sum } from '@/lib/nutrition'
+import { mealItemNutrients, scale, sum } from '@/lib/nutrition'
 import { maintenanceKcal, projectedWeight, targetFromProfile } from '@/lib/targets'
 import { cn } from '@/lib/utils'
 import { currentWeight } from '@/lib/goals'
+import { EstimatedBadge } from '@/components/app/badges'
+import { MealScan, type ScanLine } from '@/components/app/meal-scan'
 
 type Search = { date?: string; add?: number }
 
@@ -72,6 +74,7 @@ function TodayPage() {
   const [pickerScan, setPickerScan] = useState(false)
   const [editing, setEditing] = useState<JournalEntry | null>(null)
   const [copying, setCopying] = useState<{ label?: string } | null>(null)
+  const [scanning, setScanning] = useState(false)
 
   const plan = dayPlan?.mealPlanId ? plansById.get(dayPlan.mealPlanId) : undefined
   const activePlan = plan && !plan.deletedAt ? plan : undefined
@@ -152,11 +155,29 @@ function TodayPage() {
     return copyFrom(addDays(date, -1), label)
   }
 
-  function scanIntoCurrentMeal() {
+  function currentMeal() {
     const hour = new Date().getHours()
     const index = hour < 11 ? 0 : hour < 16 ? 1 : hour < 21 ? 2 : 3
+    return groups[Math.min(index, groups.length - 1)]?.label ?? defaultMeals(4)[index]
+  }
+
+  function scanIntoCurrentMeal() {
     setPickerScan(true)
-    setPickerLabel(groups[Math.min(index, groups.length - 1)]?.label ?? defaultMeals(4)[index])
+    setPickerLabel(currentMeal())
+  }
+
+  const scanMeals = [...groups.map((g) => g.label), ...defaultMeals(4).filter((label) => !groups.some((g) => sameMeal(g.label, label)))]
+
+  async function addScanned(meal: string, lines: ScanLine[]) {
+    for (const line of lines) {
+      if (line.kind === 'food') {
+        const item: MealItem = { id: newId(), kind: 'food', foodId: line.foodId, grams: line.grams, variantId: null, servings: null }
+        await logMealItem({ date, mealLabel: meal, item, foods, variants, name: nameOf(item), fromPlan: false }, ownerId)
+      } else {
+        await logEstimatedItem({ date, mealLabel: meal, name: line.name, grams: line.grams, nutrients: scale(line.base, line.grams / Math.max(1, line.baseGrams)) }, ownerId)
+      }
+    }
+    toast.success(t('today.scan.added', { count: lines.length, meal: mealLabel(meal) }))
   }
 
   const planPicker = (
@@ -209,6 +230,9 @@ function TodayPage() {
         }
         actions={
           <>
+            <Button variant="ghost" size="icon" aria-label={t('today.scan.open')} title={t('today.scan.open')} onClick={() => setScanning(true)}>
+              <Camera className="size-5" />
+            </Button>
             <Button variant="ghost" size="icon" aria-label={t('today.scanToCurrentMeal')} onClick={scanIntoCurrentMeal}>
               <ScanBarcode className="size-5" />
             </Button>
@@ -295,7 +319,10 @@ function TodayPage() {
                         <Check className="size-4" />
                       </button>
                       <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setEditing(entry)}>
-                        <div className="truncate text-sm font-medium">{entryDisplayName(entry, foods)}</div>
+                        <div className="flex items-center gap-1.5 text-sm font-medium">
+                          <span className="truncate">{entryDisplayName(entry, foods)}</span>
+                          {entry.kind === 'food' && !entry.foodId && <EstimatedBadge />}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {entry.kind === 'food' ? `${Math.round(entry.grams ?? 0)} g` : servings(entry.servings ?? 0)}
                           {' · '}
@@ -352,6 +379,8 @@ function TodayPage() {
         title={t('today.addTo', { meal: mealLabel(pickerLabel ?? '') })}
         onPick={(picked) => pickerLabel && void addPicked(pickerLabel, picked)}
       />
+
+      <MealScan open={scanning} onOpenChange={setScanning} meals={scanMeals} defaultMeal={currentMeal()} onAdd={addScanned} />
 
       <CopyFromDay
         target={copying}

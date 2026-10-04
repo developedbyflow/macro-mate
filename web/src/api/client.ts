@@ -7,6 +7,7 @@ import type {
   InviteCreated,
   InviteInfo,
   KitchenInfo,
+  MealScanResult,
   LeaveResult,
   MeResponse,
   RecipeDraft,
@@ -94,6 +95,7 @@ export const api = {
   aiStatus: () => request<AiStatus>('GET', '/api/ai/status'),
   enrichFood: (body: FoodEnrichRequest) => request<FoodEnrichResponse>('POST', '/api/ai/foods/enrich', body),
   generateRecipe: (body: RecipeGenerateRequest) => request<RecipeDraft>('POST', '/api/ai/recipes/generate', body),
+  scanMeal: (imageDataUrl: string) => request<MealScanResult>('POST', '/api/ai/meals/scan', { imageDataUrl }),
 
   uploadPhoto: (id: string, blob: Blob) =>
     request<void>('PUT', `/api/photos/${id}`, undefined, {

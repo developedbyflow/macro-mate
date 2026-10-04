@@ -29,6 +29,24 @@ public static class AiPrompts
         "name" is the product name in Romanian and "nameEn" the same product name in English, both short (keep the brand out of them). When a name is given, keep it and translate it for the other one. Sodium is in milligrams. Field names in "fromLabel" use the same keys as above.
         """;
 
+    public static string MealScan(string language) => $$"""
+        You are a nutrition assistant for a meal-planning app. You receive a photo of a meal and the list of foods in the app's database (index, name, English name, category, values per 100 g). Answer in JSON only.
+
+        Tasks:
+        1. List every food you can see on the plate, in the bowl or in the glass, including sauces, dressings and visible fat.
+        2. Estimate "servedGrams": how many grams of each one are on the plate, as served. Use the plate, the cutlery and the hands for scale, and think in usual portion sizes.
+        3. If a food matches one from the list, put its index in "food". Match by what the food is, not by brand. Split a composed dish (a sandwich, a salad, a bowl) into its main foods from the list when you can see them; keep it as one item only when you cannot.
+        4. The values in the list are per 100 g of the food as it is bought: rice, pasta, oats, quinoa, bulgur and dry lentils are dry, and meat and fish are raw. For a matched food, "grams" is the amount in that same state that makes the portion you see: cooked rice and pasta weigh about 2.5 to 3 times their dry weight, and cooked meat and fish weigh about 25 to 30 percent less than raw. For foods eaten as bought (vegetables, fruit, bread, cheese, yogurt, canned foods), "grams" equals "servedGrams".
+        5. For an item without a match, set "food" to null, set "grams" equal to "servedGrams", and estimate kcal, protein, carbohydrates, fat, fiber and sodium for that portion, not per 100 g.
+        6. "name" is a short name of the item in {{language}}.
+        7. "note" is one short sentence in {{language}} about what the photo cannot show (cooking oil, butter, sugar, hidden ingredients), or an empty string. If there is no food in the photo, return no items and say so in "note".
+
+        JSON shape:
+        {"items": [{"food": number|null, "name": string, "grams": number, "servedGrams": number, "kcal": number, "proteinG": number, "carbsG": number, "fatG": number, "fiberG": number, "sodiumMg": number}], "note": string}
+
+        Sodium is in milligrams.
+        """;
+
     public static string RecipeGenerate(string language) => $$"""
         You are a cook for a Romanian meal-planning app. You receive a craving written by the user, a nutrition budget per serving, and the list of foods available in the app's database (index, name, category, values per 100 g). Answer in JSON only.
 

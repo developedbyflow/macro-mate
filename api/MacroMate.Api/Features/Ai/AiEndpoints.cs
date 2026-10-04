@@ -43,6 +43,14 @@ public sealed record RecipeDraft(
     List<DraftIngredient> Ingredients,
     List<MissingIngredient> Missing);
 
+public sealed record MealScanRequest(string ImageDataUrl);
+
+public sealed record ScannedFood(Guid FoodId, double Grams, double ServedGrams);
+
+public sealed record ScannedItem(string Name, double Grams, double Kcal, double ProteinG, double CarbsG, double FatG, double FiberG, double SodiumMg);
+
+public sealed record MealScanResult(List<ScannedFood> Foods, List<ScannedItem> Estimated, string Note);
+
 public static class AiEndpoints
 {
     public static void MapAiEndpoints(this IEndpointRouteBuilder app)
@@ -51,6 +59,7 @@ public static class AiEndpoints
         group.MapGet("/status", (DeepSeekClient ai) => new AiStatus(ai.IsConfigured));
         group.MapPost("/foods/enrich", EnrichFood).Produces<FoodEnrichResponse>();
         group.MapPost("/recipes/generate", GenerateRecipe).Produces<RecipeDraft>();
+        group.MapPost("/meals/scan", ScanMeal).Produces<MealScanResult>();
     }
 
     sealed record EnrichAnswer(
@@ -203,6 +212,62 @@ public static class AiEndpoints
             return Results.Ok(draft);
         });
     }
+
+    sealed record ScanAnswer(List<ScanAnswerItem>? Items, string? Note);
+
+    sealed record ScanAnswerItem(int? Food, string? Name, double? Grams, double? ServedGrams, double? Kcal, double? ProteinG, double? CarbsG, double? FatG, double? FiberG, double? SodiumMg);
+
+    static async Task<IResult> ScanMeal(MealScanRequest request, DeepSeekClient ai, AppDbContext db, IStringLocalizer<Messages> messages, CancellationToken ct)
+    {
+        var language = AiPrompts.LanguageOf(CultureInfo.CurrentUICulture);
+        if (string.IsNullOrWhiteSpace(request.ImageDataUrl) || !request.ImageDataUrl.StartsWith("data:image/") || request.ImageDataUrl.Length > 8_000_000)
+            return Results.Problem(messages["LabelPhotoInvalid"], statusCode: StatusCodes.Status400BadRequest);
+
+        var foods = await db.Foods.AsNoTracking()
+            .Where(f => f.DeletedAt == null)
+            .OrderBy(f => f.Category).ThenBy(f => f.Name)
+            .ToListAsync(ct);
+
+        var list = new StringBuilder("index|name|english name|category|kcal|proteinG|carbsG|fatG\n");
+        for (var i = 0; i < foods.Count; i++)
+        {
+            var f = foods[i];
+            var name = f.Brand is null ? f.Name : $"{f.Name} ({f.Brand})";
+            list.AppendLine(string.Join('|', i, name, f.NameEn ?? "", f.Category, Show(f.Kcal), Show(f.ProteinG), Show(f.CarbsG), Show(f.FatG)));
+        }
+
+        return await Guard(messages, async () =>
+        {
+            var answer = await ai.AskJsonAsync<ScanAnswer>(AiPrompts.MealScan(language), $"Foods in the app's database:\n{list}", request.ImageDataUrl, ct);
+            var items = (answer.Items ?? []).Where(i => i.Grams is > 0).ToList();
+
+            var matched = items
+                .Where(i => i.Food is { } index && index >= 0 && index < foods.Count)
+                .GroupBy(i => i.Food!.Value)
+                .Select(g => new ScannedFood(foods[g.Key].Id, Grams(g.Sum(i => i.Grams!.Value)), Grams(g.Sum(i => i.ServedGrams ?? i.Grams!.Value))))
+                .ToList();
+
+            var estimated = items
+                .Where(i => i.Food is not { } index || index < 0 || index >= foods.Count)
+                .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+                .Select(i => new ScannedItem(
+                    i.Name!.Trim(),
+                    Grams(i.ServedGrams ?? i.Grams!.Value),
+                    Clamp(i.Kcal, 5000),
+                    Clamp(i.ProteinG, 500),
+                    Clamp(i.CarbsG, 500),
+                    Clamp(i.FatG, 500),
+                    Clamp(i.FiberG, 200),
+                    Clamp(i.SodiumMg, 20000)))
+                .ToList();
+
+            return Results.Ok(new MealScanResult(matched, estimated, answer.Note?.Trim() ?? ""));
+        });
+    }
+
+    static double Grams(double value) => Math.Round(Math.Clamp(value, 1, 3000));
+
+    static double Clamp(double? value, double max) => Math.Round(Math.Clamp(value ?? 0, 0, max), 1);
 
     static async Task<IResult> Guard(IStringLocalizer<Messages> messages, Func<Task<IResult>> action)
     {

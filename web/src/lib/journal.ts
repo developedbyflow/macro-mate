@@ -58,6 +58,24 @@ export async function logMealItem(
   return saveRow('journalEntries', entry, ownerId)
 }
 
+export async function logEstimatedItem(args: { date: string; mealLabel: string; name: string; grams: number; nutrients: Nutrients }, ownerId: string) {
+  const { date, mealLabel, name, grams, nutrients } = args
+  const entry: EntryInput = {
+    id: newId(),
+    date,
+    mealLabel,
+    mealItemId: null,
+    kind: 'food',
+    variantId: null,
+    servings: null,
+    foodId: null,
+    grams,
+    name,
+    ...snapshot(nutrients),
+  }
+  return saveRow('journalEntries', entry, ownerId)
+}
+
 export function pickedToMealItem(picked: PickedItem): MealItem {
   return picked.kind === 'food'
     ? { id: newId(), kind: 'food', foodId: picked.food.id, grams: picked.grams, variantId: null, servings: null }

@@ -599,6 +599,35 @@
         }
       }
     },
+    "/api/ai/meals/scan": {
+      "post": {
+        "tags": [
+          "AiEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MealScanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MealScanResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/photos/{id}": {
       "put": {
         "tags": [
@@ -1514,6 +1543,42 @@
           }
         }
       },
+      "MealScanRequest": {
+        "required": [
+          "imageDataUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "imageDataUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "MealScanResult": {
+        "required": [
+          "foods",
+          "estimated",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScannedFood"
+            }
+          },
+          "estimated": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScannedItem"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
       "MeResponse": {
         "required": [
           "id",
@@ -1914,6 +1979,74 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "ScannedFood": {
+        "required": [
+          "foodId",
+          "grams",
+          "servedGrams"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grams": {
+            "type": "number",
+            "format": "double"
+          },
+          "servedGrams": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ScannedItem": {
+        "required": [
+          "name",
+          "grams",
+          "kcal",
+          "proteinG",
+          "carbsG",
+          "fatG",
+          "fiberG",
+          "sodiumMg"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "number",
+            "format": "double"
+          },
+          "kcal": {
+            "type": "number",
+            "format": "double"
+          },
+          "proteinG": {
+            "type": "number",
+            "format": "double"
+          },
+          "carbsG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fatG": {
+            "type": "number",
+            "format": "double"
+          },
+          "fiberG": {
+            "type": "number",
+            "format": "double"
+          },
+          "sodiumMg": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
