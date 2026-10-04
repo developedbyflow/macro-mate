@@ -19,7 +19,13 @@ PWA pentru doi oameni: alimente cu note pentru insulină și slăbit, rețete cu
 
 Ai nevoie de Docker, .NET 10 SDK, Node 22 și pnpm.
 
-Pornești Postgres:
+Totul dintr-o comandă: Postgres, API-ul și aplicația, pe `http://localhost:5173`. `Ctrl+C` le oprește pe toate trei:
+
+```bash
+./dev.sh
+```
+
+Sau pe rând, fiecare în terminalul lui. Pornești Postgres:
 
 ```bash
 docker compose up -d
