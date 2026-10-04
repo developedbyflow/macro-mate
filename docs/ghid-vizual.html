@@ -830,13 +830,10 @@ Retry-After: 42
 
 <div class="step"><div class="n">6</div><div class="b"><h3>Setările (.env)</h3>
 <p><strong><code>.env</code></strong> e fișierul cu variabile pe care Compose le pune în <code>compose.prod.yaml</code>, unde scrie <code>${NUME}</code>. Rămâne doar pe server.</p>
-<pre><code>cd /opt/macromate/deploy &amp;&amp; cp .env.example .env &amp;&amp; chmod 600 .env &amp;&amp; ls -l .env</code></pre>
-<p class="look"><span>Caută</span> <code>-rw-------</code>: doar <code>ubuntu</code> îl poate citi.</p>
-<pre><code>openssl rand -base64 32</code></pre>
-<p class="look"><span>Caută</span> un rând de 44 de caractere: parola bazei.</p>
-<p>Cu <code>nano .env</code> completezi:</p>
+<pre><code>cd /opt/macromate/deploy &amp;&amp; cp .env.example .env &amp;&amp; chmod 600 .env &amp;&amp; sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" .env &amp;&amp; ls -l .env &amp;&amp; grep -c '^POSTGRES_PASSWORD=[0-9a-f]\{64\}$' .env</code></pre>
+<p class="look"><span>Caută</span> <code>-rw-------</code> (doar <code>ubuntu</code> îl poate citi), apoi <code>1</code>: parola bazei e generată și scrisă direct în fișier, din cifre și literele a–f, ca să nu strice șirul de conectare.</p>
+<p>Cu <code>nano .env</code> completezi restul:</p>
 <pre><code>DOMAIN=macromate.exemplu.com
-POSTGRES_PASSWORD=parola-generata-mai-sus
 DEEPSEEK_API_KEY=sk-...
 EMAIL_FROM=MacroMate &lt;noreply@macromate.exemplu.com&gt;
 RESEND_API_KEY=re_...</code></pre>

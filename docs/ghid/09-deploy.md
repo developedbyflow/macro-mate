@@ -214,27 +214,22 @@ Caută: `Cloning into '/opt/macromate'...` și niciun rând cu `fatal:`. `ls /op
 
 **`.env`** e un fișier cu variabile pe care Docker Compose le citește la pornire și le pune în `compose.prod.yaml`, acolo unde scrie `${NUME}`. Rămâne doar pe server: e în `.gitignore`.
 
-Îl faci din model:
+Îl faci din model și pui parola bazei:
 
 ```bash
-cd /opt/macromate/deploy && cp .env.example .env && chmod 600 .env && ls -l .env
+cd /opt/macromate/deploy && cp .env.example .env && chmod 600 .env && sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" .env && ls -l .env && grep -c '^POSTGRES_PASSWORD=[0-9a-f]\{64\}$' .env
 ```
 
-Caută: `-rw-------`. `chmod 600` face ca doar `ubuntu` să poată citi fișierul.
+- `chmod 600` face ca doar `ubuntu` să poată citi fișierul;
+- `openssl rand -hex 32` generează o parolă de 64 de caractere, doar cifre și literele a–f, ca să nu strice șirul de conectare la bază;
+- `sed` o scrie direct în fișier. N-o vezi și nu trebuie s-o ții minte: API-ul și Postgres o citesc din `.env`.
 
-Generezi parola bazei:
+Caută: `-rw-------`, apoi `1` (parola e pusă).
 
-```bash
-openssl rand -base64 32
-```
-
-Caută: un rând lung, de 44 de caractere. Îl copiezi.
-
-Deschizi fișierul cu `nano .env` și completezi cinci rânduri:
+Deschizi fișierul cu `nano .env` și completezi restul:
 
 ```
 DOMAIN=macromate.exemplu.com
-POSTGRES_PASSWORD=parola-generata-mai-sus
 DEEPSEEK_API_KEY=sk-...
 EMAIL_FROM=MacroMate <noreply@macromate.exemplu.com>
 RESEND_API_KEY=re_...
@@ -243,7 +238,7 @@ RESEND_API_KEY=re_...
 | Variabila | Ce pui |
 |---|---|
 | `DOMAIN` | adresa aplicației, fără `https://` |
-| `POSTGRES_PASSWORD` | parola generată mai sus |
+| `POSTGRES_PASSWORD` | pusă deja de comanda de mai sus |
 | `DEEPSEEK_API_KEY` | cheia de la DeepSeek |
 | `EMAIL_FROM` | expeditorul emailurilor. Adresa de după `@` trebuie să fie pe domeniul verificat în Resend |
 | `RESEND_API_KEY` | cheia Resend; o iei la pasul 7 și revii aici |
@@ -485,23 +480,17 @@ Caută: `ls -lh /opt/macromate/deploy/backups` arată `app-data-AAAA-LL-ZZ.tar.g
 
 ## 12. Actualizările
 
-Când ai cod nou pe GitHub:
+Codul nou ajunge singur pe server: la fiecare push pe `main`, GitHub Actions rulează testele și, dacă trec, `deploy/deploy.sh` pe server. Cum merge și cum îl configurezi: [capitolul 14](14-ci-cd.md).
+
+De mână, pe server, același lucru:
 
 ```bash
-cd /opt/macromate && git pull && cd deploy && docker compose -f compose.prod.yaml up -d --build
+/opt/macromate/deploy/deploy.sh
 ```
 
-Caută: la `git pull`, `Fast-forward` sau `Already up to date.`; la compose, `Started` sau `Running` pentru toate trei.
+Caută: `Deploying …`, apoi `Deployed …`. Fără argument pune ultimul commit de pe `main`; cu id-ul complet al unui commit, pune commit-ul acela.
 
-Migrările bazei rulează singure la pornirea API-ului (`Database.MigrateAsync()` din `Program.cs`). Pe telefoane apare „Există o versiune nouă a aplicației” → **Actualizează**.
-
-Fiecare build lasă pe disc imagini vechi. Le ștergi din când în când:
-
-```bash
-docker image prune -f
-```
-
-Caută: `Total reclaimed space: …`.
+Migrările bazei rulează singure la pornirea API-ului (`Database.MigrateAsync()` din `Program.cs`). Pe telefoane apare „Există o versiune nouă a aplicației” → **Actualizează**. `deploy.sh` șterge singur imaginile vechi.
 
 Dacă ai schimbat doar `.env` (de exemplu cheia DeepSeek):
 

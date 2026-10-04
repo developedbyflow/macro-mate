@@ -17,6 +17,7 @@ Ghidul te trece prin aplicație: ce piese are, cum circulă datele și unde e co
 | 11 | [Ecranul Azi](11-ecranul-azi.md) | Banda de sus, mesele cu și fără plan, copierea, ziua completă |
 | 12 | [Contul și emailurile](12-contul-si-emailurile.md) | Numele, emailul, parola, „Am uitat parola”, Resend |
 | 13 | [Română și engleză](13-romana-si-engleza.md) | Textele pe chei, pluralele, limba la API, numele alimentelor |
+| 14 | [CI/CD](14-ci-cd.md) | Testele la fiecare push, deploy-ul automat pe `main`, cheia care poate rula doar `deploy.sh` |
 
 Ordinea recomandată: 1, 3, 10, apoi ce te interesează.
 
