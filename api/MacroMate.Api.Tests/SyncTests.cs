@@ -112,6 +112,17 @@ public sealed class SyncTests(ApiFactory factory) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task A_goal_with_an_impossible_rate_is_rejected()
+    {
+        var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);
+        var me = (await PullAsync(florin, 0)).UserProfiles.Single().UserId;
+
+        var result = await PushAsync(florin, Upsert("userProfiles", me, new { goal = "lose", goalWeightKg = 75, weeklyRateKg = 3 }));
+
+        Assert.Contains(result.Rejected, r => r.Id == me && r.Reason == "invalid-weekly-rate");
+    }
+
+    [Fact]
     public async Task Invalid_rows_are_rejected_with_a_reason()
     {
         var florin = await factory.LoginAsync(ApiFactory.FlorinEmail);

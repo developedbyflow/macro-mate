@@ -1,6 +1,7 @@
 const oneDecimal = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 1 })
 const whole = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 const fixedOne = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+const twoDecimals = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 2 })
 
 export function kcal(value: number) {
   return whole.format(Math.round(value))
@@ -16,6 +17,14 @@ export function num(value: number) {
 
 export function kg(value: number) {
   return `${fixedOne.format(value)} kg`
+}
+
+export function perWeek(value: number) {
+  return `${twoDecimals.format(value)} kg pe săptămână`
+}
+
+export function decimal(value: number) {
+  return twoDecimals.format(value)
 }
 
 export function mg(value: number) {

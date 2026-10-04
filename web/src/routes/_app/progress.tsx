@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Droplet, Flame, Plus, RefreshCw, Trash2, Weight } from 'lucide-react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { ChevronRight, Droplet, Flame, Plus, RefreshCw, Target, Trash2, Weight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import type { UserProfile, WeightEntry } from '@/api/types'
@@ -13,8 +13,9 @@ import { deleteRow, newId, saveRow } from '@/db/mutations'
 import { useFoodsById, useJournalBetween, useProfile, useVariantsById, useWeightEntries } from '@/hooks/use-data'
 import { useDesktop } from '@/hooks/use-desktop'
 import { useOwnerId } from '@/hooks/use-owner'
-import { addDays, shortDate, today } from '@/lib/dates'
-import { kcal, kg, num } from '@/lib/format'
+import { addDays, longDate, shortDate, today } from '@/lib/dates'
+import { kcal, kg, num, perWeek } from '@/lib/format'
+import { goalProgress } from '@/lib/goals'
 import type { Nutrients } from '@/lib/nutrition'
 import { carbsByGlycemicGrade, dailyTotals, dateRange, streak, summarize, weightSeries } from '@/lib/progress'
 import { targetFromProfile, targetsForWeight } from '@/lib/targets'
@@ -49,6 +50,8 @@ function ProgressPage() {
     <>
       <PageHeader title="Progres" subtitle={stats ? `${stats.logged} din ${period} zile notate` : undefined} />
       <main className="mx-auto max-w-2xl space-y-4 px-4 pt-4 pb-8 lg:mx-0 lg:max-w-6xl lg:px-8">
+        <GoalCard profile={profile} weights={weights} />
+
         <div className="flex gap-1.5">
           {periods.map((p) => (
             <button
@@ -101,6 +104,77 @@ function ProgressPage() {
         </div>
       </main>
     </>
+  )
+}
+
+function GoalCard({ profile, weights }: { profile: UserProfile | undefined; weights: WeightEntry[] }) {
+  if (!profile) return null
+  const progress = goalProgress(profile, weights, today())
+
+  if (!progress) {
+    return (
+      <Link to="/profile" className="flex items-center gap-3 rounded-2xl border border-dashed bg-card p-4 text-sm transition-colors hover:bg-muted">
+        <Target className="size-5 shrink-0 text-primary" />
+        <span className="flex-1">
+          {profile.goal === 'maintain'
+            ? 'Obiectivul tău e menținerea. Dacă vrei să slăbești sau să pui masă, alege în Profil greutatea țintă și ritmul.'
+            : 'Alege în Profil o greutate țintă și un ritm, ca să vezi aici cât mai ai și când ajungi.'}
+        </span>
+        <ChevronRight className="size-4 text-muted-foreground" />
+      </Link>
+    )
+  }
+
+  const change = progress.current - progress.start
+  return (
+    <section className="rounded-2xl border bg-card p-4">
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="flex items-center gap-2 font-semibold">
+          <Target className="size-4 text-muted-foreground" /> Obiectiv: {kg(progress.goal)}
+        </h2>
+        <Link to="/profile" className="text-sm font-medium text-primary hover:underline">
+          Schimbă
+        </Link>
+      </div>
+
+      <div className="mt-3 flex items-baseline justify-between gap-2 text-sm">
+        <span className="text-muted-foreground">{kg(progress.start)}</span>
+        <span className="font-semibold tabular-nums">
+          {Math.abs(change) < 0.05 ? '' : change < 0 ? '−' : '+'}
+          {kg(Math.abs(change))} din {kg(progress.total)} · {Math.round(progress.fraction * 100)}%
+        </span>
+        <span className="text-muted-foreground">{kg(progress.goal)}</span>
+      </div>
+      <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${progress.fraction * 100}%` }} />
+      </div>
+
+      {progress.reached ? (
+        <p className="mt-3 text-sm">
+          Ai ajuns la {kg(progress.goal)}. Treci pe <strong>Menținere</strong> în Profil, ca ținta de calorii să nu mai scadă.
+        </p>
+      ) : (
+        <>
+          <p className="mt-3 text-sm">
+            Acum: <strong>{kg(progress.current)}</strong>. Mai ai {kg(progress.remaining)}.
+          </p>
+          <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
+            {progress.plannedEnd && (
+              <li>
+                Cu ritmul ales, {perWeek(progress.plannedRate)}, ajungi pe {longDate(progress.plannedEnd)}.
+              </li>
+            )}
+            <li>
+              {progress.actualRate == null
+                ? 'Ritmul tău real apare după două săptămâni de cântăriri.'
+                : progress.actualEnd
+                  ? `Ritmul tău real, după media pe 7 zile, e ${perWeek(progress.actualRate)}: ajungi pe ${longDate(progress.actualEnd)}.`
+                  : `În ultimele săptămâni, media s-a mișcat în direcția opusă, cu ${perWeek(Math.abs(progress.actualRate))}.`}
+            </li>
+          </ul>
+        </>
+      )}
+    </section>
   )
 }
 

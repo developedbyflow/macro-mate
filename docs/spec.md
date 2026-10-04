@@ -155,10 +155,11 @@ Bara de jos are cinci taburi: **Azi · Planuri · Rețete · Alimente · Cumpăr
    - Calorii: media, ziua cea mai mare și cea mai mică, zilele în țintă (±10%), o bară pe zi față de țintă.
    - Macro: media pe zi față de țintă și în câte zile ai atins proteina.
    - Carbohidrații: ce parte vine din alimente A, B și C, și ce alimente C au adus cei mai mulți.
+   - Obiectivul, sus: de unde ai pornit, unde ești, cât mai ai, data estimată după ritmul ales și după ritmul tău real (media pe 7 zile, pe ultimele 2–4 săptămâni).
    - Greutatea: cântăririle și media pe 7 zile. Când media se depărtează cu cel puțin 1 kg de greutatea din profil, poți recalcula țintele cu un buton.
    - Zilele notate la rând și ultimele 30 de zile.
 7. **Profil**
-   - Calculatorul și țintele (modificabile).
+   - Calculatorul și țintele (modificabile), cu obiectivul: greutatea țintă și ritmul.
    - Excluderi și „îmi place”.
    - Favorite și ieșirea din cont.
 
@@ -224,7 +225,7 @@ flowchart TD
 **Țintele din calculator** (valorile pornesc de aici, apoi le modifici cum vrei)
 - Metabolism bazal, formula Mifflin-St Jeor: `10 × kg + 6,25 × cm − 5 × vârstă`, plus 5 la bărbați și minus 161 la femei.
 - Înmulțit cu nivelul de activitate: sedentar 1,2 · ușor 1,375 · moderat 1,55 · foarte activ 1,725.
-- Obiectiv: slăbire −20% · menținere 0 · masă +10%.
+- Obiectiv: greutatea țintă și ritmul pe săptămână (slăbire 0,25 / 0,5 / 0,75 / 1 kg, masă 0,25 / 0,5 kg). 1 kg are cam 7.700 kcal, deci ritmul se scade (sau se adaugă) zilnic: 0,5 kg pe săptămână = 550 kcal pe zi. Ținta nu coboară sub metabolismul bazal; la menținere nu se schimbă nimic.
 - Proteine 2 g/kg la slăbire, altfel 1,6 g/kg. Grăsimi 0,8 g/kg. Carbohidrații sunt caloriile rămase.
 - Fibre 14 g la fiecare 1000 kcal. Sodiu maxim 2300 mg.
 
@@ -264,11 +265,10 @@ Construit pe 2026-10-04, toți cei 7 pași:
 6. **Cumpărături**.
 7. **Excluderi** și **Generează rețetă**.
 
-Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele A–C (glicemic de la DeepSeek, proteină și volum calculate din valori), ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri și valorile pe porție.
+Adăugat tot pe 2026-10-04, după primul test: versiunea de desktop, notele A–C (glicemic de la DeepSeek, proteină și volum calculate din valori), ecranul Progres cu greutatea, scanarea din Azi, copierea zilei de ieri, valorile pe porție și obiectivele (greutate țintă și ritm, cu progresul și data estimată în Progres).
 
 Ce mai e de făcut:
 - **Deploy-ul pe VPS**: îl faci tu, după `docs/ghid/09-deploy.md`.
 - **Cheia DeepSeek**: până o pui, butoanele de AI arată „cheia nu e setată”.
 - **Bucătăria, cămara și partajarea**, după deploy: specificația e în [bucataria.md](bucataria.md). Până atunci toate conturile văd și pot șterge aceleași alimente, rețete, planuri și liste, deci aplicația nu se poate deschide altora.
-- **Obiectivele**: greutatea țintă și ritmul, din care se calculează ținta de calorii.
 - **Densitatea nutrițională**: scorul NRF 9.3 din datele USDA, pentru alimentele generice.

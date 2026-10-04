@@ -16,7 +16,9 @@ import { logout } from '@/db/session'
 import { syncNow, useSyncState } from '@/db/sync'
 import { useFoodsById, useMe, useOutboxCount, useProfile, useRecipesById } from '@/hooks/use-data'
 import { categories, categoryCodes } from '@/lib/categories'
-import { activityLevels, computeTargets, goals, type ActivityLevel, type Goal, type Sex } from '@/lib/targets'
+import { today } from '@/lib/dates'
+import { decimal, kcal, perWeek } from '@/lib/format'
+import { activityLevels, computeTargets, energyPlan, goals, type ActivityLevel, type Goal, type Sex } from '@/lib/targets'
 import { toggleInProfile } from '@/lib/profile'
 import { cn } from '@/lib/utils'
 
@@ -60,7 +62,10 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
     weightKg: profile.weightKg?.toString() ?? '',
     activityLevel: (profile.activityLevel ?? 'light') as ActivityLevel,
     goal: (profile.goal ?? 'lose') as Goal,
+    goalWeightKg: profile.goalWeightKg?.toString() ?? '',
+    weeklyRateKg: profile.weeklyRateKg || goals[(profile.goal ?? 'lose') as Goal].defaultRate,
   })
+  const [plan, setPlan] = useState<ReturnType<typeof energyPlan> | null>(null)
   const [targets, setTargets] = useState<Record<TargetKey, string>>(
     Object.fromEntries(targetFields.map((f) => [f.key, profile[f.key]?.toString() ?? ''])) as Record<TargetKey, string>,
   )
@@ -69,10 +74,20 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
   const heightCm = Number(inputs.heightCm.replace(',', '.'))
   const weightKg = Number(inputs.weightKg.replace(',', '.'))
   const ready = inputs.sex !== '' && birthYear > 1900 && heightCm > 100 && weightKg > 30
+  const goalWeight = inputs.goal === 'maintain' ? null : Number.parseFloat(inputs.goalWeightKg.replace(',', '.')) || null
+  const wrongDirection =
+    goalWeight != null && weightKg > 0 && ((inputs.goal === 'lose' && goalWeight >= weightKg) || (inputs.goal === 'gain' && goalWeight <= weightKg))
+
+  function chooseGoal(goal: Goal) {
+    setInputs((s) => ({ ...s, goal, weeklyRateKg: goals[goal].defaultRate }))
+    setPlan(null)
+  }
 
   function calculate() {
     if (!ready) return
-    const t = computeTargets({ sex: inputs.sex as Sex, birthYear, heightCm, weightKg, activityLevel: inputs.activityLevel, goal: inputs.goal })
+    const planInputs = { sex: inputs.sex as Sex, birthYear, heightCm, weightKg, activityLevel: inputs.activityLevel, goal: inputs.goal, weeklyRateKg: inputs.weeklyRateKg }
+    setPlan(energyPlan(planInputs))
+    const t = computeTargets(planInputs)
     setTargets({
       targetKcal: String(t.kcal),
       targetProteinG: String(t.proteinG),
@@ -84,6 +99,7 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
   }
 
   async function save() {
+    const goalChanged = goalWeight !== profile.goalWeightKg || inputs.goal !== profile.goal || profile.goalStartWeightKg == null
     const parsed = Object.fromEntries(
       targetFields.map((f) => {
         const value = Number.parseFloat(targets[f.key].replace(',', '.'))
@@ -100,6 +116,10 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
         weightKg: weightKg || null,
         activityLevel: inputs.activityLevel,
         goal: inputs.goal,
+        goalWeightKg: goalWeight,
+        weeklyRateKg: inputs.goal === 'maintain' ? 0 : inputs.weeklyRateKg,
+        goalStartWeightKg: goalWeight == null ? null : goalChanged ? weightKg || null : profile.goalStartWeightKg,
+        goalStartDate: goalWeight == null ? null : goalChanged ? today() : profile.goalStartDate,
         ...parsed,
       },
       profile.userId,
@@ -144,7 +164,7 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => setInputs((s) => ({ ...s, goal: key as Goal }))}
+                onClick={() => chooseGoal(key as Goal)}
                 className={cn('text-xs font-medium', inputs.goal === key ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
               >
                 {goal.label}
@@ -152,12 +172,59 @@ function TargetsSection({ profile }: { profile: UserProfile }) {
             ))}
           </div>
         </Field>
+        {inputs.goal !== 'maintain' && (
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3">
+            <Field label="Greutate țintă (kg)">
+              <Input
+                inputMode="decimal"
+                value={inputs.goalWeightKg}
+                onChange={(e) => setInputs((s) => ({ ...s, goalWeightKg: e.target.value }))}
+                placeholder="opțional"
+                className="h-10"
+              />
+            </Field>
+            <div className="space-y-1.5">
+              <span className="block text-sm font-medium">Ritm (kg pe săptămână)</span>
+              <div className="grid h-10 overflow-hidden rounded-lg border" style={{ gridTemplateColumns: `repeat(${goals[inputs.goal].rates.length}, minmax(0, 1fr))` }}>
+                {goals[inputs.goal].rates.map((rate) => (
+                  <button
+                    key={rate}
+                    type="button"
+                    onClick={() => {
+                      setInputs((s) => ({ ...s, weeklyRateKg: rate }))
+                      setPlan(null)
+                    }}
+                    className={cn('text-xs font-medium tabular-nums', inputs.weeklyRateKg === rate ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
+                  >
+                    {decimal(rate)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {wrongDirection && (
+          <p className="text-xs text-destructive">
+            {inputs.goal === 'lose' ? 'Pentru slăbire, greutatea țintă trebuie să fie sub cea de acum.' : 'Pentru masă musculară, greutatea țintă trebuie să fie peste cea de acum.'}
+          </p>
+        )}
         <Button variant="secondary" className="h-10 w-full" disabled={!ready} onClick={calculate}>
           <Calculator className="size-4" /> Calculează
         </Button>
-        <p className="text-xs text-muted-foreground">
-          Formula Mifflin-St Jeor × activitate; slăbire −20%, masă +10%. Proteine 2 g/kg la slăbire (altfel 1,6), grăsimi 0,8 g/kg, restul carbohidrați.
-        </p>
+        {plan ? (
+          <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs leading-relaxed">
+            Metabolism bazal {kcal(plan.bmr)} kcal × activitate = {kcal(plan.tdee)} kcal pe zi.{' '}
+            {plan.rate > 0
+              ? `${plan.dailyChange < 0 ? '−' : '+'}${kcal(Math.abs(plan.dailyChange))} kcal pentru ${perWeek(plan.rate)}`
+              : 'La menținere nu se scade nimic'}{' '}
+            → <strong>{kcal(plan.kcal)} kcal</strong>.
+            {plan.limitedByBmr && ' Ritmul ales ar coborî sub metabolismul bazal, așa că ținta rămâne la el; vei slăbi mai încet decât ritmul ales.'}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Formula Mifflin-St Jeor × activitate. 1 kg de grăsime are cam 7.700 kcal, deci 0,5 kg pe săptămână înseamnă 550 kcal mai puțin pe zi. Ținta nu coboară sub metabolismul bazal. Proteine 2 g/kg la slăbire (altfel 1,6), grăsimi 0,8 g/kg, restul carbohidrați.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 rounded-2xl border bg-card p-4">

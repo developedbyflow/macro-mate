@@ -82,6 +82,9 @@ public static class SyncRules
         if (p.Sex is { } sex && !Sexes.Contains(sex)) return "invalid-sex";
         if (p.ActivityLevel is { } level && !ActivityLevels.Contains(level)) return "invalid-activity";
         if (p.Goal is { } goal && !Goals.Contains(goal)) return "invalid-goal";
+        if (p.GoalWeightKg is { } goalWeight && !InRange(goalWeight, 20, 400)) return "invalid-goal-weight";
+        if (p.GoalStartWeightKg is { } startWeight && !InRange(startWeight, 20, 400)) return "invalid-goal-weight";
+        if (p.WeeklyRateKg is { } rate && !InRange(rate, 0, 1.5)) return "invalid-weekly-rate";
         if (p.ExcludedCategories.Any(c => !FoodCategories.IsValid(c))) return "invalid-category";
         return null;
     }

@@ -757,6 +757,14 @@ export interface components {
             activityLevel: null | string;
             goal: null | string;
             /** Format: double */
+            goalWeightKg: null | number;
+            /** Format: double */
+            weeklyRateKg: null | number;
+            /** Format: double */
+            goalStartWeightKg: null | number;
+            /** Format: date */
+            goalStartDate: null | string;
+            /** Format: double */
             targetKcal: null | number;
             /** Format: double */
             targetProteinG: null | number;

@@ -8,6 +8,10 @@ public class UserProfile : PersonalEntity
     public double? WeightKg { get; set; }
     public string? ActivityLevel { get; set; }
     public string? Goal { get; set; }
+    public double? GoalWeightKg { get; set; }
+    public double? WeeklyRateKg { get; set; }
+    public double? GoalStartWeightKg { get; set; }
+    public DateOnly? GoalStartDate { get; set; }
     public double? TargetKcal { get; set; }
     public double? TargetProteinG { get; set; }
     public double? TargetCarbsG { get; set; }

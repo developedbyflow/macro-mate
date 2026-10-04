@@ -1480,6 +1480,10 @@
           "weightKg",
           "activityLevel",
           "goal",
+          "goalWeightKg",
+          "weeklyRateKg",
+          "goalStartWeightKg",
+          "goalStartDate",
           "targetKcal",
           "targetProteinG",
           "targetCarbsG",
@@ -1539,6 +1543,34 @@
               "null",
               "string"
             ]
+          },
+          "goalWeightKg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "weeklyRateKg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "goalStartWeightKg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "goalStartDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
           },
           "targetKcal": {
             "type": [

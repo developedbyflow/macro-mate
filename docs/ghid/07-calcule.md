@@ -63,27 +63,40 @@ Pașii din `alternativesFor`:
 
 ## Țintele zilnice
 
-Exemplu: bărbat, 30 de ani, 180 cm, 85 kg, ușor activ, slăbire.
+Exemplu: bărbat, 30 de ani, 180 cm, 85 kg, ușor activ, slăbire cu 0,5 kg pe săptămână.
 
 | Pas | Calcul | Rezultat |
 |---|---|---|
 | Metabolism bazal (Mifflin-St Jeor) | 10 × 85 + 6,25 × 180 − 5 × 30 + 5 | 1830 kcal |
 | × activitate (ușor activ) | 1830 × 1,375 | 2516 kcal |
-| × obiectiv (slăbire −20%) | 2516 × 0,8, rotunjit la zeci | **2010 kcal** |
+| − ritmul (0,5 kg pe săptămână) | 2516 − 0,5 × 7700 / 7 = 2516 − 550, rotunjit la zeci | **1970 kcal** |
 | Proteine (2 g/kg la slăbire) | 85 × 2 | **170 g** |
 | Grăsimi (0,8 g/kg) | 85 × 0,8 | **68 g** |
-| Carbohidrați (ce rămâne) | (2010 − 170 × 4 − 68 × 9) / 4 | **180 g** |
-| Fibre (14 g la 1000 kcal) | 2010 / 1000 × 14 | **28 g** |
+| Carbohidrați (ce rămâne) | (1970 − 170 × 4 − 68 × 9) / 4 | **170 g** |
+| Fibre (14 g la 1000 kcal) | 1970 / 1000 × 14 | **28 g** |
 | Sodiu (limită) | | **2300 mg** |
 
-Proteinele și carbohidrații au 4 kcal pe gram, grăsimile 9. Funcția e `computeTargets` din `targets.ts`. După calcul, poți schimba orice număr de mână, în Profil.
+Un kilogram de grăsime are cam 7.700 kcal, deci 0,5 kg pe săptămână înseamnă 3.850 kcal pe săptămână, adică 550 pe zi. Dacă ritmul ar coborî ținta sub metabolismul bazal (1830 aici), ținta rămâne la metabolismul bazal. Proteinele și carbohidrații au 4 kcal pe gram, grăsimile 9. Funcțiile sunt `energyPlan` și `computeTargets` din `targets.ts`. După calcul, poți schimba orice număr de mână, în Profil.
+
+## Obiectivul: cât mai ai și când ajungi
+
+Cu 85 kg la pornire, 78 kg țintă și 0,5 kg pe săptămână:
+
+| Ce | Calcul | Rezultat |
+|---|---|---|
+| Drumul întreg | 85 − 78 | 7 kg |
+| Cât ai făcut | pornire − media pe 7 zile de azi | 0 kg (0%) |
+| Data cu ritmul ales | 7 kg / 0,5 kg = 14 săptămâni = 98 de zile de azi | 10 ianuarie 2027 |
+| Ritmul real | diferența dintre media pe 7 zile de acum 4 săptămâni (sau de la pornire) și cea de azi, împărțită la săptămâni | apare după 2 săptămâni de cântăriri |
+
+Greutatea „de azi” e media pe 7 zile, nu ultima cântărire, pentru că de la o zi la alta greutatea sare cu 1–2 kg din apă. Codul e în `goalProgress` și `weeklyRate` din `goals.ts`.
 
 ## Cât mai ai azi
 
 Fiecare intrare din jurnal **își copiază valorile** în momentul în care o notezi. Ecranul Azi doar adună intrările zilei și le scade din țintă:
 
 ```
-2010 − 457 (omletă 350 + banană 107) = 1553 kcal rămase
+1970 − 457 (omletă 350 + banană 107) = 1513 kcal rămase
 ```
 
 Copia contează: dacă mâine schimbi varianta omletei, ce ai notat ieri rămâne cum era. Dacă schimbi cantitatea unei intrări, valorile se recalculează din aliment.
